@@ -1,0 +1,24 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CGXM", "Intersect\CGXM.csproj", "{C79314F1-8A8C-4487-B034-38A1F7036D91}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Setup1", "Setup1\Setup1.vdproj", "{9D3633B5-0BF4-471A-8EB0-39456A9C0876}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C79314F1-8A8C-4487-B034-38A1F7036D91}.Debug|x86.ActiveCfg = Debug|x86
+		{C79314F1-8A8C-4487-B034-38A1F7036D91}.Debug|x86.Build.0 = Debug|x86
+		{C79314F1-8A8C-4487-B034-38A1F7036D91}.Release|x86.ActiveCfg = Release|x86
+		{C79314F1-8A8C-4487-B034-38A1F7036D91}.Release|x86.Build.0 = Release|x86
+		{9D3633B5-0BF4-471A-8EB0-39456A9C0876}.Debug|x86.ActiveCfg = Debug
+		{9D3633B5-0BF4-471A-8EB0-39456A9C0876}.Release|x86.ActiveCfg = Release
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

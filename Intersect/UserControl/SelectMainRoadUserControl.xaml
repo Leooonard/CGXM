@@ -1,0 +1,44 @@
+﻿<UserControl x:Class="Intersect.SelectMainRoadUserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:cls="clr-namespace:Intersect"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+    <StackPanel MaxHeight="500" Name="SelectMainRoadStackPanel" Style="{StaticResource NotErrorTip}">
+        <StackPanel.BindingGroup>
+            <BindingGroup Name="SelectMainRoadBindingGroup"></BindingGroup>
+        </StackPanel.BindingGroup>
+        <TextBlock>规划主路</TextBlock>
+        <Button Name="AddMainRoadButton" Click="AddMainRoadButtonClick" Style="{StaticResource SuccessButton}" HorizontalAlignment="Center" Width="200">添加主路</Button>
+        <ListBox Name="MainRoadListBox">
+            <ListBox.ItemContainerStyle>
+                <Style TargetType="ListBoxItem">
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch"></Setter>
+                </Style>
+            </ListBox.ItemContainerStyle>
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Grid Name="MainRoadGrid" PreviewMouseDown="MainRoadGridMouseDown">
+                        <Grid.Visibility>
+                            <Binding Path="needDelete" Mode="TwoWay">
+                                <Binding.Converter>
+                                    <cls:MainRoadNeedDeleteToMainRoadGridVisibilityConverter></cls:MainRoadNeedDeleteToMainRoadGridVisibilityConverter>
+                                </Binding.Converter>
+                            </Binding>
+                        </Grid.Visibility>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="7*"></ColumnDefinition>
+                            <ColumnDefinition Width="3*"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Visibility="Collapsed" Name="MainRoadIDTextBlock" Text="{Binding Path=id, Mode=TwoWay}"></TextBlock>
+                        <TextBox Grid.Column="0" Text="{Binding Path=name, Mode=TwoWay, BindingGroupName=SelectMainRoadBindingGroup}" Name="MainRoadNameTextBox"></TextBox>
+                        <Button Grid.Column="1" Style="{StaticResource WarningButton_Small}" Name="DeleteMainRoadButton" Click="DeleteMainRoadButtonClick">删除</Button>
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        <Button Name="FinishMainRoadButton" Style="{StaticResource OperationButton}" HorizontalAlignment="Center" Width="200" Click="FinishMainRoadButtonClick">添加完成</Button>
+    </StackPanel>
+</UserControl>

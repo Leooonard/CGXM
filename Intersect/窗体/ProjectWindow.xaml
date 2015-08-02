@@ -1,0 +1,462 @@
+﻿<Window 
+    x:Class="Intersect.ProjectWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:wi="clr-namespace:System.Windows.Forms.Integration;assembly=WindowsFormsIntegration"
+    xmlns:cls="clr-namespace:Intersect" Width="800" Height="630"
+>
+
+    <Window.Resources>
+        <Style x:Key="operationButton">
+            <Setter Property="Button.FontSize" Value="12"></Setter>
+            <Setter Property="Button.Width" Value="100"></Setter>
+            <Setter Property="Button.Height" Value="30"></Setter>
+            <Setter Property="Button.Foreground" Value="White"></Setter>
+            <Setter Property="Button.Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border BorderBrush="{TemplateBinding Control.BorderBrush}" BorderThickness="0" CornerRadius="3" Name="PART_Background">
+                            <Border.Background>
+                                <SolidColorBrush>#337ab7</SolidColorBrush>
+                            </Border.Background>
+                            <ContentPresenter Content="{TemplateBinding ContentControl.Content}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="Button.IsMouseOver" Value="True">
+                    <Setter Property="Button.Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="Button">
+                                <Border BorderBrush="{TemplateBinding Control.BorderBrush}" BorderThickness="0" CornerRadius="3" Name="PART_Background">
+                                    <Border.Background>
+                                        <SolidColorBrush>#286090</SolidColorBrush>
+                                    </Border.Background>
+                                    <ContentPresenter Content="{TemplateBinding ContentControl.Content}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Trigger>
+                <Trigger Property="Button.IsPressed" Value="True">
+                    <Setter Property="Button.Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="Button">
+                                <Border BorderThickness="1" CornerRadius="3" Name="PART_Background">
+                                    <Border.Background>
+                                        <SolidColorBrush>#286090</SolidColorBrush>
+                                    </Border.Background>
+                                    <Border.BorderBrush>
+                                        <SolidColorBrush>#4D90FE</SolidColorBrush>
+                                    </Border.BorderBrush>
+                                    <ContentPresenter Content="{TemplateBinding ContentControl.Content}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="warningButton">
+            <Setter Property="Button.FontSize" Value="12"></Setter>
+            <Setter Property="Button.Width" Value="100"></Setter>
+            <Setter Property="Button.Height" Value="30"></Setter>
+            <Setter Property="Button.Foreground" Value="White"></Setter>
+            <Setter Property="Button.Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border BorderBrush="{TemplateBinding Control.BorderBrush}" BorderThickness="0" CornerRadius="3" Name="PART_Background">
+                            <Border.Background>
+                                <SolidColorBrush>#d9534f</SolidColorBrush>
+                            </Border.Background>
+                            <ContentPresenter Content="{TemplateBinding ContentControl.Content}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="Button.IsMouseOver" Value="True">
+                    <Setter Property="Button.Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="Button">
+                                <Border BorderBrush="{TemplateBinding Control.BorderBrush}" BorderThickness="0" CornerRadius="3" Name="PART_Background">
+                                    <Border.Background>
+                                        <SolidColorBrush>#c9302c</SolidColorBrush>
+                                    </Border.Background>
+                                    <ContentPresenter Content="{TemplateBinding ContentControl.Content}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Trigger>
+                <Trigger Property="Button.IsPressed" Value="True">
+                    <Setter Property="Button.Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="Button">
+                                <Border BorderThickness="1" CornerRadius="3" Name="PART_Background">
+                                    <Border.Background>
+                                        <SolidColorBrush>#c9302c</SolidColorBrush>
+                                    </Border.Background>
+                                    <Border.BorderBrush>
+                                        <SolidColorBrush>#4D90FE</SolidColorBrush>
+                                    </Border.BorderBrush>
+                                    <ContentPresenter Content="{TemplateBinding ContentControl.Content}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="warningButton_small" BasedOn="{StaticResource warningButton}">
+            <Setter Property="Button.FontSize" Value="11"></Setter>
+            <Setter Property="Button.Width" Value="50"></Setter>
+            <Setter Property="Button.Height" Value="20"></Setter>
+        </Style>
+        <Style x:Key="successButton">
+            <Setter Property="Button.FontSize" Value="12"></Setter>
+            <Setter Property="Button.Width" Value="100"></Setter>
+            <Setter Property="Button.Height" Value="30"></Setter>
+            <Setter Property="Button.Foreground" Value="White"></Setter>
+            <Setter Property="Button.Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border BorderBrush="{TemplateBinding Control.BorderBrush}" BorderThickness="0" CornerRadius="3" Name="PART_Background">
+                            <Border.Background>
+                                <SolidColorBrush>#5cb85c</SolidColorBrush>
+                            </Border.Background>
+                            <ContentPresenter Content="{TemplateBinding ContentControl.Content}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="Button.IsMouseOver" Value="True">
+                    <Setter Property="Button.Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="Button">
+                                <Border BorderBrush="{TemplateBinding Control.BorderBrush}" BorderThickness="0" CornerRadius="3" Name="PART_Background">
+                                    <Border.Background>
+                                        <SolidColorBrush>#449d44</SolidColorBrush>
+                                    </Border.Background>
+                                    <ContentPresenter Content="{TemplateBinding ContentControl.Content}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Trigger>
+                <Trigger Property="Button.IsPressed" Value="True">
+                    <Setter Property="Button.Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="Button">
+                                <Border BorderThickness="1" CornerRadius="3" Name="PART_Background">
+                                    <Border.Background>
+                                        <SolidColorBrush>#449d44</SolidColorBrush>
+                                    </Border.Background>
+                                    <Border.BorderBrush>
+                                        <SolidColorBrush>#4D90FE</SolidColorBrush>
+                                    </Border.BorderBrush>
+                                    <ContentPresenter Content="{TemplateBinding ContentControl.Content}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="SelectProjectAndMapTitle">
+            <Setter Property="TextBlock.Height" Value="30"></Setter>
+            <Setter Property="TextBlock.Background" Value="#5bc0de"></Setter>
+            <Setter Property="TextBlock.Foreground" Value="White"></Setter>
+            <Setter Property="TextBlock.Padding" Value="5,7,5,9"></Setter>
+            <Setter Property="TextBlock.FontSize" Value="12"></Setter>
+        </Style>
+        <Style x:Key="successButton_small" BasedOn="{StaticResource successButton}">
+            <Setter Property="Button.FontSize" Value="11"></Setter>
+            <Setter Property="Button.Width" Value="50"></Setter>
+            <Setter Property="Button.Height" Value="20"></Setter>
+        </Style>
+        <Style x:Key="ListItem" TargetType="ListBoxItem">
+            <Setter Property="Padding" Value="10, 5, 5, 5"></Setter>
+            <Setter Property="BorderBrush" Value="#dddddd"></Setter>
+            <Setter Property="BorderThickness" Value="1"></Setter>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <Border Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                             VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                             TextBlock.Foreground="{TemplateBinding Foreground}"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="true">
+                    <Setter Property="Background" Value="#f5f5f5"></Setter>
+                </Trigger>
+                <Trigger Property="IsSelected" Value="true">
+                    <Setter Property="Foreground" Value="White"></Setter>
+                    <Setter Property="Background" Value="#337ab7"></Setter>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="ListBoxItemTitle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="16"></Setter>
+            <Setter Property="FontWeight" Value="Bold"></Setter>
+            <Setter Property="Padding" Value="5"></Setter>
+        </Style>
+        <Style x:Key="ListBoxItemContent" TargetType="TextBlock">
+            <Setter Property="Padding" Value="3"></Setter>
+        </Style>
+        <Style x:Key="ConditionGrid" TargetType="Grid">
+            <Setter Property="Margin" Value="0,5,0,0"></Setter>
+        </Style>
+        <Style x:Key="ErrorTip" TargetType="TextBox">
+            <Setter Property="Validation.ErrorTemplate">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <DockPanel>
+                            <Border CornerRadius="20" Height="20" Width="20" Background="Red" DockPanel.Dock="Left">
+                                <TextBlock Height="20" Width="20" Background="{x:Null}" Foreground="Yellow"  Margin="0,-4,0,0"
+                                           FontSize="20" FontWeight="Bold" TextAlignment="Center">!</TextBlock>
+                            </Border>
+                            <AdornedElementPlaceholder DockPanel.Dock="Right"/>
+                        </DockPanel>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="Validation.HasError" Value="true">
+                    <Setter Property="ToolTip"
+                        Value="{Binding RelativeSource={x:Static RelativeSource.Self},
+                        Path=(Validation.Errors)[0].ErrorContent}"/>
+                    <Setter Property="BorderBrush" Value="Red"></Setter>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="FlatComboBox" TargetType="ComboBox">
+            <Setter Property="Background" Value="White"></Setter>
+            <Setter Property="Margin" Value="5,0,0,0"></Setter>
+            <Setter Property="Validation.ErrorTemplate">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <DockPanel>
+                            <Border CornerRadius="20" Height="20" Width="20" Background="Red" DockPanel.Dock="Left">
+                                <TextBlock Height="20" Width="20" Background="{x:Null}" Foreground="Yellow"  Margin="0,-4,0,0"
+                                           FontSize="20" FontWeight="Bold" TextAlignment="Center">!</TextBlock>
+                            </Border>
+                            <AdornedElementPlaceholder DockPanel.Dock="Right"/>
+                        </DockPanel>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="Validation.HasError" Value="true">
+                    <Setter Property="ToolTip"
+                        Value="{Binding RelativeSource={x:Static RelativeSource.Self},
+                        Path=(Validation.Errors)[0].ErrorContent}"/>
+                    <Setter Property="BorderBrush" Value="Red"></Setter>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="NotErrorTip">
+            <Style.Triggers>
+                <Trigger Property="Validation.HasError" Value="true">
+                    <Setter Property="Validation.ErrorTemplate">
+                        <Setter.Value>
+                            <ControlTemplate>
+                                <Border BorderBrush="Red" BorderThickness="0">
+                                    <AdornedElementPlaceholder/>
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal" Width="800" Height="600">
+            <StackPanel Background="White" Width="400" Height="600" Name="BaseStackPanel" Style="{StaticResource NotErrorTip}">
+                <StackPanel.BindingGroup>
+                    <BindingGroup Name="baseBindingGroup"></BindingGroup>
+                </StackPanel.BindingGroup>
+                <TextBlock FontSize="20" Height="50" Padding="15, 10, 5, 0">
+                    创建规划项目
+                </TextBlock>
+                <Rectangle Fill="#e5e5e5" Height="1"></Rectangle>
+                <Grid Height="80"  Margin="10, 0, 10, 0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="0.5*"></RowDefinition>
+                        <RowDefinition Height="0.5*"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <Grid Grid.Row="0" Margin="0, 5, 0, 5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="0.2*"></ColumnDefinition>
+                            <ColumnDefinition Width="0.8*"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" TextAlignment="Center" FontSize="12" Padding="0, 5, 0, 0">项目名</TextBlock>
+                        <TextBox Grid.Column="1" Name="NameTextBox" Style="{StaticResource ErrorTip}">
+                        </TextBox>
+                    </Grid>
+                    <Grid Grid.Row="1" Margin="0, 5, 0, 5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="0.2*"></ColumnDefinition>
+                            <ColumnDefinition Width="0.7*"></ColumnDefinition>
+                            <ColumnDefinition Width="0.1*"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" TextAlignment="Center" FontSize="12" Padding="0, 5, 0, 0">地图路径</TextBlock>
+                        <TextBox Grid.Column="1" Name="PathTextBox" Style="{StaticResource ErrorTip}"></TextBox>
+                        <Button Grid.Column="2" Style="{StaticResource operationButton}" Width="Auto" Name="BrowseFileButton" Click="BrowseFileButton_Click">浏览</Button>
+                    </Grid>
+                </Grid>
+                <Rectangle Fill="#e5e5e5" Height="1"></Rectangle>
+                <Grid Margin="0,5,0,5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="3*"></ColumnDefinition>
+                        <ColumnDefinition Width="7*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" TextAlignment="Center">基础图层</TextBlock>
+                    <ComboBox Grid.Column="1" Name="BaseMapLayerComboBox" Style="{StaticResource FlatComboBox}"
+                              SelectionChanged="ComboBox_SelectionChanged" Margin="0,0,5,0"></ComboBox>
+                </Grid>
+                <Rectangle Fill="#e5e5e5" Height="1"></Rectangle>
+                <StackPanel Name="MapStackPanel" Style="{StaticResource NotErrorTip}" Orientation="Vertical" Width="400" Height="300">
+                    <Grid Width="400" Height="19">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="3*"></ColumnDefinition>
+                            <ColumnDefinition Width="3*"></ColumnDefinition>
+                            <ColumnDefinition Width="1*"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" TextAlignment="Center">图层名</TextBlock>
+                        <TextBlock Grid.Column="1" TextAlignment="Center">标签名</TextBlock>
+                        <TextBlock Grid.Column="2" TextAlignment="Center">使用图层</TextBlock>
+                    </Grid>
+                    <Rectangle Height="1" Fill="Gray"></Rectangle>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Height="280">
+                        <StackPanel>
+                            <ListBox Name="CompleteLabelListBox" AlternationCount="2" BorderThickness="0">
+                                <ListBox.ItemContainerStyle>
+                                    <Style TargetType="ListBoxItem">
+                                        <Setter Property="Padding" Value="0,2,0,2"></Setter>
+                                        <Setter Property="HorizontalContentAlignment" Value="Stretch"></Setter>
+                                        <Setter Property="Background">
+                                            <Setter.Value>
+                                                <Binding RelativeSource="{RelativeSource Self}" Path="(ItemsControl.AlternationIndex)">
+                                                    <Binding.Converter>
+                                                        <AlternationConverter>
+                                                            <SolidColorBrush>White</SolidColorBrush>
+                                                            <SolidColorBrush>#f9f9f9</SolidColorBrush>
+                                                        </AlternationConverter>
+                                                    </Binding.Converter>
+                                                </Binding>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </ListBox.ItemContainerStyle>
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Width="380">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="3*"></ColumnDefinition>
+                                                <ColumnDefinition Width="3*"></ColumnDefinition>
+                                                <ColumnDefinition Width="1*"></ColumnDefinition>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0" TextAlignment="Left">
+                                            <TextBlock.Text>
+                                                <Binding Path="mapLayerName" Mode="TwoWay"></Binding>
+                                            </TextBlock.Text>
+                                            </TextBlock>
+                                            <TextBlock Grid.Column="1" TextAlignment="Left" Text="{Binding Path=content, Mode=TwoWay}"></TextBlock>
+                                            <CheckBox Grid.Column="2" HorizontalAlignment="Center" IsChecked="{Binding Path=isChoosed, Mode=TwoWay}"></CheckBox>
+                                            <TextBlock Name="IDTextBlock" Visibility="Collapsed" Text="{Binding Path=id}"></TextBlock>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                            <Rectangle Height="1" Fill="Gray" Margin="0,1,0,1"></Rectangle>
+                            <ListBox Name="UncompleteLabelListBox" AlternationCount="2" BorderThickness="0">
+                                <ListBox.ItemContainerStyle>
+                                    <Style TargetType="ListBoxItem">
+                                        <Setter Property="HorizontalContentAlignment" Value="Stretch"></Setter>
+                                        <Setter Property="Background">
+                                            <Setter.Value>
+                                                <Binding RelativeSource="{RelativeSource Self}" Path="(ItemsControl.AlternationIndex)">
+                                                    <Binding.Converter>
+                                                        <AlternationConverter>
+                                                            <SolidColorBrush>White</SolidColorBrush>
+                                                            <SolidColorBrush>#f9f9f9</SolidColorBrush>
+                                                        </AlternationConverter>
+                                                    </Binding.Converter>
+                                                </Binding>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </ListBox.ItemContainerStyle>
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Width="380">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="3*"></ColumnDefinition>
+                                                <ColumnDefinition Width="3*"></ColumnDefinition>
+                                                <ColumnDefinition Width="1*"></ColumnDefinition>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Name="MapLayerNameTextBlock" Grid.Column="0" TextAlignment="Left">
+                                                <TextBlock.Text>
+                                                    <Binding Path="mapLayerName" Mode="TwoWay"></Binding>
+                                                </TextBlock.Text>
+                                            </TextBlock>
+                                            <ComboBox Style="{StaticResource FlatComboBox}" Name="UncompleteLabelContentComboBox" Grid.Column="1" IsEditable="True"
+                                                      TextBoxBase.TextChanged="UncompleteLabelContentComboBoxTextChanged" LostFocus="UncompleteLabelContentComboBoxLostFocus">
+                                                <ComboBox.ItemsSource>
+                                                    <Binding Path="uncomleteLabelContentManager.chooseableCityPlanStandardInfoList" Mode="TwoWay"></Binding>
+                                                </ComboBox.ItemsSource>
+                                                <ComboBox.Text>
+                                                    <Binding BindingGroupName="baseBindingGroup" Path="content" Mode="OneTime">
+                                                        <Binding.ValidationRules>
+                                                            <cls:StringValidationRule></cls:StringValidationRule>
+                                                        </Binding.ValidationRules>
+                                                    </Binding>
+                                                </ComboBox.Text>
+                                                <ComboBox.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <TextBlock Text="{Binding Path=., Mode=TwoWay}">
+                                                            <TextBlock.Height>
+                                                                <Binding Path="." Mode="OneWay">
+                                                                    <Binding.Converter>
+                                                                        <cls:LabelChooseableCityPlanStandardInfoToHeight></cls:LabelChooseableCityPlanStandardInfoToHeight>
+                                                                    </Binding.Converter>
+                                                                </Binding>
+                                                            </TextBlock.Height>
+                                                        </TextBlock>
+                                                    </DataTemplate>
+                                                </ComboBox.ItemTemplate>
+                                            </ComboBox>
+                                            <CheckBox Name="UseLabelCheckBox" Grid.Column="2" HorizontalAlignment="Center" IsChecked="{Binding Path=isChoosed, Mode=TwoWay}"></CheckBox>
+                                            <TextBlock Name="IDTextBlock" Visibility="Collapsed" Text="{Binding Path=id}"></TextBlock>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </StackPanel>
+                    </ScrollViewer>
+                </StackPanel>
+                
+                <!--<cls:Pager x:Name="StepPager"></cls:Pager>-->
+                <Grid Height="90">
+                    <Button Content="确定" Style="{StaticResource operationButton}" HorizontalAlignment="Right" Margin="0, 10, 10, 0" VerticalAlignment="Center" Name="ConfirmButton" Click="ConfirmButton_Click" />
+                    <Button Content="关闭" Style="{StaticResource warningButton}" HorizontalAlignment="Right" Margin="0, 10, 120, 0" VerticalAlignment="Center" Name="CloseButton" Click="CloseButton_Click" />
+                </Grid>
+            </StackPanel>
+            <StackPanel Width="400" Height="600">
+                <wi:WindowsFormsHost Name="windowToolbarHost" Width="400" Height="30"/>
+                <wi:WindowsFormsHost Name="windowMapHost" Width="400" Height="570"/>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</Window>
