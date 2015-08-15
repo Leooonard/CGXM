@@ -98,6 +98,24 @@ namespace Intersect
             //configIns = new config(this);
         }
 
+        public void mask()
+        {
+            ProgramListMask.Visibility = System.Windows.Visibility.Visible;
+        }
+
+        public void unmask()
+        {
+            Thread t = new Thread(delegate()
+            {
+                System.Threading.Thread.Sleep(500);
+                this.Dispatcher.BeginInvoke((ThreadStart)delegate()
+                {
+                    ProgramListMask.Visibility = System.Windows.Visibility.Collapsed;
+                });
+            });
+            t.Start();
+        }
+
         private void UpdateProgramList()
         {
             Sql sqlIns = new Sql();
@@ -579,7 +597,6 @@ namespace Intersect
             //保存结果.
             //sqlIns.SaveSiteSelectResult(siteSelectResultArray, programID);
         }
-
 
         private void CaculateRealStandard()
         {

@@ -27,6 +27,7 @@ namespace Intersect
         private AxToolbarControl toolbarControl;
         private ObservableCollection<InnerRoad> innerRoadList;
         private Program program;
+        private MainWindow mainWindow;
         private bool inited = false;
 
         public bool valid = false;
@@ -38,7 +39,7 @@ namespace Intersect
             InitializeComponent();
         }
 
-        public void init(int programID, AxMapControl mc, AxToolbarControl tc)
+        public void init(int programID, AxMapControl mc, AxToolbarControl tc, MainWindow mw)
         {
             if (inited)
                 return;
@@ -50,6 +51,7 @@ namespace Intersect
 
             mapControl = mc;
             toolbarControl = tc;
+            mainWindow = mw;
 
             innerRoadList = program.getAllRelatedInnerRoad();
             if (innerRoadList == null)
@@ -127,7 +129,7 @@ namespace Intersect
                 GisUtil.ErasePolylineElement(innerRoad.lineElement, mapControl);
             }
 
-            init(program.id, mapControl, toolbarControl);
+            init(program.id, mapControl, toolbarControl, mainWindow);
         }
 
         private void InnerRoadRedrawButtonClick(object sender, RoutedEventArgs e)
@@ -136,6 +138,7 @@ namespace Intersect
             Grid innerRoadGrid = innerRoadRedrawButton.Parent as Grid;
             TextBlock innerRoadIDTextBlock = innerRoadGrid.FindName("InnerRoadIDTextBlock") as TextBlock;
             int innerRoadID = Int32.Parse(innerRoadIDTextBlock.Text);
+            mainWindow.mask();
             foreach (InnerRoad innerRoad in innerRoadList)
             {
                 if (innerRoad.id == innerRoadID)
@@ -163,6 +166,7 @@ namespace Intersect
             innerRoad.lineElement = innerRoadLineElement;
             innerRoad.updatePath();
             GisUtil.DrawPolylineElement(innerRoadLineElement, mapControl);
+            mainWindow.unmask();
         }
 
         private void InnerRoadGridMouseDown(object sender, MouseButtonEventArgs e)

@@ -30,6 +30,24 @@ namespace Intersect
             Console.WriteLine(content);
         }
 
+        public static void DeleteDirectory(string dir)
+        {
+            if (Directory.GetDirectories(dir).Length == 0 && Directory.GetFiles(dir).Length == 0)
+            {
+                Directory.Delete(dir);
+                return;
+            }
+            foreach (string var in Directory.GetDirectories(dir))
+            {
+                DeleteDirectory(var);
+            }
+            foreach (string var in Directory.GetFiles(dir))
+            {
+                File.Delete(var);
+            }
+            Directory.Delete(dir);
+        }
+
         public static void bind(object source, string path, BindingMode mode, FrameworkElement element
             , DependencyProperty property, List<ValidationRule> validationRuleList, string bindingGroupName = null)
         {

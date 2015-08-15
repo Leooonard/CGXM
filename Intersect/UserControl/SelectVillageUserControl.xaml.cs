@@ -31,6 +31,7 @@ namespace Intersect
         private AxMapControl mapControl;
         private AxToolbarControl toolbarControl;
         private VillageColorRandomer villageColorRandomer;
+        private MainWindow mainWindow;
 
         public Intersect.ProgramStepUserControl.OnMapControlMouseDown mapControlMouseDown;
         public bool valid = false;
@@ -43,7 +44,7 @@ namespace Intersect
             InitializeComponent();
         }
 
-        public void init(int programID, AxMapControl mc, AxToolbarControl tc, Intersect.ProgramStepUserControl.OnFinish of)
+        public void init(int programID, AxMapControl mc, AxToolbarControl tc, Intersect.ProgramStepUserControl.OnFinish of, MainWindow mw)
         {
             inited = true;
 
@@ -68,6 +69,7 @@ namespace Intersect
 
             mapControl = mc;
             toolbarControl = tc;
+            mainWindow = mw;
             foreach (Village village in villageList)
             {
                 GisUtil.drawPolygonElement(village.polygonElement, mapControl);
@@ -207,7 +209,7 @@ namespace Intersect
         {
             inited = false;
 
-            init(program.id, mapControl, toolbarControl, onFinish);
+            init(program.id, mapControl, toolbarControl, onFinish, mainWindow);
         }
 
         private void VillageGridMouseDown(object sender, MouseButtonEventArgs e)
@@ -295,6 +297,7 @@ namespace Intersect
             village.innerRoad.lineElement = innerRoadLineElement;
             village.innerRoad.updatePath();
             GisUtil.DrawPolylineElement(innerRoadLineElement, mapControl);
+            mainWindow.unmask();
         }
 
         private bool isVillageTooBig(IPolygonElement polygonElement)
@@ -342,6 +345,7 @@ namespace Intersect
 
         private void InnerRoadRedrawButtonClick(object sender, RoutedEventArgs e)
         {
+            mainWindow.mask();
             Button innerRoadRedrawButton = sender as Button;
             Grid innerRoadGrid = innerRoadRedrawButton.Parent as Grid;
             Grid villageGrid = innerRoadGrid.Parent as Grid;

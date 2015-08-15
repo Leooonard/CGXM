@@ -181,6 +181,40 @@ namespace Intersect
             gp.Execute(feaToPoly, null);
         }
 
+        public static void Int(string rasterPath, string targetFolder)
+        {
+            Geoprocessor gp = new Geoprocessor();
+            ESRI.ArcGIS.SpatialAnalystTools.Int intTool = new ESRI.ArcGIS.SpatialAnalystTools.Int();
+            intTool.in_raster_or_constant = rasterPath;
+            intTool.out_raster = targetFolder;
+            
+            gp.Execute(intTool, null);
+        }
+
+        public static void RasterToFeature(string rasterPath, string featurePath)
+        {
+            string tempPath = System.IO.Path.Combine(App.TEMP_PATH, "temp_int");
+            if (Directory.Exists(tempPath))
+            {
+                Ut.DeleteDirectory(tempPath);
+            }
+            GisUtil.Int(rasterPath, tempPath);
+            Geoprocessor gp = new Geoprocessor();
+            ESRI.ArcGIS.ConversionTools.RasterToPolygon rasterToPolygon = new ESRI.ArcGIS.ConversionTools.RasterToPolygon();
+            if (File.Exists(featurePath))
+            {
+                GisUtil.DeleteShpFile(featurePath);
+            }
+            rasterToPolygon.in_raster = tempPath;
+            rasterToPolygon.out_polygon_features = featurePath;
+            rasterToPolygon.raster_field = "VALUE";
+            gp.Execute(rasterToPolygon, null);
+            if (Directory.Exists(tempPath))
+            {
+                Ut.DeleteDirectory(tempPath);
+            }
+        }
+
         public static Dictionary<string, double> GetExternalRectDimension(IGeometry geom)
         {
             IEnvelope envelop = geom.Envelope;
@@ -1032,10 +1066,94 @@ namespace Intersect
             return null;
         }
 
+        public static List<IRasterLayer> GetRasterLayer(AxMapControl mapControl)
+        {
+            List<IRasterLayer> rasterLayerList = new List<IRasterLayer>();
+            for (int i = 0; i < mapControl.LayerCount; i++)
+            {
+                ILayer layer = mapControl.get_Layer(i);
+                ICompositeLayer cLayer = layer as ICompositeLayer;
+                if (cLayer == null)
+                {
+                    IFeatureLayer fLayer = layer as IFeatureLayer;
+                    if (fLayer == null)
+                    {
+                        IRasterLayer rLayer = layer as IRasterLayer;
+                        rasterLayerList.Add(rLayer);
+                    }
+                }
+                else
+                {
+                    for (int j = 0; j < cLayer.Count; j++)
+                    {
+                        IFeatureLayer fLayer = cLayer.get_Layer(j) as IFeatureLayer;
+                        if (fLayer == null)
+                        {
+                            IRasterLayer rLayer = cLayer.get_Layer(j) as IRasterLayer;
+                            rasterLayerList.Add(rLayer);
+                        }
+                    }
+                }
+            }
+            return rasterLayerList;
+        }
+
+
+
         public static List<IPolygon> MakePolygonListFromPolylineList(List<IPolyline> polylineList)
         {
             List<IPolygon> polygonList = new List<IPolygon>();
             return polygonList;
+        }
+
+        private static bool IsFeatureLayerExists(IFeatureLayer fLayer, string folder)
+        {
+            IFeatureClass featureClass = fLayer.FeatureClass;
+            if (featureClass == null)
+            {
+                return false;
+            }
+
+            string fileName = featureClass.AliasName;
+            if (!File.Exists(folder + "//" + fileName + ".shp"))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private static bool IsRasterLayerExists(IRasterLayer rLayer)
+        {
+            string filePath = rLayer.FilePath;
+            if (!Directory.Exists(filePath))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public static bool CheckLayerIntegrity(ILayer layer, string folder)
+        {
+            IFeatureLayer fLayer = layer as IFeatureLayer;
+            if (fLayer == null)
+            {
+                IRasterLayer rLayer = layer as IRasterLayer;
+                if (rLayer == null || !IsRasterLayerExists(rLayer))
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                if (!IsFeatureLayerExists(fLayer, folder))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         public static bool CheckMapIntegrity(string folder, AxMapControl mapControl)
@@ -1046,33 +1164,23 @@ namespace Intersect
                 if (cLayer == null)
                 {
                     ILayer layer = mapControl.get_Layer(i);
-                    IFeatureLayer fLayer = layer as IFeatureLayer;
-                    if (fLayer == null)
-                        continue;
-                    IFeatureClass featureClass = fLayer.FeatureClass;
-                    if (featureClass == null)
+                    if (!CheckLayerIntegrity(layer, folder))
+                    {
                         return false;
-                    string fileName = featureClass.AliasName;
-                    if (!File.Exists(folder + "//" + fileName + ".shp"))
-                        return false;
+                    }
                 }
                 else
                 {
                     for (int j = 0; j < cLayer.Count; j++)
                     {
                         ILayer layer = cLayer.get_Layer(j);
-                        Ut.M(layer.Name);
-                        IFeatureLayer fLayer = layer as IFeatureLayer;
-                        if (fLayer == null)
-                            continue;
-                        string fileName = fLayer.FeatureClass.AliasName;
-                        if (!File.Exists(folder + "//" + fileName + ".shp"))
+                        if (!CheckLayerIntegrity(layer, folder))
+                        {
                             return false;
+                        }
                     }
                 }
-            }
-
-            //检查是否有行政
+            } 
 
             return true;
         }

@@ -11,6 +11,7 @@ namespace Intersect
     {
         private const int MAX_LCONTENT_LENGTH = 50;
         private const int MAX_LMAPLAYERNAME_LENGTH = 50;
+        private const int MAX_LMAPLAYERPATH_LENGTH = 300;
         public const string UNUSE_CHOOSEABLE_CITY_PLAN_STANDARD_INFO_HEAD = "unuse_";
 
         private int lID;
@@ -52,6 +53,7 @@ namespace Intersect
                 onPropertyChanged("content");
             }
         }
+        //this attribute is deprecated.
         private string lMapLayerName;
         public string mapLayerName
         {
@@ -78,6 +80,19 @@ namespace Intersect
                 onPropertyChanged("isChoosed");
             }
         }
+        private string lMapLayerPath;
+        public string mapLayerPath
+        {
+            get
+            {
+                return lMapLayerPath;
+            }
+            set
+            {
+                lMapLayerPath = value;
+                onPropertyChanged("mapLayerPath");
+            }
+        }
 
         public UncompleteLabelComboBoxManager uncomleteLabelContentManager
         {
@@ -92,6 +107,7 @@ namespace Intersect
             lContent = C.ERROR_STRING;
             lMapLayerName = C.ERROR_STRING;
             lIsChoosed = C.ERROR_BOOL;
+            lMapLayerPath = C.ERROR_STRING;
             uncomleteLabelContentManager = new UncompleteLabelComboBoxManager();
         }
 
@@ -103,6 +119,7 @@ namespace Intersect
             lContent = reader[2].ToString();
             lMapLayerName = reader[3].ToString();
             lIsChoosed = Boolean.Parse(reader[4].ToString());
+            lMapLayerPath = reader[5].ToString();
             uncomleteLabelContentManager = new UncompleteLabelComboBoxManager();
         }
 
@@ -124,6 +141,8 @@ namespace Intersect
                 return String.Format("标注长度须在0-{0}之间.", MAX_LCONTENT_LENGTH);
             if (!shieldVariableList.Contains("mapLayerName") && (lMapLayerName.Length == 0 || lMapLayerName.Length > MAX_LMAPLAYERNAME_LENGTH))
                 return "关联地图图层为空";
+            if (!shieldVariableList.Contains("mapLayerPath") && (lMapLayerPath.Length == 0 || lMapLayerPath.Length > MAX_LMAPLAYERPATH_LENGTH))
+                return "关联地图图层为空";
             return "";
         }
 
@@ -139,6 +158,8 @@ namespace Intersect
                 return false;
             if (!shieldVariableList.Contains("lMapLayerName") && (lMapLayerName.Length == 0 || lMapLayerName.Length > MAX_LMAPLAYERNAME_LENGTH))
                 return false;
+            if (!shieldVariableList.Contains("lMapLayerPath") && (lMapLayerPath.Length == 0 || lMapLayerPath.Length > MAX_LMAPLAYERPATH_LENGTH))
+                return false;
             return true;
         }
 
@@ -146,8 +167,8 @@ namespace Intersect
         {
             if (!isValid(new List<string>() { "lID"}))
                 return false;
-            string sqlCommand = String.Format(@"insert into Label (pID,lContent,lMapLayerName,lIsChoosed) values ({0}, '{1}', '{2}',{3})"
-                , pID, lContent, lMapLayerName, lIsChoosed ? 1 : 0);
+            string sqlCommand = String.Format(@"insert into Label (pID,lContent,lMapLayerName,lIsChoosed,lMapLayerPath) values ({0}, '{1}', '{2}', {3}, '{4}')"
+                , pID, lContent, lMapLayerName, lIsChoosed ? 1 : 0, lMapLayerPath);
             Sql sql = new Sql();
             return sql.insertLabel(sqlCommand);
         }
@@ -156,15 +177,15 @@ namespace Intersect
         {
             if (!isValid())
                 return false;
-            string sqlCommand = String.Format(@"update Label set pID={0},lContent='{1}',lMapLayerName='{2}',lIsChoosed={3} where lID={4}"
-                , pID, lContent, lMapLayerName, lIsChoosed ? 1 : 0, lID);
+            string sqlCommand = String.Format(@"update Label set pID={0},lContent='{1}',lMapLayerName='{2}',lIsChoosed={3}, lMapLayerPath='{4}' where lID={5}"
+                , pID, lContent, lMapLayerName, lIsChoosed ? 1 : 0, lMapLayerPath, lID);
             Sql sql = new Sql();
             return sql.updateLabel(sqlCommand);
         }
 
         public override bool delete()
         {
-            if (!isValid(new List<string>() { "pID", "lContent", "lMapLayerName", "lIsChoosed"}))
+            if (!isValid(new List<string>() { "pID", "lContent", "lMapLayerName", "lIsChoosed", "lMapLayerPath"}))
                 return false;
             string sqlCommand = String.Format(@"delete from Label where lID={0}", lID);
             Sql sql = new Sql();
@@ -173,7 +194,7 @@ namespace Intersect
 
         public override bool select()
         {
-            if (!isValid(new List<string>() { "pID", "lContent", "lMapLayerName", "lIsChoosed"}))
+            if (!isValid(new List<string>() { "pID", "lContent", "lMapLayerName", "lIsChoosed", "lMapLayerPath"}))
                 return false;
             string sqlCommand = String.Format(@"select * from Label where lID={0}", lID);
             Sql sql = new Sql();

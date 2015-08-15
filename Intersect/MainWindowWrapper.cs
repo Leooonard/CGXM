@@ -16,6 +16,7 @@ namespace Intersect
 {
     public class MainWindowWrapper
     {
+        private AxMapControl mapControl;
         private MainWindow mainWindow;
         private Project project;
         private ObservableCollection<Program> programList;
@@ -79,6 +80,7 @@ namespace Intersect
 
         private void programDetailMode(StackPanel parentStackPanel)
         {
+            mainWindow.mask();
             mainWindow.LoadMap(project.path); //每次打开时, 重新读一下地图.
             ProgramStepUserControl programStepUserControl = parentStackPanel.FindName("ProgramStepUserControl") as ProgramStepUserControl;
             if (programStepUserControl.Visibility == System.Windows.Visibility.Visible)
@@ -94,11 +96,12 @@ namespace Intersect
                 int programID = Int32.Parse(programIDTextBlock.Text);
                 initProgramDetailMode(programStepUserControl, programID);
             }
+            mainWindow.unmask();
         }
 
         private void initProgramDetailMode(ProgramStepUserControl programStepUserControl, int programID)
         {
-            programStepUserControl.init(programID, mainWindow.mapControl, mainWindow.toolbarControl);
+            programStepUserControl.init(programID, mainWindow.mapControl, mainWindow.toolbarControl, mainWindow);
         }
 
         private void showProgramDetailMode(StackPanel programStackPanel)

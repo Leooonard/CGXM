@@ -29,6 +29,7 @@ namespace Intersect
         private ObservableCollection<MainRoad> mainRoadList;
         private AxMapControl mapControl;
         private AxToolbarControl toolbarControl;
+        private MainWindow mainWindow;
         private bool inited = false;
         public bool valid = false;
         public bool dirty = false;
@@ -42,7 +43,7 @@ namespace Intersect
             InitializeComponent();
         }
 
-        public void init(int programID, AxMapControl mc, AxToolbarControl tc)
+        public void init(int programID, AxMapControl mc, AxToolbarControl tc, MainWindow mw)
         {
             inited = true;
 
@@ -52,6 +53,7 @@ namespace Intersect
 
             mapControl = mc;
             toolbarControl = tc;
+            mainWindow = mw;
             mainRoadList = program.getAllRelatedMainRoad();
             if (mainRoadList == null)
                 mainRoadList = new ObservableCollection<MainRoad>();
@@ -72,7 +74,7 @@ namespace Intersect
         {
             inited = false;
 
-            init(program.id, mapControl, toolbarControl);
+            init(program.id, mapControl, toolbarControl, mainWindow);
         }
 
         public void delete()
@@ -80,7 +82,8 @@ namespace Intersect
             foreach (MainRoad mainRoad in mainRoadList)
             {
                 mainRoad.delete();
-                GisUtil.ErasePolylineElement(mainRoad.lineElement, mapControl);
+                if(mainRoad.lineElement != null)
+                    GisUtil.ErasePolylineElement(mainRoad.lineElement, mapControl);
             }
         }
 
@@ -118,8 +121,6 @@ namespace Intersect
             ObservableCollection<MainRoad> tempMainRoadList = program.getAllRelatedMainRoad();
             if (tempMainRoadList == null)
                 tempMainRoadList = new ObservableCollection<MainRoad>();
-            Ut.M(tempMainRoadList.Count);
-            Ut.M(mainRoadList.Count);
             if (tempMainRoadList.Count != mainRoadList.Count)
                 return true;
             foreach (MainRoad mainRoad in mainRoadList)
@@ -141,6 +142,7 @@ namespace Intersect
             mainRoadList.Add(mainRoad);
 
             //把左栏遮盖, 让用户在右侧画线.
+            mainWindow.mask();
             mapControlMouseDown = delegate(object sender2, IMapControlEvents2_OnMouseDownEvent e2)
             {
                 GisUtil.ResetToolbarControl(toolbarControl);
@@ -182,6 +184,7 @@ namespace Intersect
             mainRoadList[mainRoadList.Count - 1].updatePath();
             GisUtil.DrawPolylineElement(mainRoadLineElement, mapControl);
             mapControlMouseDown = null;
+            mainWindow.unmask();
             return true;
         }
 
@@ -192,6 +195,10 @@ namespace Intersect
             int mainRoadID = Int32.Parse(mainRoadIDTextBlock.Text);
             foreach (MainRoad mainRoad in mainRoadList)
             {
+                if (mainRoad.lineElement == null)
+                    continue;
+                if (mainRoad.id == C.ERROR_INT)
+                    continue; //新创建的路没有变色功能
                 if (mainRoad.id == mainRoadID)
                 {
                     GisUtil.UpdatePolylineElementColor(mainRoad.lineElement, mapControl, 0, 255, 0);

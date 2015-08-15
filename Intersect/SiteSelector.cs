@@ -107,6 +107,7 @@ namespace Intersect
             for (int i = 0; i < featureClass.FeatureCount(null); i++)
             {
                 Feature feature = new Feature();
+                feature.inUse = 1;
                 featureList.Add(feature);
             }
             for (int i = 0; i < conditionList.Count; i++)
@@ -115,7 +116,7 @@ namespace Intersect
                 Label label = new Label();
                 label.id = condition.labelID;
                 label.select();
-                string targetLyName = GisUtil.GetShpNameByMapLayerName(mapControl, label.mapLayerName) + ".shp";
+                string targetLyName = System.IO.Path.GetFileName(label.mapLayerPath);
                 if (condition.type == C.CONFIG_TYPE_RESTRAINT)
                 {
                     if (condition.category == C.CONFIG_CATEGORY_DISTANCE_NEGATIVE)
@@ -339,7 +340,9 @@ namespace Intersect
                 {
                     if (overlapFeature != null)
                     {
-                        IGeometry intersectedGeom = geomTopoOp.Intersect(overlapFeature.ShapeCopy, esriGeometryDimension.esriGeometry2Dimension);
+                        IGeometry overlapGeom = overlapFeature.ShapeCopy;
+                        overlapGeom.SpatialReference = mapControl.SpatialReference;
+                        IGeometry intersectedGeom = geomTopoOp.Intersect(overlapGeom, esriGeometryDimension.esriGeometry2Dimension);
                         IArea intersectedGeomArea = intersectedGeom as IArea;
                         //获取gridcode.
                         ITable table = overlapFeature.Table;

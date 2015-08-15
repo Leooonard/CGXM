@@ -108,7 +108,18 @@ namespace Intersect
 
         private void ConditionDeleteButton_Click(object sender, RoutedEventArgs e)
         {
-
+            Button deleteButton = sender as Button;
+            Grid grid = deleteButton.Parent as Grid;
+            TextBlock idTextBlock = grid.FindName("ID") as TextBlock;
+            string id = idTextBlock.Text;
+            for (int i = 0 ; i < conditionList.Count ; i++)
+            {
+                Condition condition = conditionList[i];
+                if (condition.id.ToString() == id)
+                {
+                    conditionList.Remove(condition);
+                }
+            }
         }
 
         private void AddConditionButton_Click(object sender, RoutedEventArgs e)

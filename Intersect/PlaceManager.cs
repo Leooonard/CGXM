@@ -223,9 +223,9 @@ namespace Intersect
             return true;
         }
 
-        private void saveShp(string folder, string name, IGeometry geom)
+        private void saveShp(string folder, string name, IGeometry geom, string geometryType = "polygon")
         {
-            GisUtil.CreateShapefile(folder, name, mapControl.SpatialReference);
+            GisUtil.CreateShapefile(folder, name, mapControl.SpatialReference, geometryType);
             IFeatureClass feaCls = GisUtil.getFeatureClass(folder, name);
             IFeature fea = feaCls.CreateFeature();
 
@@ -285,14 +285,14 @@ namespace Intersect
         {
             string folder = System.IO.Path.GetDirectoryName(path);
             string name = System.IO.Path.GetFileName(path);
-            saveShp(folder, name, innerRoadLine);
+            saveShp(folder, name, innerRoadLine, "polyline");
         }
 
         public void saveRoad(string path)
         {
             string folder = System.IO.Path.GetDirectoryName(path);
             string name = System.IO.Path.GetFileName(path);
-            saveShp(folder, name, area.splitLine);
+            saveShp(folder, name, area.splitLine, "polyline");
         }
 
         private List<IGeometry> StripArea(IGeometry geom, double height, bool direction)

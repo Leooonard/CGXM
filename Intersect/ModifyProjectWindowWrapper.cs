@@ -31,27 +31,27 @@ namespace Intersect
                     (ThreadStart)delegate()
                     {
                         loadMap(project.path);
-                        updateMapLayerNameList(mapLayerNameList, projectWindow.mapControl);
-                        mapMapLayerLabel(completeLabelList, uncompleteLabelList);
-                        foreach (Label label in completeLabelList)
+                        foreach (string villageName in updateVillageNameList(BASE_LAYER_NAME, BASE_LAYER_FIELD_NAME, projectWindow.mapControl))
                         {
-                            string mapLayerName = label.mapLayerName;
-                            Label l = Label.GetLabelByMapLayerName(mapLayerName);
-                            label.id = l.id;
-                            label.content = l.content;
-                            label.projectID = l.projectID;
-                            label.mapLayerName = l.mapLayerName;
-                            label.isChoosed = l.isChoosed;
+                            villageNameList.Add(villageName);
                         }
-                        foreach (Label label in uncompleteLabelList)
+                        projectWindow.BaseMapLayerComboBox.SelectedIndex = project.baseMapIndex;
+                        updateMapLayerNameList(mapLayerNameList, projectWindow.mapControl);
+                        ObservableCollection<Label> labelList = project.getAllRelatedLabel();
+                        foreach (Label label in labelList)
                         {
-                            string mapLayerName = label.mapLayerName;
-                            Label l = Label.GetLabelByMapLayerName(mapLayerName);
-                            label.id = l.id;
-                            label.content = l.content;
-                            label.projectID = l.projectID;
-                            label.mapLayerName = l.mapLayerName;
-                            label.isChoosed = l.isChoosed;
+                            if (checkMapLayerNameValid(label.mapLayerName) != null)
+                            {
+                                completeLabelList.Add(label);
+                            }
+                            else if (specialLayerNameList.Contains(label.mapLayerName))
+                            {
+                                completeLabelList.Add(label);
+                            }
+                            else
+                            {
+                                uncompleteLabelList.Add(label);
+                            }
                         }
                         projectWindow.CompleteLabelListBox.ItemsSource = completeLabelList;
                         projectWindow.UncompleteLabelListBox.ItemsSource = uncompleteLabelList; //这里一定要重新设定一遍, 更新combobox中的选择.

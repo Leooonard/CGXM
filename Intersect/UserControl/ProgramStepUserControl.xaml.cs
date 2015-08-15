@@ -25,6 +25,7 @@ namespace Intersect
         private bool inited = false;
         private AxMapControl mapControl;
         private AxToolbarControl toolbarControl;
+        private MainWindow mainWindow;
 
         private Dictionary<string, int> TabNameToNumberDict = new Dictionary<string, int>() 
         { 
@@ -49,7 +50,7 @@ namespace Intersect
             return ConfigUserControl.isDirty() || SiteSelectorUserControl.isDirty();
         }
 
-        public void init(int programID, AxMapControl mc, AxToolbarControl tc)
+        public void init(int programID, AxMapControl mc, AxToolbarControl tc, MainWindow mw)
         {
             inited = true;
 
@@ -59,6 +60,7 @@ namespace Intersect
 
             mapControl = mc;
             toolbarControl = tc;
+            mainWindow = mw;
 
             OnFinish configUserControlOnFinish = delegate(bool finish)
             {
@@ -90,7 +92,7 @@ namespace Intersect
                     textBlock.Foreground = new SolidColorBrush(Colors.Black);
                 }
             };
-            SiteSelectorUserControl.init(programID, siteSelectorUserControlOnFinish, mapControl, toolbarControl);
+            SiteSelectorUserControl.init(programID, siteSelectorUserControlOnFinish, mapControl, toolbarControl, mainWindow);
             OnFinish housePlacerUserControl = delegate(bool finish)
             {
                 TabItem housePlacerTabItem = ProgramTabControl.FindName("HousePlacerTabItem") as TabItem;
@@ -105,7 +107,7 @@ namespace Intersect
                     textBlock.Foreground = new SolidColorBrush(Colors.Black);
                 }
             };
-            HousePlacerUserControl.init(programID, mapControl, housePlacerUserControl);
+            HousePlacerUserControl.init(programID, mapControl, housePlacerUserControl, mainWindow);
         }
 
         private void ConfigGridMouseDown(object sender, MouseButtonEventArgs e)

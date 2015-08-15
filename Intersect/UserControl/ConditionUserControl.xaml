@@ -77,10 +77,10 @@
                                         </Binding>
                                     </ComboBox.SelectedIndex>
                                     <ComboBoxItem>
-                                        <TextBlock>阈值</TextBlock>
+                                        <TextBlock>阈值（按条件分不同单位）</TextBlock>
                                     </ComboBoxItem>
                                     <ComboBoxItem>
-                                        <TextBlock>权重</TextBlock>
+                                        <TextBlock>权重（取平均值）</TextBlock>
                                     </ComboBoxItem>
                                 </ComboBox>
                                 <ComboBox Name="ConditionCategoryComboBox" Grid.Column="3" Text="条件类型" Style="{StaticResource FlatComboBox}">
@@ -119,7 +119,7 @@
                                         </Binding>
                                     </TextBox.Text>
                                 </TextBox>
-                                <Button Grid.Column="5">删除</Button>
+                                <Button Name="ConditionDeletebutton" Grid.Column="5" Click="ConditionDeleteButton_Click">删除</Button>
                                 <TextBlock Text="{Binding Path=id,Mode=TwoWay}" Visibility="Collapsed" Name="ID"></TextBlock>
                                 <TextBlock Text="{Binding Path=mapLayerIndex, Mode=TwoWay}" Visibility="Collapsed" Name="MapLayerIndex"></TextBlock>
                             </Grid>

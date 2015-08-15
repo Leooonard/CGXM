@@ -28,6 +28,7 @@ namespace Intersect
         private Intersect.ProgramStepUserControl.OnFinish onFinish;
         private AxMapControl mapControl;
         private AxToolbarControl toolbarControl;
+        private MainWindow mainWindow;
         public Intersect.ProgramStepUserControl.OnMapControlMouseDown mapControlMouseDown;
 
         public bool valid
@@ -86,7 +87,7 @@ namespace Intersect
                 onFinish(true);
         }
 
-        public void init(int programID, Intersect.ProgramStepUserControl.OnFinish of, AxMapControl mc, AxToolbarControl tc)
+        public void init(int programID, Intersect.ProgramStepUserControl.OnFinish of, AxMapControl mc, AxToolbarControl tc, MainWindow mainWindow)
         {
             inited = true;
             onFinish = of;
@@ -102,8 +103,8 @@ namespace Intersect
             mapControl = mc;
             toolbarControl = tc;
             mapControlMouseDown = onMapControlMouseDown;
-            SelectMainRoadUserControl.init(programID, mapControl, toolbarControl);
-            SelectVillageUserControl.init(programID, mapControl, toolbarControl, of);
+            SelectMainRoadUserControl.init(programID, mapControl, toolbarControl, mainWindow);
+            SelectVillageUserControl.init(programID, mapControl, toolbarControl, of, mainWindow);
 
             Thread t = new Thread(delegate()
             {

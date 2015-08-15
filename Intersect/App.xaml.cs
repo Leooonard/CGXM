@@ -8,6 +8,7 @@ using ESRI.ArcGIS.GISClient;
 using ESRI.ArcGIS.Controls;
 using ESRI.ArcGIS.PublisherControls;
 using ESRI.ArcGIS.esriSystem;
+using System.IO;
 
 namespace Intersect
 {
@@ -16,9 +17,17 @@ namespace Intersect
     /// </summary>
     public partial class App : Application
     {
+        public const string TEMP_PATH = @"C:\CGXM\";
+
         public App()
         {
             InitArcGISLicence();
+
+            //开一个专门用来放临时文件的文件夹。
+            if (!Directory.Exists(TEMP_PATH))
+            {
+                Directory.CreateDirectory(TEMP_PATH);
+            }
         }
 
         public void InitArcGISLicence()
@@ -30,6 +39,7 @@ namespace Intersect
             {
                 aoi.Initialize(productCode);
             }
+            aoi.CheckOutExtension(esriLicenseExtensionCode.esriLicenseExtensionCodeSpatialAnalyst);
         }
     }
 }

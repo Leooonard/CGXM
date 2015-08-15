@@ -30,6 +30,7 @@ namespace Intersect
         private bool inited;
         private Intersect.ProgramStepUserControl.OnFinish onFinish;
         private HouseShowcaseManager houseShowcaseManager;
+        private MainWindow mainWindow;
 
         private AxMapControl houseMapControl;
         private AxToolbarControl houseToolbarControl;
@@ -45,7 +46,7 @@ namespace Intersect
             InitializeComponent();
         }
 
-        public void init(int programID, AxMapControl mc, Intersect.ProgramStepUserControl.OnFinish of)
+        public void init(int programID, AxMapControl mc, Intersect.ProgramStepUserControl.OnFinish of, MainWindow mw)
         {
             inited = true;
             onFinish = of;
@@ -94,6 +95,7 @@ namespace Intersect
             }
 
             mapControl = mc;
+            mainWindow = mw;
 
             dirty = false;
             prePlaced = false;
@@ -129,7 +131,7 @@ namespace Intersect
         {
             inited = false;
 
-            init(program.id, mapControl, onFinish);
+            init(program.id, mapControl, onFinish, mainWindow);
         }
 
         public void initAxComponents()
@@ -282,7 +284,10 @@ namespace Intersect
                 onFinish(true);
                 save();
                 //开始计算.
+                mainWindow.mask();
                 place();
+                
+                mainWindow.unmask();
             }
             else
             {
@@ -310,6 +315,20 @@ namespace Intersect
                             GisUtil.drawPolygon(geom as IPolygon, mapControl, GisUtil.RandomRgbColor());
                         }
                     }
+                    string path = App.TEMP_PATH + "\\" + "outerground.shp";
+                    placeManager.saveOuterGround(path);
+
+                    path = App.TEMP_PATH + "\\centerground.shp";
+                    placeManager.saveCenterGround(path);
+
+                    path = App.TEMP_PATH + "\\result.shp";
+                    placeManager.saveHouse(path);
+
+                    path = App.TEMP_PATH + "\\innerroad.shp";
+                    placeManager.saveInnerRoad(path);
+
+                    path = App.TEMP_PATH + "\\road.shp";
+                    placeManager.saveRoad(path);
                     Ut.M("摆放完成");
                 }
             }

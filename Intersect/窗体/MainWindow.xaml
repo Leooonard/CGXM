@@ -135,6 +135,7 @@
                 </Border.Effect>
             </Border>
         </Popup>
+        
 
         <StackPanel Grid.Row="0" Background="#337ab7">
             <TextBlock FontSize="19" Foreground="White" Padding="7" TextAlignment="Center">
@@ -197,6 +198,11 @@
                         </DataTemplate>
                     </ListBox.ItemTemplate>
                 </ListBox>
+                <Border Margin="0, -750, 0, 0" Height="750" BorderBrush="Black" BorderThickness="1" Background="#70000000" Visibility="Collapsed" Name="ProgramListMask">
+                    <Grid>
+                        <TextBlock Margin="0" TextWrapping="Wrap" Text="执 行 中 ..." HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="26.667" FontWeight="Bold" Foreground="White"/>
+                    </Grid>
+                </Border>
             </StackPanel>
             <StackPanel Background="Gray" Grid.Column="1" Height="750">
                 <i:WindowsFormsHost Name="toolbarHost" Height="30" Visibility="Visible"/>

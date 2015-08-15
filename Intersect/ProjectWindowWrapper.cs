@@ -24,6 +24,8 @@ namespace Intersect
         private const string SLOPE_LAYER_NAME = "";
         private const string HEIGHT_LAYER_NAME = "";
 
+        protected List<string> specialLayerNameList = new List<string>() { "地形坡度", "地形高程", "行政村界" };
+
         public Project project
         {
             get;
@@ -36,6 +38,7 @@ namespace Intersect
         protected ObservableCollection<Label> completeLabelList;
         protected ObservableCollection<Label> uncompleteLabelList;
         protected ObservableCollection<Label> choosedLabelList;
+        protected ObservableCollection<Label> rasterLabelList; //raster图层需要转换为point. 但是转换之后的图层不在地图内, 所以要直接做成label
 
         protected ProjectWindowCallback closeCallback;
         protected ProjectWindowCallback confirmCallback;
@@ -63,7 +66,7 @@ namespace Intersect
             projectWindow.comboBoxSelectionChangedEventHandler += new EventHandler(ComboBoxSelectionChanged);
             projectWindow.deleteConditionEventHandler += new EventHandler(deleteCondition);
             projectWindow.uncompleteLabelContentComboBoxTextChangedEventHandler += new EventHandler(uncompleteLabelContentComboBoxTextChanged);
-            projectWindow.uncompleteLabelContentComboBoxLostFocusEventHandler += new EventHandler(uncompleteLabelCoontentComboBoxLostFocus);
+            projectWindow.uncompleteLabelContentComboBoxLostFocusEventHandler += new EventHandler(uncompleteLabelContentComboBoxLostFocus);
 
             Init();
 
@@ -99,7 +102,7 @@ namespace Intersect
             targetLabel.uncomleteLabelContentManager.textChanged = true;
         }
 
-        private void uncompleteLabelCoontentComboBoxLostFocus(object sender, EventArgs e)
+        private void uncompleteLabelContentComboBoxLostFocus(object sender, EventArgs e)
         {
             ComboBox comboBox = sender as ComboBox;
             string content = comboBox.Text;
@@ -184,6 +187,10 @@ namespace Intersect
                 choosedLabelList = new ObservableCollection<Label>();
             else
                 choosedLabelList.Clear();
+            if (rasterLabelList == null)
+                rasterLabelList = new ObservableCollection<Label>();
+            else
+                rasterLabelList.Clear();
 
             Ut.bind(project, "name", BindingMode.TwoWay, projectWindow.NameTextBox
                 , TextBox.TextProperty, new List<ValidationRule>() { 
@@ -270,11 +277,6 @@ namespace Intersect
             { }
         }
 
-        private bool checkMap(string path)
-        {
-            return projectWindow.mapControl.CheckMxFile(path);
-        }
-
         public ObservableCollection<string> updateVillageNameList(string villageLayerName, string villageLayerFieldName, AxMapControl mapControl)
         {
             ILayer baseLayer = GisUtil.getLayerByName(villageLayerName, mapControl);
@@ -290,7 +292,21 @@ namespace Intersect
             return villageNameList;
         }
 
-        protected void mapMapLayerLabel(ObservableCollection<Label> completeLabelList, ObservableCollection<Label> uncompleteLabelList)
+        protected CityPlanStandard checkMapLayerNameValid(string mapLayerName)
+        {
+            ObservableCollection<CityPlanStandard> cityPlanStandardList = CityPlanStandard.GetAllCityPlanStandard();
+            foreach (CityPlanStandard cityPlanStandard in cityPlanStandardList)
+            {
+                Regex regex = new Regex(String.Format(@"^{0}[\u4E00-\u9FFF]+$", cityPlanStandard.number));
+                if (regex.IsMatch(mapLayerName))
+                {
+                    return cityPlanStandard;
+                }
+            }
+            return null;
+        }
+
+        protected void mapMapLayerLabel(ObservableCollection<Label> completeLabelList, ObservableCollection<Label> uncompleteLabelList, string folder, AxMapControl mapControl)
         {
             /*
                 匹配成功的图层, 将填写图层名和cpsID字段.
@@ -299,7 +315,6 @@ namespace Intersect
 
             ObservableCollection<string> cityPlanStandardInfoList = new ObservableCollection<string>();
             ObservableCollection<CityPlanStandard> cityPlanStandardList = CityPlanStandard.GetAllCityPlanStandard();
-            List<string> specialLayerNameList = new List<string>() { "地形坡度", "地形高程"};
             //1.把图层名规范的直接做掉.
             for (int i = 0; i < mapLayerNameList.Count; i++)
             {
@@ -307,31 +322,32 @@ namespace Intersect
                 bool complete = false;
                 Label label = new Label();
                 label.mapLayerName = mapLayerName;
-                foreach (CityPlanStandard cityPlanStandard in cityPlanStandardList)
+                label.mapLayerPath = folder + "\\" + GisUtil.GetShpNameByMapLayerName(mapControl, mapLayerName);
+
+                CityPlanStandard cityPlanStandard = checkMapLayerNameValid(mapLayerName);
+                if (cityPlanStandard != null)
                 {
-                    Regex regex = new Regex(String.Format(@"^{0}[\u4E00-\u9FFF]+$", cityPlanStandard.number));
-                    if (regex.IsMatch(mapLayerName))
-                    {
-                        label.content = cityPlanStandard.getCityPlanStandardInfo();
-                        completeLabelList.Add(label);
-                        cityPlanStandardInfoList.Add(cityPlanStandard.getCityPlanStandardInfo());
-                        complete = true;
-                        break;
-                    }
-                    else if(specialLayerNameList.Contains(mapLayerName))
-                    {
-                        label.content = mapLayerName;
-                        label.isChoosed = true;
-                        completeLabelList.Add(label);
-                        complete = true;
-                        break;
-                    }
+                    label.content = cityPlanStandard.getCityPlanStandardInfo();
+                    completeLabelList.Add(label);
+                    cityPlanStandardInfoList.Add(cityPlanStandard.getCityPlanStandardInfo());
+                    complete = true;
                 }
+                else if(specialLayerNameList.Contains(mapLayerName))
+                {
+                    complete = true;
+                }
+
                 if (!complete)
                 {
                     uncompleteLabelList.Add(label);
                 }
             }
+
+            foreach (Label rasterLabel in rasterLabelList)
+            {
+                completeLabelList.Add(rasterLabel);
+            }
+
             foreach (Label label in uncompleteLabelList)
             {
                 label.uncomleteLabelContentManager.pruningChooseableCityPlanStandardInfoList(cityPlanStandardInfoList);
@@ -339,20 +355,14 @@ namespace Intersect
             }
         }
 
-        public bool loadMap(string path)
+        public void loadMap(string path)
         {
             projectWindow.toolbarControl.SetBuddyControl(projectWindow.mapControl);
             if (projectWindow.toolbarControl.Count == 0)
             {
                 projectWindow.toolbarControl.AddItem("esriControls.ControlsMapNavigationToolbar");
             }
-            if (checkMap(path))
-            {
-                projectWindow.mapControl.LoadMxFile(path);
-                return true;
-            }
-            else
-                return false;
+            projectWindow.mapControl.LoadMxFile(path);
         }
 
         protected void updateMapLayerNameList(ObservableCollection<string> mapLayerNameList, AxMapControl mapControl)
@@ -378,26 +388,71 @@ namespace Intersect
             }
         }
 
-        private bool checkMapIntegrity(string path, AxMapControl mapControl)
+        private void checkMapIntegrity(string path, AxMapControl mapControl)
         {
             if (!GisUtil.CheckMapIntegrity(path, mapControl))
             {
-                return false;
+                throw new Exception("地图图层不完整");
             }
-            //业务逻辑上的检查. 包括1.必须存在行政村街图层, 2. 必须包含坡度和高程图层.
-            if (GisUtil.getLayerByName("行政村界", mapControl) == null)
+        }
+
+        private void checkNecessaryLayer(AxMapControl mapControl)
+        {
+            List<string> necessaryLayerNameList = new List<string>() 
             {
-                return false;
+                "行政村界"
+            };
+
+            foreach (string layerName in necessaryLayerNameList)
+            {
+                if (GisUtil.getLayerByName(layerName, mapControl) == null)
+                {
+                    throw new Exception("地图缺少行政村街图层");
+                }
             }
-            if (GisUtil.getLayerByName("地形坡度", mapControl) == null)
+        }
+
+        private bool convertRasterToPoint(AxMapControl mapControl, string folder)
+        {
+            List<IRasterLayer> rasterLayerList = GisUtil.GetRasterLayer(mapControl);
+            for (int i = 0; i < rasterLayerList.Count; i++)
             {
-                return false;
-            }
-            if (GisUtil.getLayerByName("地形高程", mapControl) == null)
-            {
-                return false;
+                IRasterLayer layer = rasterLayerList[i];
+                string layerName = layer.Name;
+                string destPath = folder + "\\" + layerName + ".shp";
+                GisUtil.RasterToFeature(layer.FilePath, destPath);
+                Label label = new Label();
+                label.mapLayerName = layerName;
+                label.mapLayerPath = destPath;
+                label.content = layerName;
+                label.isChoosed = true;
+                rasterLabelList.Add(label);
             }
             return true;
+        }
+
+        public void processFile(string housePath)
+        {
+            if (!projectWindow.mapControl.CheckMxFile(housePath))
+            {
+                throw new Exception();
+            }
+
+            Init();
+            project.path = housePath;
+            project.baseMapIndex = -1;
+            loadMap(housePath);
+
+            checkMapIntegrity(System.IO.Path.GetDirectoryName(housePath), projectWindow.mapControl);
+            checkNecessaryLayer(projectWindow.mapControl);
+            convertRasterToPoint(projectWindow.mapControl, System.IO.Path.GetDirectoryName(housePath));
+            foreach (string villageName in updateVillageNameList(BASE_LAYER_NAME, BASE_LAYER_FIELD_NAME, projectWindow.mapControl))
+            {
+                villageNameList.Add(villageName);
+            }
+            projectWindow.BaseMapLayerComboBox.SelectedIndex = -1;
+            updateMapLayerNameList(mapLayerNameList, projectWindow.mapControl);
+            mapMapLayerLabel(completeLabelList, uncompleteLabelList, System.IO.Path.GetDirectoryName(housePath), projectWindow.mapControl);
         }
 
         public void browseFile(object sender, EventArgs e)
@@ -408,30 +463,18 @@ namespace Intersect
             if (fileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 string housePath = fileDialog.FileName;
-                if (projectWindow.mapControl.CheckMxFile(housePath))
+                try
                 {
-                    Init();
-                    project.path = housePath;
-                    project.baseMapIndex = -1;
-                    loadMap(housePath);
-                    if (!checkMapIntegrity(System.IO.Path.GetDirectoryName(housePath), projectWindow.mapControl))
-                    {
-                        Ut.M("地图文件错误.");
-                        project.path = "";
-                        projectWindow.mapControl.ClearLayers();
-                    }
-                    foreach (string villageName in updateVillageNameList(BASE_LAYER_NAME, BASE_LAYER_FIELD_NAME, projectWindow.mapControl))
-                    {
-                        villageNameList.Add(villageName);
-                    }
-                    projectWindow.BaseMapLayerComboBox.SelectedIndex = -1;
-                    updateMapLayerNameList(mapLayerNameList, projectWindow.mapControl);
-                    mapMapLayerLabel(completeLabelList, uncompleteLabelList);
+                    processFile(housePath);
                 }
-                else
+                catch(Exception mapException)
                 {
-                    Ut.M("地图文件错误.");
+                    Ut.M("地图文件错误, 错误信息: " + mapException.Message);
+                    project.path = "";
+                    projectWindow.mapControl.ClearLayers();
                 }
+
+                
             }
         }
     }
