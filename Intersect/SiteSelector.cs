@@ -35,6 +35,7 @@ namespace Intersect
         private List<string> mapLayerNameList;
         private double totalStandardValue;
         private IFeature baseFeature;
+        private static List<IElement> drawnElementList = new List<IElement>();
 
         public SiteSelector(AxMapControl mc, int programID)
         {
@@ -97,6 +98,7 @@ namespace Intersect
 
         public List<Feature> startSelectSite()
         {
+            EraseDrawnGeometryList(mapControl);
             IGeometry allGeom = baseFeature.Shape;
 
             Dictionary<string, double> dict = GisUtil.GetExternalRectDimension(allGeom);
@@ -104,11 +106,22 @@ namespace Intersect
             GisUtil.FeatureToPolygon(getFullPath(targetFolder, fishnetName), getFullPath(targetFolder, fishnetPolygonName));
 
             IFeatureClass featureClass = GisUtil.getFeatureClass(targetFolder, fishnetPolygonName); //获得网格类, 其中的网格已成面.
+            IRelationalOperator baseReOp = baseFeature.ShapeCopy as IRelationalOperator;
             for (int i = 0; i < featureClass.FeatureCount(null); i++)
             {
-                Feature feature = new Feature();
-                feature.inUse = 1;
-                featureList.Add(feature);
+                IGeometry shape = featureClass.GetFeature(i).ShapeCopy;
+                shape.SpatialReference = mapControl.SpatialReference;
+                if (baseReOp.Overlaps(shape) || baseReOp.Contains(shape))
+                {
+                    Feature feature = new Feature();
+                    feature.inUse = 1;
+                    featureList.Add(feature);
+                }
+                else
+                {
+                    featureClass.GetFeature(i).Delete();
+                    i--;
+                }
             }
             for (int i = 0; i < conditionList.Count; i++)
             {
@@ -119,46 +132,70 @@ namespace Intersect
                 string targetLyName = System.IO.Path.GetFileName(label.mapLayerPath);
                 if (condition.type == C.CONFIG_TYPE_RESTRAINT)
                 {
-                    if (condition.category == C.CONFIG_CATEGORY_DISTANCE_NEGATIVE)
+                    if (condition.category == C.CONFIG_CATEGORY_RESTRAINT_DISTANCE_BIGGER)
                     {
-                        negativeDistanceRestraint(featureClass, targetLyName, condition.value, featureList);
+                        biggerDistanceRestraint(featureClass, targetLyName, condition.value, featureList);
                     }
-                    else if (condition.category == C.CONFIG_CATEGORY_DISTANCE_POSITIVE)
+                    else if (condition.category == C.CONFIG_CATEGORY_RESTRAINT_DISTANCE_BIGGEREQUAL)
                     {
-                        positiveDistanceRestraint(featureClass, targetLyName, condition.value, featureList);
+                        biggerEqualDistanceRestraint(featureClass, targetLyName, condition.value, featureList);
                     }
-                    else if (condition.category == C.CONFIG_CATEGORY_INTERSECT_NEGATIVE)
+                    else if (condition.category == C.CONFIG_CATEGORY_RESTRAINT_DISTANCE_SMALLER)
                     {
-                        negativeIntersectRestraint(featureClass, targetLyName, condition.value, featureList);
+                        smallerDistanceRestraint(featureClass, targetLyName, condition.value, featureList);
                     }
-                    else if (condition.category == C.CONFIG_CATEGORY_INTERSECT_POSITIVE)
+                    else if (condition.category == C.CONFIG_CATEGORY_RESTRAINT_DISTANCE_SMALLEREQUAL)
                     {
-                        positiveIntersectRestraint(featureClass, targetLyName, condition.value, featureList);
+                        smallerEqualDistanceRestraint(featureClass, targetLyName, condition.value, featureList);
                     }
-                    else if (condition.category == C.CONFIG_CATEGORY_OVERLAP_NEGATIVE)
+                    else if (condition.category == C.CONFIG_CATEGORY_RESTRAINT_INTERSECT_BIGGER)
                     {
-                        negativeOverlapRestraint(featureClass, targetLyName, condition.value, featureList);
+                        biggerIntersectRestraint(featureClass, targetLyName, condition.value, featureList);
                     }
-                    else if (condition.category == C.CONFIG_CATEGORY_OVERLAP_POSITIVE)
+                    else if (condition.category == C.CONFIG_CATEGORY_RESTRAINT_INTERSECT_BIGGEREQUAL)
                     {
-                        positiveOverlapRestraint(featureClass, targetLyName, condition.value, featureList);
+                        biggerEqualIntersectRestraint(featureClass, targetLyName, condition.value, featureList);
+                    }
+                    else if (condition.category == C.CONFIG_CATEGORY_RESTRAINT_INTERSECT_SMALLER)
+                    {
+                        smallerIntersectRestraint(featureClass, targetLyName, condition.value, featureList);
+                    }
+                    else if (condition.category == C.CONFIG_CATEGORY_RESTRAINT_INTERSECT_SMALLEREQUAL)
+                    {
+                        smallerEqualIntersectRestraint(featureClass, targetLyName, condition.value, featureList);                            
+                    }
+                    else if (condition.category == C.CONFIG_CATEGORY_RESTRAINT_OVERLAP_BIGGER)
+                    {
+                        biggerOverlapRestraint(featureClass, targetLyName, condition.value, featureList);                                                    
+                    }
+                    else if (condition.category == C.CONFIG_CATEGORY_RESTRAINT_OVERLAP_BIGGEREQUAL)
+                    {
+                        biggerEqualOverlapRestraint(featureClass, targetLyName, condition.value, featureList);                                                                            
+                    }
+                    else if (condition.category == C.CONFIG_CATEGORY_RESTRAINT_OVERLAP_SMALLER)
+                    {
+                        smallerOverlapRestraint(featureClass, targetLyName, condition.value, featureList);
+                    }
+                    else if (condition.category == C.CONFIG_CATEGORY_RESTRAINT_OVERLAP_SMALLEREQUAL)
+                    {
+                        smallerEqualOverlapRestraint(featureClass, targetLyName, condition.value, featureList);                                                                           
                     }
                 }
                 else if(condition.type == C.CONFIG_TYPE_STANDARD)
                 {
-                    if (condition.category == C.CONFIG_CATEGORY_DISTANCE_NEGATIVE)
+                    if (condition.category == C.CONFIG_CATEGORY_STANDARD_DISTANCE_NEGATIVE)
                     {
                         negativeDistanceStandard(featureClass, targetLyName, condition.value / totalStandardValue, featureList);
                     }
-                    else if (condition.category == C.CONFIG_CATEGORY_DISTANCE_POSITIVE)
+                    else if (condition.category == C.CONFIG_CATEGORY_STANDARD_DISTANCE_POSITIVE)
                     {
                         positiveDistanceStandard(featureClass, targetLyName, condition.value / totalStandardValue, featureList);
                     }
-                    else if (condition.category == C.CONFIG_CATEGORY_OVERLAP_NEGATIVE)
+                    else if (condition.category == C.CONFIG_CATEGORY_STANDARD_OVERLAP_NEGATIVE)
                     {
                         negativeOverlapStandard(featureClass, targetLyName, condition.value / totalStandardValue, featureList);
                     }
-                    else if (condition.category == C.CONFIG_CATEGORY_OVERLAP_POSITIVE)
+                    else if (condition.category == C.CONFIG_CATEGORY_STANDARD_OVERLAP_POSITIVE)
                     {
                         positiveOverlapStandard(featureClass, targetLyName, condition.value / totalStandardValue, featureList);
                     }
@@ -221,7 +258,7 @@ namespace Intersect
             return ratioList;
         }
 
-        private void positiveIntersectRestraint(IFeatureClass featureClass, string targetLayerName, double restraint, List<Feature> featureList)
+        private void biggerIntersectRestraint(IFeatureClass featureClass, string targetLayerName, double restraint, List<Feature> featureList)
         {
             List<double> ratioList = IntersectRestraint(featureClass, targetLayerName);
             for (int i = 0; i < featureList.Count; i++)
@@ -237,12 +274,44 @@ namespace Intersect
             }
         }
 
-        private void negativeIntersectRestraint(IFeatureClass featureClass, string targetLayerName, double restraint, List<Feature> featureList)
+        private void biggerEqualIntersectRestraint(IFeatureClass featureClass, string targetLayerName, double restraint, List<Feature> featureList)
+        {
+            List<double> ratioList = IntersectRestraint(featureClass, targetLayerName);
+            for (int i = 0; i < featureList.Count; i++)
+            {
+                if (ratioList[i] >= restraint)
+                {
+                    featureList[i].inUse = 1;
+                }
+                else
+                {
+                    featureList[i].inUse = 0;
+                }
+            }
+        }
+
+        private void smallerIntersectRestraint(IFeatureClass featureClass, string targetLayerName, double restraint, List<Feature> featureList)
         {
             List<double> ratioList = IntersectRestraint(featureClass, targetLayerName);
             for (int i = 0; i < featureList.Count; i++)
             {
                 if (ratioList[i] < restraint)
+                {
+                    featureList[i].inUse = 1;
+                }
+                else
+                {
+                    featureList[i].inUse = 0;
+                }
+            }
+        }
+
+        private void smallerEqualIntersectRestraint(IFeatureClass featureClass, string targetLayerName, double restraint, List<Feature> featureList)
+        {
+            List<double> ratioList = IntersectRestraint(featureClass, targetLayerName);
+            for (int i = 0; i < featureList.Count; i++)
+            {
+                if (ratioList[i] <= restraint)
                 {
                     featureList[i].inUse = 1;
                 }
@@ -277,7 +346,7 @@ namespace Intersect
             return distanceList;
         }
 
-        private void positiveDistanceRestraint(IFeatureClass featureClass, string targetLayerName, double restraint, List<Feature> featureList)
+        private void biggerDistanceRestraint(IFeatureClass featureClass, string targetLayerName, double restraint, List<Feature> featureList)
         {
             List<double> distanceList = distanceRestraint(featureClass, targetLayerName);
             for (int i = 0; i < featureList.Count; i++)
@@ -296,7 +365,7 @@ namespace Intersect
             }
         }
 
-        private void negativeDistanceRestraint(IFeatureClass featureClass, string targetLayerName, double restraint, List<Feature> featureList)
+        private void smallerDistanceRestraint(IFeatureClass featureClass, string targetLayerName, double restraint, List<Feature> featureList)
         {
             List<double> distanceList = distanceRestraint(featureClass, targetLayerName);
             for (int i = 0; i < featureList.Count; i++)
@@ -304,6 +373,44 @@ namespace Intersect
                 if (featureList[i].inUse == 1)
                 {
                     if (distanceList[i] < restraint)
+                    {
+                        featureList[i].inUse = 1;
+                    }
+                    else
+                    {
+                        featureList[i].inUse = 0;
+                    }
+                }
+            }
+        }
+
+        private void biggerEqualDistanceRestraint(IFeatureClass featureClass, string targetLayerName, double restraint, List<Feature> featureList)
+        {
+            List<double> distanceList = distanceRestraint(featureClass, targetLayerName);
+            for (int i = 0; i < featureList.Count; i++)
+            {
+                if (featureList[i].inUse == 1)
+                {
+                    if (distanceList[i] >= restraint)
+                    {
+                        featureList[i].inUse = 1;
+                    }
+                    else
+                    {
+                        featureList[i].inUse = 0;
+                    }
+                }
+            }
+        }
+
+        private void smallerEqualDistanceRestraint(IFeatureClass featureClass, string targetLayerName, double restraint, List<Feature> featureList)
+        {
+            List<double> distanceList = distanceRestraint(featureClass, targetLayerName);
+            for (int i = 0; i < featureList.Count; i++)
+            {
+                if (featureList[i].inUse == 1)
+                {
+                    if (distanceList[i] <= restraint)
                     {
                         featureList[i].inUse = 1;
                     }
@@ -358,7 +465,7 @@ namespace Intersect
             return overlapList;
         }
 
-        private void positiveOverlapRestraint(IFeatureClass featureClass, string targetLayerName, double restraint, List<Feature> featureList)
+        private void biggerOverlapRestraint(IFeatureClass featureClass, string targetLayerName, double restraint, List<Feature> featureList)
         {
             List<double> overlapList = overlapRestraint(featureClass, targetLayerName);
             for (int i = 0; i < featureList.Count; i++)
@@ -377,14 +484,52 @@ namespace Intersect
             }
         }
 
-        private void negativeOverlapRestraint(IFeatureClass featureClass, string targetLayerName, double restraint, List<Feature> featureList)
+        private void smallerOverlapRestraint(IFeatureClass featureClass, string targetLayerName, double restraint, List<Feature> featureList)
         {
             List<double> overlapList = overlapRestraint(featureClass, targetLayerName);
             for (int i = 0; i < featureList.Count; i++)
             {
                 if (featureList[i].inUse == 1)
                 {
-                    if (overlapList[i] < restraint && overlapList[i] != 0)
+                    if (overlapList[i] < restraint)
+                    {
+                        featureList[i].inUse = 1;
+                    }
+                    else
+                    {
+                        featureList[i].inUse = 0;
+                    }
+                }
+            }
+        }
+
+        private void biggerEqualOverlapRestraint(IFeatureClass featureClass, string targetLayerName, double restraint, List<Feature> featureList)
+        {
+            List<double> overlapList = overlapRestraint(featureClass, targetLayerName);
+            for (int i = 0; i < featureList.Count; i++)
+            {
+                if (featureList[i].inUse == 1)
+                {
+                    if (overlapList[i] >= restraint)
+                    {
+                        featureList[i].inUse = 1;
+                    }
+                    else
+                    {
+                        featureList[i].inUse = 0;
+                    }
+                }
+            }
+        }
+
+        private void smallerEqualOverlapRestraint(IFeatureClass featureClass, string targetLayerName, double restraint, List<Feature> featureList)
+        {
+            List<double> overlapList = overlapRestraint(featureClass, targetLayerName);
+            for (int i = 0; i < featureList.Count; i++)
+            {
+                if (featureList[i].inUse == 1)
+                {
+                    if (overlapList[i] <= restraint)
                     {
                         featureList[i].inUse = 1;
                     }
@@ -518,15 +663,26 @@ namespace Intersect
             //第八, 按不同的成绩用不同的颜色画方块.
             for (int i = 0; i < featureList.Count; i++)
             {
+                IElement element;
                 if (((Feature)featureList[i]).inUse == 1)
                 {
-                    GisUtil.drawPolygonByScore(fishnetFeaCls.GetFeature(i).ShapeCopy, ((Feature)featureList[i]).score, mapControl);
+                    element = GisUtil.drawPolygonByScore(fishnetFeaCls.GetFeature(i).ShapeCopy, ((Feature)featureList[i]).score, mapControl);
                 }
                 else
                 {
-                    GisUtil.drawPolygonByScore(fishnetFeaCls.GetFeature(i).ShapeCopy, 0, mapControl);
+                    element = GisUtil.drawPolygonByScore(fishnetFeaCls.GetFeature(i).ShapeCopy, 0, mapControl);
                 }
+                drawnElementList.Add(element);
             }
+        }
+
+        private static void EraseDrawnGeometryList(AxMapControl mapControl)
+        {
+            foreach (IElement element in drawnElementList)
+            {
+                GisUtil.EraseElement(element, mapControl);
+            }
+            drawnElementList.Clear();
         }
 
         private double getMax(List<double> list)

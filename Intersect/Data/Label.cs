@@ -94,6 +94,20 @@ namespace Intersect
             }
         }
 
+        private int lType;
+        public int type
+        {
+            get
+            {
+                return lType;
+            }
+            set
+            {
+                lType = value;
+                onPropertyChanged("type");
+            }
+        }
+
         public UncompleteLabelComboBoxManager uncomleteLabelContentManager
         {
             get;
@@ -108,6 +122,7 @@ namespace Intersect
             lMapLayerName = C.ERROR_STRING;
             lIsChoosed = C.ERROR_BOOL;
             lMapLayerPath = C.ERROR_STRING;
+            lType = 1;
             uncomleteLabelContentManager = new UncompleteLabelComboBoxManager();
         }
 
@@ -120,6 +135,7 @@ namespace Intersect
             lMapLayerName = reader[3].ToString();
             lIsChoosed = Boolean.Parse(reader[4].ToString());
             lMapLayerPath = reader[5].ToString();
+            lType = Int32.Parse(reader[6].ToString());
             uncomleteLabelContentManager = new UncompleteLabelComboBoxManager();
         }
 
@@ -143,6 +159,8 @@ namespace Intersect
                 return "关联地图图层为空";
             if (!shieldVariableList.Contains("mapLayerPath") && (lMapLayerPath.Length == 0 || lMapLayerPath.Length > MAX_LMAPLAYERPATH_LENGTH))
                 return "关联地图图层为空";
+            if (!shieldVariableList.Contains("type") && lType == C.ERROR_INT)
+                return C.INNER_ERROR_TIP;
             return "";
         }
 
@@ -160,6 +178,8 @@ namespace Intersect
                 return false;
             if (!shieldVariableList.Contains("lMapLayerPath") && (lMapLayerPath.Length == 0 || lMapLayerPath.Length > MAX_LMAPLAYERPATH_LENGTH))
                 return false;
+            if (!shieldVariableList.Contains("lType") && lType == C.ERROR_INT)
+                return false;
             return true;
         }
 
@@ -167,8 +187,8 @@ namespace Intersect
         {
             if (!isValid(new List<string>() { "lID"}))
                 return false;
-            string sqlCommand = String.Format(@"insert into Label (pID,lContent,lMapLayerName,lIsChoosed,lMapLayerPath) values ({0}, '{1}', '{2}', {3}, '{4}')"
-                , pID, lContent, lMapLayerName, lIsChoosed ? 1 : 0, lMapLayerPath);
+            string sqlCommand = String.Format(@"insert into Label (pID,lContent,lMapLayerName,lIsChoosed,lMapLayerPath,lType) values ({0}, '{1}', '{2}', {3}, '{4}', {5})"
+                , pID, lContent, lMapLayerName, lIsChoosed ? 1 : 0, lMapLayerPath, lType);
             Sql sql = new Sql();
             return sql.insertLabel(sqlCommand);
         }
@@ -177,15 +197,15 @@ namespace Intersect
         {
             if (!isValid())
                 return false;
-            string sqlCommand = String.Format(@"update Label set pID={0},lContent='{1}',lMapLayerName='{2}',lIsChoosed={3}, lMapLayerPath='{4}' where lID={5}"
-                , pID, lContent, lMapLayerName, lIsChoosed ? 1 : 0, lMapLayerPath, lID);
+            string sqlCommand = String.Format(@"update Label set pID={0},lContent='{1}',lMapLayerName='{2}',lIsChoosed={3}, lMapLayerPath='{4}',lType='{5}' where lID={6}"
+                , pID, lContent, lMapLayerName, lIsChoosed ? 1 : 0, lMapLayerPath, lType, lID);
             Sql sql = new Sql();
             return sql.updateLabel(sqlCommand);
         }
 
         public override bool delete()
         {
-            if (!isValid(new List<string>() { "pID", "lContent", "lMapLayerName", "lIsChoosed", "lMapLayerPath"}))
+            if (!isValid(new List<string>() { "pID", "lContent", "lMapLayerName", "lIsChoosed", "lMapLayerPath", "lType"}))
                 return false;
             string sqlCommand = String.Format(@"delete from Label where lID={0}", lID);
             Sql sql = new Sql();
@@ -194,7 +214,7 @@ namespace Intersect
 
         public override bool select()
         {
-            if (!isValid(new List<string>() { "pID", "lContent", "lMapLayerName", "lIsChoosed", "lMapLayerPath"}))
+            if (!isValid(new List<string>() { "pID", "lContent", "lMapLayerName", "lIsChoosed", "lMapLayerPath", "lType"}))
                 return false;
             string sqlCommand = String.Format(@"select * from Label where lID={0}", lID);
             Sql sql = new Sql();

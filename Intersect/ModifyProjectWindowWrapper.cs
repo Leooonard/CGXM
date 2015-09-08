@@ -30,6 +30,7 @@ namespace Intersect
                 projectWindow.Dispatcher.BeginInvoke(
                     (ThreadStart)delegate()
                     {
+                        projectWindow.mask();
                         loadMap(project.path);
                         foreach (string villageName in updateVillageNameList(BASE_LAYER_NAME, BASE_LAYER_FIELD_NAME, projectWindow.mapControl))
                         {
@@ -55,6 +56,7 @@ namespace Intersect
                         }
                         projectWindow.CompleteLabelListBox.ItemsSource = completeLabelList;
                         projectWindow.UncompleteLabelListBox.ItemsSource = uncompleteLabelList; //这里一定要重新设定一遍, 更新combobox中的选择.
+                        projectWindow.unmask();
                     }
                 );
             });

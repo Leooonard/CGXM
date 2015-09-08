@@ -10,35 +10,31 @@
         <StackPanel.BindingGroup>
             <BindingGroup Name="ConditionStepBindingGroup"></BindingGroup>
         </StackPanel.BindingGroup>
-        <Button Style="{StaticResource SuccessButton}" HorizontalAlignment="Left"
-            Name="AddConditionButton" Click="AddConditionButton_Click" Margin="5,5,0,5">添加条件</Button>
         <Rectangle Height="1" Fill="Gray"></Rectangle>
+        <TextBlock>约束条件</TextBlock>
         <Grid Width="390" Margin="0,3,0,1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="3*"></ColumnDefinition>
                 <ColumnDefinition Width="2*"></ColumnDefinition>
                 <ColumnDefinition Width="3*"></ColumnDefinition>
                 <ColumnDefinition Width="3*"></ColumnDefinition>
-                <ColumnDefinition Width="3*"></ColumnDefinition>
                 <ColumnDefinition Width="2*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
-            <TextBlock Grid.Column="0" TextAlignment="Center" Margin="0,0,0,5">标签</TextBlock>
+            <TextBlock Grid.Column="0" TextAlignment="Center" Margin="0,0,0,5">图层名</TextBlock>
             <TextBlock Grid.Column="1" TextAlignment="Center" Margin="0,0,0,5">条件名</TextBlock>
-            <TextBlock Grid.Column="2" TextAlignment="Center" Margin="0,0,0,5">条件类型</TextBlock>
-            <TextBlock Grid.Column="3" TextAlignment="Center" Margin="0,0,0,5">条件种类</TextBlock>
-            <TextBlock Grid.Column="4" TextAlignment="Center" Margin="0,0,0,5">值</TextBlock>
-            <TextBlock Grid.Column="5" TextAlignment="Center" Margin="0,0,0,5">操作</TextBlock>
+            <TextBlock Grid.Column="2" TextAlignment="Center" Margin="0,0,0,5">条件种类</TextBlock>
+            <TextBlock Grid.Column="3" TextAlignment="Center" Margin="0,0,0,5">值</TextBlock>
+            <TextBlock Grid.Column="4" TextAlignment="Center" Margin="0,0,0,5">操作</TextBlock>
         </Grid>
         <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="250">
             <StackPanel Name="ConditionStackPanel" Margin="0,0,0,5">
-                <ListBox Name="ConditionListBox" Style="{StaticResource ListBox}" Width="400" BorderThickness="0,1,0,0" MaxHeight="200">
+                <ListBox Name="RestraintConditionListBox" Style="{StaticResource ListBox}" Width="400" BorderThickness="0,1,0,0" MaxHeight="200">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
                             <Grid Width="390" Margin="0,5,0,5">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="3*"></ColumnDefinition>
                                     <ColumnDefinition Width="2*"></ColumnDefinition>
-                                    <ColumnDefinition Width="3*"></ColumnDefinition>
                                     <ColumnDefinition Width="3*"></ColumnDefinition>
                                     <ColumnDefinition Width="3*"></ColumnDefinition>
                                     <ColumnDefinition Width="2*"></ColumnDefinition>
@@ -68,22 +64,7 @@
                                         </Binding>
                                     </TextBox.Text>
                                 </TextBox>
-                                <ComboBox Name="ConditionTypeComboBox" Grid.Column="2" Style="{StaticResource FlatComboBox}" HorizontalAlignment="Stretch">
-                                    <ComboBox.SelectedIndex>
-                                        <Binding Path="type" Mode="TwoWay" BindingGroupName="ConditionStepBindingGroup">
-                                            <Binding.ValidationRules>
-                                                <cls:NotNegativeDoubleValidationRule></cls:NotNegativeDoubleValidationRule>
-                                            </Binding.ValidationRules>
-                                        </Binding>
-                                    </ComboBox.SelectedIndex>
-                                    <ComboBoxItem>
-                                        <TextBlock>阈值（按条件分不同单位）</TextBlock>
-                                    </ComboBoxItem>
-                                    <ComboBoxItem>
-                                        <TextBlock>权重（取平均值）</TextBlock>
-                                    </ComboBoxItem>
-                                </ComboBox>
-                                <ComboBox Name="ConditionCategoryComboBox" Grid.Column="3" Text="条件类型" Style="{StaticResource FlatComboBox}">
+                                <ComboBox Name="ConditionCategoryComboBox" Grid.Column="2" Text="条件类型" Style="{StaticResource FlatComboBox}">
                                     <ComboBox.SelectedIndex>
                                         <Binding Path="category" Mode="TwoWay" BindingGroupName="ConditionStepBindingGroup">
                                             <Binding.ValidationRules>
@@ -92,25 +73,43 @@
                                         </Binding>
                                     </ComboBox.SelectedIndex>
                                     <ComboBoxItem>
-                                        <TextBlock>相交正相关类</TextBlock>
+                                        <TextBlock>相交大于</TextBlock>
                                     </ComboBoxItem>
                                     <ComboBoxItem>
-                                        <TextBlock>相交负相关类</TextBlock>
+                                        <TextBlock>相交小于</TextBlock>
                                     </ComboBoxItem>
                                     <ComboBoxItem>
-                                        <TextBlock>距离正相关类</TextBlock>
+                                        <TextBlock>相交大于等于</TextBlock>
                                     </ComboBoxItem>
                                     <ComboBoxItem>
-                                        <TextBlock>距离负相关类</TextBlock>
+                                        <TextBlock>相交小于等于</TextBlock>
                                     </ComboBoxItem>
                                     <ComboBoxItem>
-                                        <TextBlock>覆盖栅格正相关类</TextBlock>
+                                        <TextBlock>距离大于</TextBlock>
                                     </ComboBoxItem>
                                     <ComboBoxItem>
-                                        <TextBlock>覆盖栅格负相关类</TextBlock>
+                                        <TextBlock>距离小于</TextBlock>
+                                    </ComboBoxItem>
+                                    <ComboBoxItem>
+                                        <TextBlock>距离大于等于</TextBlock>
+                                    </ComboBoxItem>
+                                    <ComboBoxItem>
+                                        <TextBlock>距离小于等于</TextBlock>
+                                    </ComboBoxItem>
+                                    <ComboBoxItem>
+                                        <TextBlock>坡度或高程大于</TextBlock>
+                                    </ComboBoxItem>
+                                    <ComboBoxItem>
+                                        <TextBlock>坡度或高程小于</TextBlock>
+                                    </ComboBoxItem>
+                                    <ComboBoxItem>
+                                        <TextBlock>坡度或高程大于等于</TextBlock>
+                                    </ComboBoxItem>
+                                    <ComboBoxItem>
+                                        <TextBlock>坡度或高程小于等于</TextBlock>
                                     </ComboBoxItem>
                                 </ComboBox>
-                                <TextBox Name="ConditionValueTextBox" Grid.Column="4">
+                                <TextBox Name="ConditionValueTextBox" Grid.Column="3">
                                     <TextBox.Text>
                                         <Binding Path="value" Mode="TwoWay" BindingGroupName="ConditionStepBindingGroup">
                                             <Binding.ValidationRules>
@@ -119,7 +118,88 @@
                                         </Binding>
                                     </TextBox.Text>
                                 </TextBox>
-                                <Button Name="ConditionDeletebutton" Grid.Column="5" Click="ConditionDeleteButton_Click">删除</Button>
+                                <Button Name="ConditionDeletebutton" Grid.Column="4" Click="ConditionDeleteButton_Click">删除</Button>
+                                <TextBlock Text="{Binding Path=id,Mode=TwoWay}" Visibility="Collapsed" Name="ID"></TextBlock>
+                                <TextBlock Text="{Binding Path=mapLayerIndex, Mode=TwoWay}" Visibility="Collapsed" Name="MapLayerIndex"></TextBlock>
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+                <Rectangle Height="1" Fill="Gray"></Rectangle>
+                <TextBlock>评价准则</TextBlock>
+                <ListBox Name="StandardConditionListBox" Style="{StaticResource ListBox}" Width="400" BorderThickness="0,1,0,0" MaxHeight="200">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Width="390" Margin="0,5,0,5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="3*"></ColumnDefinition>
+                                    <ColumnDefinition Width="2*"></ColumnDefinition>
+                                    <ColumnDefinition Width="3*"></ColumnDefinition>
+                                    <ColumnDefinition Width="3*"></ColumnDefinition>
+                                    <ColumnDefinition Width="2*"></ColumnDefinition>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Name="ConditionLabelTextBlock" Grid.Column="0">
+                                    <TextBlock.Text>
+                                        <Binding Path="labelID" Mode="TwoWay">
+                                            <Binding.Converter>
+                                                <cls:LabelIDToLabelContentConverter></cls:LabelIDToLabelContentConverter>
+                                            </Binding.Converter>
+                                        </Binding>
+                                    </TextBlock.Text>
+                                    <TextBlock.ToolTip>
+                                        <Binding Path="labelID" Mode="TwoWay">
+                                            <Binding.Converter>
+                                                <cls:LabelIDToLabelContentConverter></cls:LabelIDToLabelContentConverter>
+                                            </Binding.Converter>
+                                        </Binding>
+                                    </TextBlock.ToolTip>
+                                </TextBlock>
+                                <TextBox Name="ConditionNameTextBox" Grid.Column="1" HorizontalAlignment="Stretch" Style="{StaticResource ErrorTip}">
+                                    <TextBox.Text>
+                                        <Binding Path="name" Mode="TwoWay" UpdateSourceTrigger="LostFocus" BindingGroupName="ConditionStepBindingGroup">
+                                            <Binding.ValidationRules>
+                                                <cls:StringValidationRule maxLength="20"></cls:StringValidationRule>
+                                            </Binding.ValidationRules>
+                                        </Binding>
+                                    </TextBox.Text>
+                                </TextBox>
+                                <ComboBox Name="ConditionCategoryComboBox" Grid.Column="2" Text="条件类型" Style="{StaticResource FlatComboBox}">
+                                    <ComboBox.SelectedIndex>
+                                        <Binding Path="category" Mode="TwoWay" BindingGroupName="ConditionStepBindingGroup">
+                                            <Binding.ValidationRules>
+                                                <cls:NotNegativeDoubleValidationRule></cls:NotNegativeDoubleValidationRule>
+                                            </Binding.ValidationRules>
+                                        </Binding>
+                                    </ComboBox.SelectedIndex>
+                                    <ComboBoxItem>
+                                        <TextBlock>相交正向</TextBlock>
+                                    </ComboBoxItem>
+                                    <ComboBoxItem>
+                                        <TextBlock>相交负向</TextBlock>
+                                    </ComboBoxItem>
+                                    <ComboBoxItem>
+                                        <TextBlock>距离正向</TextBlock>
+                                    </ComboBoxItem>
+                                    <ComboBoxItem>
+                                        <TextBlock>距离负向</TextBlock>
+                                    </ComboBoxItem>
+                                    <ComboBoxItem>
+                                        <TextBlock>坡度或高程正向</TextBlock>
+                                    </ComboBoxItem>
+                                    <ComboBoxItem>
+                                        <TextBlock>坡度或高程负向</TextBlock>
+                                    </ComboBoxItem>
+                                </ComboBox>
+                                <TextBox Name="ConditionValueTextBox" Grid.Column="3">
+                                    <TextBox.Text>
+                                        <Binding Path="value" Mode="TwoWay" BindingGroupName="ConditionStepBindingGroup">
+                                            <Binding.ValidationRules>
+                                                <cls:NotNegativeDoubleValidationRule></cls:NotNegativeDoubleValidationRule>
+                                            </Binding.ValidationRules>
+                                        </Binding>
+                                    </TextBox.Text>
+                                </TextBox>
+                                <Button Name="ConditionDeletebutton" Grid.Column="4" Click="ConditionDeleteButton_Click">删除</Button>
                                 <TextBlock Text="{Binding Path=id,Mode=TwoWay}" Visibility="Collapsed" Name="ID"></TextBlock>
                                 <TextBlock Text="{Binding Path=mapLayerIndex, Mode=TwoWay}" Visibility="Collapsed" Name="MapLayerIndex"></TextBlock>
                             </Grid>
@@ -184,12 +264,6 @@
                                             </Binding.ValidationRules>
                                         </Binding>
                                     </ComboBox.SelectedIndex>
-                                    <ComboBoxItem>
-                                        <TextBlock>相交正相关类</TextBlock>
-                                    </ComboBoxItem>
-                                    <ComboBoxItem>
-                                        <TextBlock>相交负相关类</TextBlock>
-                                    </ComboBoxItem>
                                     <ComboBoxItem>
                                         <TextBlock>距离正相关类</TextBlock>
                                     </ComboBoxItem>

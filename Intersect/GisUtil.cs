@@ -230,7 +230,7 @@ namespace Intersect
             return dim;
         }
 
-        public static void drawPolygonByScore(IGeometry geom, double score, AxMapControl mapControl)
+        public static IElement drawPolygonByScore(IGeometry geom, double score, AxMapControl mapControl)
         {
             ISimpleFillSymbol fSym = new SimpleFillSymbolClass();
             ILineSymbol lSym = new SimpleLineSymbolClass();
@@ -276,6 +276,7 @@ namespace Intersect
             IActiveView pActiveView = mapControl.ActiveView;
             pGraphics.AddElement(pEle, 0);
             pActiveView.Refresh();
+            return pEle;
         }
 
         public static IGeometry unionAllFeature(List<IGeometry> geometryList)
@@ -539,6 +540,15 @@ namespace Intersect
             IActiveView activeView = mapControl.ActiveView;
             IGraphicsContainer graphicsContainer = map as IGraphicsContainer;
             graphicsContainer.UpdateElement((IElement)lineElement);
+            activeView.Refresh();
+        }
+
+        public static void EraseElement(IElement element, AxMapControl mapControl)
+        {
+            IMap map = mapControl.Map;
+            IActiveView activeView = mapControl.ActiveView;
+            IGraphicsContainer graphicsContainer = map as IGraphicsContainer;
+            graphicsContainer.DeleteElement(element);
             activeView.Refresh();
         }
 

@@ -412,7 +412,7 @@ namespace Intersect
             }
         }
 
-        private bool convertRasterToPoint(AxMapControl mapControl, string folder)
+        private bool convertRasterToPolygon(AxMapControl mapControl, string folder)
         {
             List<IRasterLayer> rasterLayerList = GisUtil.GetRasterLayer(mapControl);
             for (int i = 0; i < rasterLayerList.Count; i++)
@@ -445,7 +445,7 @@ namespace Intersect
 
             checkMapIntegrity(System.IO.Path.GetDirectoryName(housePath), projectWindow.mapControl);
             checkNecessaryLayer(projectWindow.mapControl);
-            convertRasterToPoint(projectWindow.mapControl, System.IO.Path.GetDirectoryName(housePath));
+            convertRasterToPolygon(projectWindow.mapControl, System.IO.Path.GetDirectoryName(housePath));
             foreach (string villageName in updateVillageNameList(BASE_LAYER_NAME, BASE_LAYER_FIELD_NAME, projectWindow.mapControl))
             {
                 villageNameList.Add(villageName);
@@ -462,19 +462,22 @@ namespace Intersect
             fileDialog.Filter = "mxd files|*.mxd";
             if (fileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
+                projectWindow.mask();
                 string housePath = fileDialog.FileName;
                 try
                 {
                     processFile(housePath);
                 }
-                catch(Exception mapException)
+                catch (Exception mapException)
                 {
                     Ut.M("地图文件错误, 错误信息: " + mapException.Message);
                     project.path = "";
                     projectWindow.mapControl.ClearLayers();
                 }
-
-                
+                finally
+                {
+                    projectWindow.unmask();
+                }
             }
         }
     }

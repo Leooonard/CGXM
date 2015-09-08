@@ -76,7 +76,7 @@ namespace Intersect
                     textBlock.Foreground = new SolidColorBrush(Colors.Black);                                        
                 }
             };
-            ConfigUserControl.init(programID, mapControl, configUserControlOnFinish);
+            ConfigUserControl.init(programID, mapControl, configUserControlOnFinish, mainWindow);
 
             OnFinish siteSelectorUserControlOnFinish = delegate(bool finish)
             {

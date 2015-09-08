@@ -9,12 +9,26 @@ namespace Intersect
     {
         public const int CONFIG_TYPE_RESTRAINT = 0;
         public const int CONFIG_TYPE_STANDARD = 1;
-        public const int CONFIG_CATEGORY_INTERSECT_POSITIVE = 0;
-        public const int CONFIG_CATEGORY_INTERSECT_NEGATIVE = 1;
-        public const int CONFIG_CATEGORY_DISTANCE_POSITIVE = 2;
-        public const int CONFIG_CATEGORY_DISTANCE_NEGATIVE = 3;
-        public const int CONFIG_CATEGORY_OVERLAP_POSITIVE = 4;
-        public const int CONFIG_CATEGORY_OVERLAP_NEGATIVE = 5;
+        public const int CONFIG_CATEGORY_STANDARD_DISTANCE_POSITIVE = 0;
+        public const int CONFIG_CATEGORY_STANDARD_DISTANCE_NEGATIVE = 1;
+        public const int CONFIG_CATEGORY_STANDARD_OVERLAP_POSITIVE = 2;
+        public const int CONFIG_CATEGORY_STANDARD_OVERLAP_NEGATIVE = 3;
+
+        public const int CONFIG_CATEGORY_RESTRAINT_INTERSECT_BIGGER = 0;
+        public const int CONFIG_CATEGORY_RESTRAINT_INTERSECT_SMALLER = 1;
+        public const int CONFIG_CATEGORY_RESTRAINT_INTERSECT_BIGGEREQUAL = 2;
+        public const int CONFIG_CATEGORY_RESTRAINT_INTERSECT_SMALLEREQUAL = 3;
+        public const int CONFIG_CATEGORY_RESTRAINT_DISTANCE_BIGGER = 4;
+        public const int CONFIG_CATEGORY_RESTRAINT_DISTANCE_SMALLER = 5;
+        public const int CONFIG_CATEGORY_RESTRAINT_DISTANCE_BIGGEREQUAL = 6;
+        public const int CONFIG_CATEGORY_RESTRAINT_DISTANCE_SMALLEREQUAL = 7;
+        public const int CONFIG_CATEGORY_RESTRAINT_OVERLAP_BIGGER = 8;
+        public const int CONFIG_CATEGORY_RESTRAINT_OVERLAP_SMALLER = 9;
+        public const int CONFIG_CATEGORY_RESTRAINT_OVERLAP_BIGGEREQUAL = 10;
+        public const int CONFIG_CATEGORY_RESTRAINT_OVERLAP_SMALLEREQUAL = 11;
+
+        public const int LABEL_TYPE_RESTRAINT = 0;
+        public const int LABEL_TYPE_STANDARD = 1;
 
         public const int ERROR_INT = -1;
         public const double ERROR_DOUBLE = -1;

@@ -27,6 +27,7 @@ namespace Intersect
         private AxMapControl mapControl;
         private Intersect.ProgramStepUserControl.OnFinish onFinish;
         public Intersect.ProgramStepUserControl.OnMapControlMouseDown mapControlMouseDown;
+        private MainWindow mainWindow;
 
         public bool valid = false;
         public bool dirty = false;
@@ -36,7 +37,7 @@ namespace Intersect
             InitializeComponent();
         }
 
-        public void init(int programID, AxMapControl mc, Intersect.ProgramStepUserControl.OnFinish of)
+        public void init(int programID, AxMapControl mc, Intersect.ProgramStepUserControl.OnFinish of, MainWindow mw)
         {
             inited = true;
 
@@ -55,6 +56,7 @@ namespace Intersect
 
             mapControl = mc;
             onFinish = of;
+            mainWindow = mw;
 
             mapControlMouseDown = null;
 
@@ -106,12 +108,14 @@ namespace Intersect
                         return;
                     }
                 }
+                mainWindow.mask();
                 valid = true;
                 onFinish(true);
                 save();
                 //开始计算.
                 SiteSelector siteSelector = new SiteSelector(mapControl, program.id);
                 siteSelector.startSelectSite();
+                mainWindow.unmask();
             }
             else
             {

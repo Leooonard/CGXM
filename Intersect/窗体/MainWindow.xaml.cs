@@ -43,6 +43,7 @@ namespace Intersect
     {
         public AxMapControl mapControl;
         public AxToolbarControl toolbarControl;
+        public AxTOCControl tocControl;
         private Geoprocessor gp;
         private bool chosenAreaFlag = true;
         private int projectAndMapID; //指现在被光标选中的pm.
@@ -84,6 +85,7 @@ namespace Intersect
 
             mapControl = new AxMapControl();
             toolbarControl = new AxToolbarControl();
+            tocControl = new AxTOCControl();
 
             chosenAreaFlag = false;
             conditionList = new List<Condition>();
@@ -131,11 +133,13 @@ namespace Intersect
         public void LoadMap(string path)
         {
             toolbarControl.SetBuddyControl(mapControl);
+            tocControl.SetBuddyControl(mapControl);
             //添加命令按钮到toolbarControl
             if (toolbarControl.Count == 0)
             {
                 toolbarControl.AddItem("esriControls.ControlsMapNavigationToolbar");
             }
+
             mapControl.LoadMxFile(path, 0, "");
 
             //移动地图视角.
@@ -172,8 +176,6 @@ namespace Intersect
                         }
                     }
                     GisUtil.DrawPolyline(placeManager.innerRoadLine, mapControl);
-
-                    TotalHouseInfo.Text = placeManager.getTotalHouseInfo();
 
                     /*string path = @"C:\work\tID10\outerground.shp";
                     placeManager.saveOuterGround(path);
@@ -217,6 +219,7 @@ namespace Intersect
         {
             mapHost.Child = mapControl;
             toolbarHost.Child = toolbarControl;
+            tocHost.Child = tocControl;
         }
 
         private void ProjectAndMapStackPanel_MouseDown(object sender, MouseButtonEventArgs e)
@@ -259,12 +262,14 @@ namespace Intersect
         {
             mapHost.Visibility = System.Windows.Visibility.Hidden;
             toolbarHost.Visibility = System.Windows.Visibility.Hidden;
+            tocHost.Visibility = System.Windows.Visibility.Hidden;
         }
 
         private void ShowMapControl()
         {
             mapHost.Visibility = System.Windows.Visibility.Visible;
             toolbarHost.Visibility = System.Windows.Visibility.Visible;
+            tocHost.Visibility = System.Windows.Visibility.Visible;
         }
 
         private void DeleteProjectAndMapButton_Click(object sender, RoutedEventArgs e)

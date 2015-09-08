@@ -287,7 +287,7 @@
                     <BindingGroup Name="baseBindingGroup"></BindingGroup>
                 </StackPanel.BindingGroup>
                 <TextBlock FontSize="20" Height="50" Padding="15, 10, 5, 0">
-                    创建规划项目
+                    创建情景 
                 </TextBlock>
                 <Rectangle Fill="#e5e5e5" Height="1"></Rectangle>
                 <Grid Height="80"  Margin="10, 0, 10, 0">
@@ -321,7 +321,7 @@
                         <ColumnDefinition Width="3*"></ColumnDefinition>
                         <ColumnDefinition Width="7*"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="0" TextAlignment="Center">基础图层</TextBlock>
+                    <TextBlock Grid.Column="0" TextAlignment="Center">选择评价范围</TextBlock>
                     <ComboBox Grid.Column="1" Name="BaseMapLayerComboBox" Style="{StaticResource FlatComboBox}"
                               SelectionChanged="ComboBox_SelectionChanged" Margin="0,0,5,0"></ComboBox>
                 </Grid>
@@ -332,10 +332,12 @@
                             <ColumnDefinition Width="3*"></ColumnDefinition>
                             <ColumnDefinition Width="3*"></ColumnDefinition>
                             <ColumnDefinition Width="1*"></ColumnDefinition>
+                            <ColumnDefinition Width="1*"></ColumnDefinition>
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" TextAlignment="Center">图层名</TextBlock>
                         <TextBlock Grid.Column="1" TextAlignment="Center">标签名</TextBlock>
                         <TextBlock Grid.Column="2" TextAlignment="Center">使用图层</TextBlock>
+                        <TextBlock Grid.Column="3" TextAlignment="Center">阈值/权重</TextBlock>
                     </Grid>
                     <Rectangle Height="1" Fill="Gray"></Rectangle>
                     <ScrollViewer VerticalScrollBarVisibility="Auto" Height="280">
@@ -366,6 +368,7 @@
                                                 <ColumnDefinition Width="3*"></ColumnDefinition>
                                                 <ColumnDefinition Width="3*"></ColumnDefinition>
                                                 <ColumnDefinition Width="1*"></ColumnDefinition>
+                                                <ColumnDefinition Width="1*"></ColumnDefinition>
                                             </Grid.ColumnDefinitions>
                                             <TextBlock Grid.Column="0" TextAlignment="Left">
                                             <TextBlock.Text>
@@ -374,6 +377,10 @@
                                             </TextBlock>
                                             <TextBlock Grid.Column="1" TextAlignment="Left" Text="{Binding Path=content, Mode=TwoWay}"></TextBlock>
                                             <CheckBox Grid.Column="2" HorizontalAlignment="Center" IsChecked="{Binding Path=isChoosed, Mode=TwoWay}"></CheckBox>
+                                            <ComboBox Style="{StaticResource FlatComboBox}" Grid.Column="3" SelectedIndex="{Binding Path=type, Mode=TwoWay}">
+                                                <ComboBoxItem>阈值</ComboBoxItem>
+                                                <ComboBoxItem>权重</ComboBoxItem>
+                                            </ComboBox>
                                             <TextBlock Name="IDTextBlock" Visibility="Collapsed" Text="{Binding Path=id}"></TextBlock>
                                         </Grid>
                                     </DataTemplate>
@@ -404,6 +411,7 @@
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="3*"></ColumnDefinition>
                                                 <ColumnDefinition Width="3*"></ColumnDefinition>
+                                                <ColumnDefinition Width="1*"></ColumnDefinition>
                                                 <ColumnDefinition Width="1*"></ColumnDefinition>
                                             </Grid.ColumnDefinitions>
                                             <TextBlock Name="MapLayerNameTextBlock" Grid.Column="0" TextAlignment="Left">
@@ -438,6 +446,10 @@
                                                 </ComboBox.ItemTemplate>
                                             </ComboBox>
                                             <CheckBox Name="UseLabelCheckBox" Grid.Column="2" HorizontalAlignment="Center" IsChecked="{Binding Path=isChoosed, Mode=TwoWay}"></CheckBox>
+                                            <ComboBox Style="{StaticResource FlatComboBox}" Grid.Column="3" SelectedIndex="{Binding Path=type, Mode=TwoWay}">
+                                                <ComboBoxItem>阈值</ComboBoxItem>
+                                                <ComboBoxItem>权重</ComboBoxItem>
+                                            </ComboBox>
                                             <TextBlock Name="IDTextBlock" Visibility="Collapsed" Text="{Binding Path=id}"></TextBlock>
                                         </Grid>
                                     </DataTemplate>
@@ -457,6 +469,11 @@
                 <wi:WindowsFormsHost Name="windowToolbarHost" Width="400" Height="30"/>
                 <wi:WindowsFormsHost Name="windowMapHost" Width="400" Height="570"/>
             </StackPanel>
+            <Border Margin="-1200, 0, 0, 0" Height="600" Width="400" BorderBrush="Black" BorderThickness="1" Background="#70000000" Visibility="Collapsed" Name="ProjectMask">
+                <Grid>
+                    <TextBlock Margin="0" TextWrapping="Wrap" Text="执 行 中 ..." HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="26.667" FontWeight="Bold" Foreground="White"/>
+                </Grid>
+            </Border>
         </StackPanel>
     </Grid>
 </Window>

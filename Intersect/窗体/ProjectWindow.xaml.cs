@@ -13,6 +13,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using ESRI.ArcGIS.Controls;
 using System.Windows.Media.Animation;
+using System.Threading;
 
 namespace Intersect
 {
@@ -43,6 +44,24 @@ namespace Intersect
 
             windowMapHost.Child = mapControl;
             windowToolbarHost.Child = toolbarControl;
+        }
+
+        public void mask()
+        {
+            ProjectMask.Visibility = System.Windows.Visibility.Visible;
+        }
+
+        public void unmask()
+        {
+            Thread t = new Thread(delegate()
+            {
+                System.Threading.Thread.Sleep(500);
+                this.Dispatcher.BeginInvoke((ThreadStart)delegate()
+                {
+                    ProjectMask.Visibility = System.Windows.Visibility.Collapsed;
+                });
+            });
+            t.Start();
         }
 
         public void CloseButton_Click(object sender, RoutedEventArgs e)
