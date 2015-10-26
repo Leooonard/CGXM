@@ -81,22 +81,33 @@ namespace Intersect
         private void programDetailMode(StackPanel parentStackPanel)
         {
             mainWindow.mask();
-            mainWindow.LoadMap(project.path); //每次打开时, 重新读一下地图.
-            ProgramStepUserControl programStepUserControl = parentStackPanel.FindName("ProgramStepUserControl") as ProgramStepUserControl;
-            if (programStepUserControl.Visibility == System.Windows.Visibility.Visible)
+            Thread t = new Thread(delegate()
             {
-                hideProgramDetailMode(parentStackPanel);
-                this.programStepUserControl = null;
-            }
-            else
-            {
-                showProgramDetailMode(parentStackPanel);
-                this.programStepUserControl = programStepUserControl;
-                TextBlock programIDTextBlock = parentStackPanel.FindName("ProgramIDTextBlock") as TextBlock;
-                int programID = Int32.Parse(programIDTextBlock.Text);
-                initProgramDetailMode(programStepUserControl, programID);
-            }
-            mainWindow.unmask();
+                mainWindow.Dispatcher.BeginInvoke((ThreadStart)delegate()
+                {
+                    System.Threading.Thread.Sleep(5000);
+
+                    mainWindow.LoadMap(project.path); //每次打开时, 重新读一下地图.
+                    ProgramStepUserControl programStepUserControl = parentStackPanel.FindName("ProgramStepUserControl") as ProgramStepUserControl;
+                    if (programStepUserControl.Visibility == System.Windows.Visibility.Visible)
+                    {
+                        hideProgramDetailMode(parentStackPanel);
+                        this.programStepUserControl = null;
+                    }
+                    else
+                    {
+                        showProgramDetailMode(parentStackPanel);
+                        this.programStepUserControl = programStepUserControl;
+                        TextBlock programIDTextBlock = parentStackPanel.FindName("ProgramIDTextBlock") as TextBlock;
+                        int programID = Int32.Parse(programIDTextBlock.Text);
+                        initProgramDetailMode(programStepUserControl, programID);
+                    }
+
+
+                    mainWindow.unmask();
+                });
+            });
+            t.Start();
         }
 
         private void initProgramDetailMode(ProgramStepUserControl programStepUserControl, int programID)

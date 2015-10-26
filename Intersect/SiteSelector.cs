@@ -62,6 +62,9 @@ namespace Intersect
 
         private void Init(AxMapControl mc, int programID)
         {
+            //这里是window.show()的一个坑. show其实等同于设置窗口的visibility:visible.
+            drawnElementList = new List<IElement>();
+
             gp = new Geoprocessor();
             mapControl = mc;
             UpdateMapLayerNameList(mapLayerNameList, mapControl);

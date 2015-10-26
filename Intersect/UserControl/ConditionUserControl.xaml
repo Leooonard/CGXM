@@ -127,6 +127,20 @@
                 </ListBox>
                 <Rectangle Height="1" Fill="Gray"></Rectangle>
                 <TextBlock>评价准则</TextBlock>
+                <Grid Width="390" Margin="0,3,0,1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="3*"></ColumnDefinition>
+                        <ColumnDefinition Width="2*"></ColumnDefinition>
+                        <ColumnDefinition Width="3*"></ColumnDefinition>
+                        <ColumnDefinition Width="3*"></ColumnDefinition>
+                        <ColumnDefinition Width="2*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" TextAlignment="Center" Margin="0,0,0,5">图层名</TextBlock>
+                    <TextBlock Grid.Column="1" TextAlignment="Center" Margin="0,0,0,5">准则名</TextBlock>
+                    <TextBlock Grid.Column="2" TextAlignment="Center" Margin="0,0,0,5">准则种类</TextBlock>
+                    <TextBlock Grid.Column="3" TextAlignment="Center" Margin="0,0,0,5">权值</TextBlock>
+                    <TextBlock Grid.Column="4" TextAlignment="Center" Margin="0,0,0,5">操作</TextBlock>
+                </Grid>
                 <ListBox Name="StandardConditionListBox" Style="{StaticResource ListBox}" Width="400" BorderThickness="0,1,0,0" MaxHeight="200">
                     <ListBox.ItemTemplate>
                         <DataTemplate>

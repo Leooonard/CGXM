@@ -103,19 +103,14 @@ namespace Intersect
         public void mask()
         {
             ProgramListMask.Visibility = System.Windows.Visibility.Visible;
+            //Ut.M(321);
         }
 
         public void unmask()
         {
-            Thread t = new Thread(delegate()
-            {
-                System.Threading.Thread.Sleep(500);
-                this.Dispatcher.BeginInvoke((ThreadStart)delegate()
-                {
-                    ProgramListMask.Visibility = System.Windows.Visibility.Collapsed;
-                });
-            });
-            t.Start();
+            ProgramListMask.Visibility = System.Windows.Visibility.Collapsed;
+
+            
         }
 
         private void UpdateProgramList()
