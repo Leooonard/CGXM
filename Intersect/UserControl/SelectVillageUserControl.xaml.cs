@@ -283,6 +283,7 @@ namespace Intersect
             if (pointCollection.PointCount < 2)
             {
                 Ut.M("内部路必须穿过小区");
+                mainWindow.unmask();
                 return;
             }
             innerRoadPolyline = villagePolygonTopologicalOperator.Intersect(innerRoadPolyline, esriGeometryDimension.esriGeometry1Dimension) as IPolyline;
