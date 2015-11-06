@@ -292,14 +292,14 @@ namespace Intersect
             else
             {
                 IGeometry geom = geometryList[0] as IGeometry;
+                Ut.M(geometryList.Count.ToString());
                 for (int i = 1; i < geometryList.Count; i++)
                 {
                     ITopologicalOperator topoOp = geom as ITopologicalOperator;
                     IGeometry tempGeom = geometryList[i] as IGeometry;
                     geom = topoOp.Union(tempGeom);
-                    Ut.W(i.ToString());
+                    Ut.W(i.ToString() + " : " + geometryList.Count.ToString());
                 }
-                Ut.M("arrive");
                 return geom;
             }
         }
