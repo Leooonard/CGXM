@@ -84,7 +84,6 @@
                                 </Grid.ColumnDefinitions>
                                 <StackPanel Grid.Column="0" Name="ProjectInfoStackPanel" PreviewMouseLeftButtonDown="ProjectInfoStackPanelMouseDown">
                                     <TextBlock Text="{Binding Path=name, Mode=OneWay}" TextWrapping="Wrap" Padding="5" FontSize="16"></TextBlock>
-                                    <TextBlock Text="{Binding Path=path, Mode=OneWay}" TextWrapping="Wrap"></TextBlock>
                                 </StackPanel>
                                 <StackPanel Grid.Column="1">
                                     <Image Source="/Image/cancel.png" Width="15" Height="20"  Name="DeleteButton" MouseDown="DeleteButtonClick">

@@ -842,7 +842,14 @@ namespace Intersect
             IWorkspaceFactory wsf = new ShapefileWorkspaceFactoryClass();
             IWorkspace ws = wsf.OpenFromFile(dir, 0);
             IFeatureWorkspace fw = ws as IFeatureWorkspace;
-            return fw.OpenFeatureClass(shp);
+            try
+            {
+                return fw.OpenFeatureClass(shp);
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
         }
 
         public static void AddGeometryListToShpFile(List<IGeometry> geometryList, string folderPath, string fileName)
