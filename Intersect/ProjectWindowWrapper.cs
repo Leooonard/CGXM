@@ -13,6 +13,7 @@ using System.Windows.Data;
 using ESRI.ArcGIS.Geodatabase;
 using System.Text.RegularExpressions;
 using System.IO;
+using ESRI.ArcGIS.Geometry;
 
 namespace Intersect
 {
@@ -363,6 +364,12 @@ namespace Intersect
                 projectWindow.toolbarControl.AddItem("esriControls.ControlsMapNavigationToolbar");
             }
             projectWindow.mapControl.LoadMxFile(path);
+            projectWindow.mapControl.MoveLayerTo(0, projectWindow.mapControl.LayerCount - 1);
+            ILayer layer = projectWindow.mapControl.get_Layer(projectWindow.mapControl.LayerCount - 1);
+            IEnvelope extent = layer.AreaOfInterest;
+            extent.Expand(1, 1, true);
+            projectWindow.mapControl.Extent = extent;
+            projectWindow.mapControl.ActiveView.Refresh();
         }
 
         protected void updateMapLayerNameList(ObservableCollection<string> mapLayerNameList, AxMapControl mapControl)

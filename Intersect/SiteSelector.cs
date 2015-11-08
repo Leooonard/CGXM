@@ -102,6 +102,7 @@ namespace Intersect
 
         public List<Feature> startSelectSite()
         {
+            convertRasterToPolygon(mapControl, targetFolder);
             EraseDrawnGeometryList(mapControl);
             IGeometry allGeom = baseFeature.Shape;
             rootGeometry = baseFeature.Shape;
@@ -111,43 +112,21 @@ namespace Intersect
             GisUtil.FeatureToPolygon(getFullPath(targetFolder, fishnetName), getFullPath(targetFolder, fishnetPolygonName));
 
             IFeatureClass featureClass = GisUtil.getFeatureClass(targetFolder, fishnetPolygonName); //获得网格类, 其中的网格已成面.
-            IRelationalOperator baseReOp = baseFeature.ShapeCopy as IRelationalOperator;
-            //ISpatialFilter filter = new SpatialFilterClass();
-            //filter.Geometry = rootGeometry;
-            //filter.GeometryField = "SHAPE";
-            //filter.SpatialRel = esriSpatialRelEnum.esriSpatialRelIntersects;
-            //IFeatureCursor cursor = featureClass.Search(filter, false);
-            //IFeature feature;
-            //List<int> oidList = new List<int>();
-            //List<int> oidList2 = new List<int>();
-            //while ((feature = cursor.NextFeature()) != null)
-            //{
-            //    Feature fea = new Feature();
-            //    fea.inUse = 1;
-            //    fea.score = 1;
-            //    featureList.Add(fea);
-            //    oidList.Add(feature.OID);
-            //}
-
-            for (int i = 0; i < featureClass.FeatureCount(null); i++)
+            ISpatialFilter filter = new SpatialFilterClass();
+            filter.Geometry = rootGeometry;
+            filter.GeometryField = "SHAPE";
+            filter.SpatialRel = esriSpatialRelEnum.esriSpatialRelIntersects;
+            IFeatureCursor cursor = featureClass.Search(filter, false);
+            IFeature feature;
+            while ((feature = cursor.NextFeature()) != null)
             {
-                Ut.W(featureClass.GetFeature(i).OID.ToString());
-                IGeometry shape = featureClass.GetFeature(i).ShapeCopy;
-                shape.SpatialReference = mapControl.SpatialReference;
-                if (baseReOp.Overlaps(shape) || baseReOp.Contains(shape))
-                {
-                    Feature fea = new Feature();
-                    fea.inUse = 1;
-                    fea.score = 1;
-                    featureList.Add(fea);
-                }
-                else
-                {
-                    featureClass.GetFeature(i).Delete();
-                    i--;
-                }
+                Feature fea = new Feature();
+                fea.inUse = 1;
+                fea.score = -1;
+                fea.relativeFeature = feature;
+                featureList.Add(fea);
             }
-
+            
             for (int i = 0; i < conditionList.Count; i++)
             {
                 Condition condition = conditionList[i];
@@ -159,75 +138,85 @@ namespace Intersect
                 {
                     if (condition.category == C.CONFIG_CATEGORY_RESTRAINT_DISTANCE_BIGGER)
                     {
-                        biggerDistanceRestraint(featureClass, targetLyName, condition.value, featureList);
+                        biggerDistanceRestraint(targetLyName, condition.value, featureList);
                     }
                     else if (condition.category == C.CONFIG_CATEGORY_RESTRAINT_DISTANCE_BIGGEREQUAL)
                     {
-                        biggerEqualDistanceRestraint(featureClass, targetLyName, condition.value, featureList);
+                        biggerEqualDistanceRestraint(targetLyName, condition.value, featureList);
                     }
                     else if (condition.category == C.CONFIG_CATEGORY_RESTRAINT_DISTANCE_SMALLER)
                     {
-                        smallerDistanceRestraint(featureClass, targetLyName, condition.value, featureList);
+                        smallerDistanceRestraint(targetLyName, condition.value, featureList);
                     }
                     else if (condition.category == C.CONFIG_CATEGORY_RESTRAINT_DISTANCE_SMALLEREQUAL)
                     {
-                        smallerEqualDistanceRestraint(featureClass, targetLyName, condition.value, featureList);
+                        smallerEqualDistanceRestraint(targetLyName, condition.value, featureList);
                     }
                     else if (condition.category == C.CONFIG_CATEGORY_RESTRAINT_INTERSECT_BIGGER)
                     {
-                        biggerIntersectRestraint(featureClass, targetLyName, condition.value, featureList);
+                        biggerIntersectRestraint(targetLyName, condition.value, featureList);
                     }
                     else if (condition.category == C.CONFIG_CATEGORY_RESTRAINT_INTERSECT_BIGGEREQUAL)
                     {
-                        biggerEqualIntersectRestraint(featureClass, targetLyName, condition.value, featureList);
+                        biggerEqualIntersectRestraint(targetLyName, condition.value, featureList);
                     }
                     else if (condition.category == C.CONFIG_CATEGORY_RESTRAINT_INTERSECT_SMALLER)
                     {
-                        smallerIntersectRestraint(featureClass, targetLyName, condition.value, featureList);
+                        smallerIntersectRestraint(targetLyName, condition.value, featureList);
                     }
                     else if (condition.category == C.CONFIG_CATEGORY_RESTRAINT_INTERSECT_SMALLEREQUAL)
                     {
-                        smallerEqualIntersectRestraint(featureClass, targetLyName, condition.value, featureList);                            
+                        smallerEqualIntersectRestraint(targetLyName, condition.value, featureList);                            
                     }
                     else if (condition.category == C.CONFIG_CATEGORY_RESTRAINT_OVERLAP_BIGGER)
                     {
-                        biggerOverlapRestraint(featureClass, targetLyName, condition.value, featureList);                                                    
+                        biggerOverlapRestraint(targetLyName, condition.value, featureList);                                                    
                     }
                     else if (condition.category == C.CONFIG_CATEGORY_RESTRAINT_OVERLAP_BIGGEREQUAL)
                     {
-                        biggerEqualOverlapRestraint(featureClass, targetLyName, condition.value, featureList);                                                                            
+                        biggerEqualOverlapRestraint(targetLyName, condition.value, featureList);                                                                            
                     }
                     else if (condition.category == C.CONFIG_CATEGORY_RESTRAINT_OVERLAP_SMALLER)
                     {
-                        smallerOverlapRestraint(featureClass, targetLyName, condition.value, featureList);
+                        smallerOverlapRestraint(targetLyName, condition.value, featureList);
                     }
                     else if (condition.category == C.CONFIG_CATEGORY_RESTRAINT_OVERLAP_SMALLEREQUAL)
                     {
-                        smallerEqualOverlapRestraint(featureClass, targetLyName, condition.value, featureList);                                                                           
+                        smallerEqualOverlapRestraint(targetLyName, condition.value, featureList);                                                                           
                     }
                 }
                 else if(condition.type == C.CONFIG_TYPE_STANDARD)
                 {
                     if (condition.category == C.CONFIG_CATEGORY_STANDARD_DISTANCE_NEGATIVE)
                     {
-                        negativeDistanceStandard(featureClass, targetLyName, condition.value / totalStandardValue, featureList);
+                        negativeDistanceStandard(targetLyName, condition.value / totalStandardValue, featureList);
                     }
                     else if (condition.category == C.CONFIG_CATEGORY_STANDARD_DISTANCE_POSITIVE)
                     {
-                        positiveDistanceStandard(featureClass, targetLyName, condition.value / totalStandardValue, featureList);
+                        positiveDistanceStandard(targetLyName, condition.value / totalStandardValue, featureList);
                     }
                     else if (condition.category == C.CONFIG_CATEGORY_STANDARD_OVERLAP_NEGATIVE)
                     {
-                        negativeOverlapStandard(featureClass, targetLyName, condition.value / totalStandardValue, featureList);
+                        negativeOverlapStandard(targetLyName, condition.value / totalStandardValue, featureList);
                     }
                     else if (condition.category == C.CONFIG_CATEGORY_STANDARD_OVERLAP_POSITIVE)
                     {
-                        positiveOverlapStandard(featureClass, targetLyName, condition.value / totalStandardValue, featureList);
+                        positiveOverlapStandard(targetLyName, condition.value / totalStandardValue, featureList);
                     }
                 }
             }
 
-            DrawSelectResult(featureClass);
+            GisUtil.CreateShapefile(mapFolder, "评价结果.shp", mapControl.SpatialReference);
+            IFeatureClass resultFeatureClass = GisUtil.getFeatureClass(mapFolder, "评价结果.shp");
+            GisUtil.addFeatureLayerField(resultFeatureClass, "rslt", esriFieldType.esriFieldTypeDouble, 10);
+            for (int i = 0; i < featureList.Count; i++)
+            {
+                GisUtil.AddGeometryToFeatureClass(featureList[i].relativeFeature.Shape, resultFeatureClass);
+                GisUtil.setValueToFeatureClass(resultFeatureClass, resultFeatureClass.FeatureCount(null) - 1, "rslt", featureList[i].score.ToString());
+            }
+            IFeatureLayer resultFeatureLayer = new FeatureLayerClass();
+            resultFeatureLayer.FeatureClass = resultFeatureClass;
+            mapControl.AddLayer(resultFeatureLayer);
             return featureList;
         }
 
@@ -256,486 +245,468 @@ namespace Intersect
             return mapLayerNameList;
         }
 
-        private List<IFeature> IntersectRestraintFilter(IFeatureClass targetFeatureClass)
+        private IGeometry IntersectRestraintFilter(IFeatureClass targetFeatureClass, IGeometry baseGeometry = null)
         {
-            List<IFeature> featureList = new List<IFeature>();
+            if (baseGeometry == null)
+            {
+                baseGeometry = rootGeometry;
+            }
+            IGeometry filteredGeometry = null;
             ISpatialFilter filter = new SpatialFilterClass();
-            filter.Geometry = rootGeometry;
+            filter.Geometry = baseGeometry;
             filter.GeometryField = "SHAPE";
             filter.SpatialRel = esriSpatialRelEnum.esriSpatialRelIntersects;
             IFeatureCursor cursor = targetFeatureClass.Search(filter, false);
-            IFeature feature;
+            IFeature feature = cursor.NextFeature();
+            if (feature == null)
+            {
+                return null;
+            }
+            filteredGeometry = feature.Shape;
+            ITopologicalOperator tpop = filteredGeometry as ITopologicalOperator;
+            IGeometryCollection geomCol = new GeometryBagClass();
+
             while((feature = cursor.NextFeature()) != null)
             {
-                featureList.Add(feature);
+                geomCol.AddGeometry(feature.Shape);
             }
-            return featureList;
+
+            tpop.ConstructUnion(geomCol as IEnumGeometry);
+
+            return filteredGeometry;
         }
 
-        private List<double> IntersectRestraint(IFeatureClass featureClass, string targetLayerName)
+        private double IntersectRestraint(IGeometry srcGeometry, IGeometry targetGeometry)
         {
-            List<double> ratioList = new List<double>();
+            double ratio = 0;
+            srcGeometry.SpatialReference = mapControl.SpatialReference;
+            ITopologicalOperator toOp = srcGeometry as ITopologicalOperator;
+            IGeometry intersectedGeom = toOp.Intersect(targetGeometry, esriGeometryDimension.esriGeometry2Dimension);
+            //测量相交图形的面积, 超过原图形的一半, 有效.
+            IArea area = intersectedGeom as IArea;
+            IArea srcArea = srcGeometry as IArea;
+            ratio = (area.Area / srcArea.Area) * 100;
+            return ratio;
+        }
+
+        private void biggerIntersectRestraint(string targetLayerName, double restraint, List<Feature> featureList)
+        {
             IFeatureClass targetFeatureClass = GisUtil.getFeatureClass(mapFolder, targetLayerName);
-            List<IFeature> filteredFeatureList = IntersectRestraintFilter(targetFeatureClass);
-            List<IGeometry> geometryList = new List<IGeometry>();
-            for (int i = 0; i < filteredFeatureList.Count; i++)
+            IGeometry filteredGeometry = IntersectRestraintFilter(targetFeatureClass);
+            if (filteredGeometry == null)
             {
-                geometryList.Add(filteredFeatureList[i].Shape);
+                featureList.Clear();
+                return;
             }
-            IGeometry geometry = GisUtil.unionAllFeature(geometryList); //e0图层所有的几何图形.
-            ITopologicalOperator toOp = geometry as ITopologicalOperator;
-
-            for (int i = 0; i < featureClass.FeatureCount(null); i++)
-            {
-                IFeature feature = featureClass.GetFeature(i);
-                IGeometry srcGeom = feature.ShapeCopy;
-                srcGeom.SpatialReference = mapControl.SpatialReference;
-                IGeometry intersectedGeom = toOp.Intersect(srcGeom, esriGeometryDimension.esriGeometry2Dimension);
-                //测量相交图形的面积, 超过原图形的一半, 有效.
-                IArea area = intersectedGeom as IArea;
-                IArea srcArea = srcGeom as IArea;
-                double ratio = (area.Area / srcArea.Area) * 100;
-                ratioList.Add(ratio);
-                Ut.W(i.ToString() + " : " + featureClass.FeatureCount(null).ToString());
-            }
-            return ratioList;
-        }
-
-        private void biggerIntersectRestraint(IFeatureClass featureClass, string targetLayerName, double restraint, List<Feature> featureList)
-        {
-            List<double> ratioList = IntersectRestraint(featureClass, targetLayerName);
             for (int i = 0; i < featureList.Count; i++)
             {
-                if (ratioList[i] > restraint)
+                Feature feature = featureList[i];
+                double ratio = IntersectRestraint(feature.relativeFeature.Shape, filteredGeometry);
+                if (ratio <= restraint)
                 {
-                    featureList[i].inUse = 1;
-                }
-                else
-                {
-                    featureList[i].inUse = 0;
+                    featureList.Remove(feature);
+                    i--;
                 }
             }
         }
 
-        private void biggerEqualIntersectRestraint(IFeatureClass featureClass, string targetLayerName, double restraint, List<Feature> featureList)
+        private void biggerEqualIntersectRestraint(string targetLayerName, double restraint, List<Feature> featureList)
         {
-            List<double> ratioList = IntersectRestraint(featureClass, targetLayerName);
+            IFeatureClass targetFeatureClass = GisUtil.getFeatureClass(mapFolder, targetLayerName);
+            IGeometry filteredGeometry = IntersectRestraintFilter(targetFeatureClass);
+            if (filteredGeometry == null)
+            {
+                featureList.Clear();
+                return;
+            }
             for (int i = 0; i < featureList.Count; i++)
             {
-                if (ratioList[i] >= restraint)
+                Feature feature = featureList[i];
+                double ratio = IntersectRestraint(feature.relativeFeature.Shape, filteredGeometry);
+                if (ratio < restraint)
                 {
-                    featureList[i].inUse = 1;
-                }
-                else
-                {
-                    featureList[i].inUse = 0;
+                    featureList.Remove(feature);
+                    i--;
                 }
             }
         }
 
-        private void smallerIntersectRestraint(IFeatureClass featureClass, string targetLayerName, double restraint, List<Feature> featureList)
+        private void smallerIntersectRestraint(string targetLayerName, double restraint, List<Feature> featureList)
         {
-            List<double> ratioList = IntersectRestraint(featureClass, targetLayerName);
-            MessageBox.Show(featureList.Count.ToString());
+            IFeatureClass targetFeatureClass = GisUtil.getFeatureClass(mapFolder, targetLayerName);
+            IGeometry filteredGeometry = IntersectRestraintFilter(targetFeatureClass);
+            if (filteredGeometry == null)
+            {
+                return;
+            }
             for (int i = 0; i < featureList.Count; i++)
             {
-                if (ratioList[i] < restraint)
+                Feature feature = featureList[i];
+                double ratio = IntersectRestraint(feature.relativeFeature.Shape, filteredGeometry);
+                if (ratio >= restraint)
                 {
-                    featureList[i].inUse = 1;
+                    featureList.Remove(feature);
+                    i--;
                 }
-                else
-                {
-                    featureList[i].inUse = 0;
-                }
-                Ut.W(i.ToString() + " : " + featureList.Count);
             }
         }
 
-        private void smallerEqualIntersectRestraint(IFeatureClass featureClass, string targetLayerName, double restraint, List<Feature> featureList)
+        private void smallerEqualIntersectRestraint(string targetLayerName, double restraint, List<Feature> featureList)
         {
-            List<double> ratioList = IntersectRestraint(featureClass, targetLayerName);
+            IFeatureClass targetFeatureClass = GisUtil.getFeatureClass(mapFolder, targetLayerName);
+            IGeometry filteredGeometry = IntersectRestraintFilter(targetFeatureClass);
+            if (filteredGeometry == null)
+            {
+                return;
+            }
             for (int i = 0; i < featureList.Count; i++)
             {
-                if (ratioList[i] <= restraint)
+                Feature feature = featureList[i];
+                double ratio = IntersectRestraint(feature.relativeFeature.Shape, filteredGeometry);
+                if (ratio > restraint)
                 {
-                    featureList[i].inUse = 1;
-                }
-                else
-                {
-                    featureList[i].inUse = 0;
+                    featureList.Remove(feature);
+                    i--;
                 }
             }
         }
 
-        private List<IFeature> distanceFilterRestraint(IFeatureClass targetFeatureClass, double distance)
+        private IGeometry distanceRestraintFilter(IFeatureClass targetFeatureClass, double distance)
         {
             ITopologicalOperator tpop = rootGeometry as ITopologicalOperator;
             IGeometry bufferedGeometry = tpop.Buffer(distance);
-            List<IFeature> featureList = new List<IFeature>();
-            ISpatialFilter filter = new SpatialFilterClass();
-            filter.Geometry = bufferedGeometry;
-            filter.GeometryField = "SHAPE";
-            filter.SpatialRel = esriSpatialRelEnum.esriSpatialRelIntersects;
-            IFeatureCursor cursor = targetFeatureClass.Search(filter, false);
-            IFeature feature;
-            while ((feature = cursor.NextFeature()) != null)
-            {
-                featureList.Add(feature);
-            }
-            return featureList;   
+            return IntersectRestraintFilter(targetFeatureClass, bufferedGeometry);
         }
 
-        private List<double> distanceRestraint(IFeatureClass featureClass, string targetLayerName, double distance)
+        private double distanceRestraint(IGeometry srcGeometry, IGeometry targetGeometry)
         {
-            List<double> distanceList = new List<double>();
+            IProximityOperator proOp = srcGeometry as IProximityOperator;
+            srcGeometry.SpatialReference = mapControl.SpatialReference;
+            targetGeometry.SpatialReference = mapControl.SpatialReference;
+            return proOp.ReturnDistance(targetGeometry); //获取两者间的距离.
+        }
+
+        private void biggerDistanceRestraint(string targetLayerName, double restraint, List<Feature> featureList)
+        {
             IFeatureClass targetFeatureClass = GisUtil.getFeatureClass(mapFolder, targetLayerName);
-            List<IFeature> filteredFeatureList = distanceFilterRestraint(targetFeatureClass, distance);
-            //将所有的geometry放入一个arraylist.
-            List<IGeometry> geometryList = new List<IGeometry>();
-            for (int i = 0; i < filteredFeatureList.Count; i++)
+            IGeometry filteredGeometry = distanceRestraintFilter(targetFeatureClass, restraint);
+            if (filteredGeometry == null)
             {
-                geometryList.Add(filteredFeatureList[i].Shape);
+                return;
             }
-            IGeometry geometry = GisUtil.unionAllFeature(geometryList);
-            IProximityOperator proOp = geometry as IProximityOperator;
-
-            for (int i = 0; i < featureClass.FeatureCount(null); i++)
-            {
-                IFeature fea = featureClass.GetFeature(i);
-                IGeometry geom = fea.ShapeCopy;
-                geom.SpatialReference = mapControl.SpatialReference;
-                distance = proOp.ReturnDistance(geom); //获取两者间的距离.
-                distanceList.Add(distance);
-            }
-            return distanceList;
-        }
-
-        private void biggerDistanceRestraint(IFeatureClass featureClass, string targetLayerName, double restraint, List<Feature> featureList)
-        {
-            List<double> distanceList = distanceRestraint(featureClass, targetLayerName, restraint);
             for (int i = 0; i < featureList.Count; i++)
             {
-                if (featureList[i].inUse == 1)
+                Feature feature = featureList[i];
+                double distance = distanceRestraint(feature.relativeFeature.Shape, filteredGeometry);
+                if (distance <= restraint)
                 {
-                    if (distanceList[i] > restraint)
-                    {
-                        featureList[i].inUse = 1;
-                    }
-                    else
-                    {
-                        featureList[i].inUse = 0;
-                    }
+                    featureList.Remove(feature);
+                    i--;
                 }
             }
         }
 
-        private void smallerDistanceRestraint(IFeatureClass featureClass, string targetLayerName, double restraint, List<Feature> featureList)
+        private void smallerDistanceRestraint(string targetLayerName, double restraint, List<Feature> featureList)
         {
-            List<double> distanceList = distanceRestraint(featureClass, targetLayerName, restraint);
-            for (int i = 0; i < featureList.Count; i++)
-            {
-                if (featureList[i].inUse == 1)
-                {
-                    if (distanceList[i] < restraint)
-                    {
-                        featureList[i].inUse = 1;
-                    }
-                    else
-                    {
-                        featureList[i].inUse = 0;
-                    }
-                }
-            }
-        }
-
-        private void biggerEqualDistanceRestraint(IFeatureClass featureClass, string targetLayerName, double restraint, List<Feature> featureList)
-        {
-            List<double> distanceList = distanceRestraint(featureClass, targetLayerName, restraint);
-            for (int i = 0; i < featureList.Count; i++)
-            {
-                if (featureList[i].inUse == 1)
-                {
-                    if (distanceList[i] >= restraint)
-                    {
-                        featureList[i].inUse = 1;
-                    }
-                    else
-                    {
-                        featureList[i].inUse = 0;
-                    }
-                }
-            }
-        }
-
-        private void smallerEqualDistanceRestraint(IFeatureClass featureClass, string targetLayerName, double restraint, List<Feature> featureList)
-        {
-            List<double> distanceList = distanceRestraint(featureClass, targetLayerName, restraint);
-            for (int i = 0; i < featureList.Count; i++)
-            {
-                if (featureList[i].inUse == 1)
-                {
-                    if (distanceList[i] <= restraint)
-                    {
-                        featureList[i].inUse = 1;
-                    }
-                    else
-                    {
-                        featureList[i].inUse = 0;
-                    }
-                }
-            }
-        }
-
-        private List<double> overlapRestraint(IFeatureClass featureClass, string targetLayerName)
-        {
-            List<double> overlapList = new List<double>();
             IFeatureClass targetFeatureClass = GisUtil.getFeatureClass(mapFolder, targetLayerName);
-
-            for (int i = 0; i < featureClass.FeatureCount(null); i++)
+            IGeometry filteredGeometry = distanceRestraintFilter(targetFeatureClass, restraint);
+            if (filteredGeometry == null)
             {
-                IFeature fea = featureClass.GetFeature(i);
-                IGeometry geom = fea.ShapeCopy;
-                geom.SpatialReference = mapControl.SpatialReference;
-                ITopologicalOperator geomTopoOp = geom as ITopologicalOperator;
-                IArea geomArea = geom as IArea;
-                ISpatialFilter cityFilter = new SpatialFilterClass();
-                cityFilter.Geometry = geom;
-                cityFilter.GeometryField = "SHAPE";
-                cityFilter.SpatialRel = esriSpatialRelEnum.esriSpatialRelIntersects;
-                IFeatureCursor feaCursor = targetFeatureClass.Search(cityFilter, false);
-
-                //获取所有与该块相交的要素, 然后检测其相交的面积, 依照比例计算最终的值.
-                IFeature overlapFeature = feaCursor.NextFeature();
-                double overlapFeatureValue = 0;
-                while (overlapFeature != null)
-                {
-                    if (overlapFeature != null)
-                    {
-                        IGeometry overlapGeom = overlapFeature.ShapeCopy;
-                        overlapGeom.SpatialReference = mapControl.SpatialReference;
-                        IGeometry intersectedGeom = geomTopoOp.Intersect(overlapGeom, esriGeometryDimension.esriGeometry2Dimension);
-                        IArea intersectedGeomArea = intersectedGeom as IArea;
-                        //获取gridcode.
-                        ITable table = overlapFeature.Table;
-                        IRow row = table.GetRow(0);
-                        int fieldNum = table.FindField("GRIDCODE");
-                        double value = (double)overlapFeature.get_Value(fieldNum);
-                        overlapFeatureValue = overlapFeatureValue + value * (intersectedGeomArea.Area / geomArea.Area);
-                    }
-                    overlapFeature = feaCursor.NextFeature();
-                }
-                overlapList.Add(overlapFeatureValue);
+                featureList.Clear();
+                return;
             }
-            return overlapList;
-        }
-
-        private void biggerOverlapRestraint(IFeatureClass featureClass, string targetLayerName, double restraint, List<Feature> featureList)
-        {
-            List<double> overlapList = overlapRestraint(featureClass, targetLayerName);
             for (int i = 0; i < featureList.Count; i++)
             {
-                if (featureList[i].inUse == 1)
+                Feature feature = featureList[i];
+                double distance = distanceRestraint(feature.relativeFeature.Shape, filteredGeometry);
+                if (distance >= restraint)
                 {
-                    if (overlapList[i] > restraint)
-                    {
-                        featureList[i].inUse = 1;
-                    }
-                    else
-                    {
-                        featureList[i].inUse = 0;
-                    }
+                    featureList.Remove(feature);
+                    i--;
                 }
             }
         }
 
-        private void smallerOverlapRestraint(IFeatureClass featureClass, string targetLayerName, double restraint, List<Feature> featureList)
+        private void biggerEqualDistanceRestraint(string targetLayerName, double restraint, List<Feature> featureList)
         {
-            List<double> overlapList = overlapRestraint(featureClass, targetLayerName);
-            for (int i = 0; i < featureList.Count; i++)
-            {
-                if (featureList[i].inUse == 1)
-                {
-                    if (overlapList[i] < restraint)
-                    {
-                        featureList[i].inUse = 1;
-                    }
-                    else
-                    {
-                        featureList[i].inUse = 0;
-                    }
-                }
-            }
-        }
-
-        private void biggerEqualOverlapRestraint(IFeatureClass featureClass, string targetLayerName, double restraint, List<Feature> featureList)
-        {
-            List<double> overlapList = overlapRestraint(featureClass, targetLayerName);
-            for (int i = 0; i < featureList.Count; i++)
-            {
-                if (featureList[i].inUse == 1)
-                {
-                    if (overlapList[i] >= restraint)
-                    {
-                        featureList[i].inUse = 1;
-                    }
-                    else
-                    {
-                        featureList[i].inUse = 0;
-                    }
-                }
-            }
-        }
-
-        private void smallerEqualOverlapRestraint(IFeatureClass featureClass, string targetLayerName, double restraint, List<Feature> featureList)
-        {
-            List<double> overlapList = overlapRestraint(featureClass, targetLayerName);
-            for (int i = 0; i < featureList.Count; i++)
-            {
-                if (featureList[i].inUse == 1)
-                {
-                    if (overlapList[i] <= restraint)
-                    {
-                        featureList[i].inUse = 1;
-                    }
-                    else
-                    {
-                        featureList[i].inUse = 0;
-                    }
-                }
-            }
-        }
-
-        private List<double> distanceStandard(IFeatureClass featureClass, string targetLayerName)
-        {
-            List<double> distanceList = new List<double>();
             IFeatureClass targetFeatureClass = GisUtil.getFeatureClass(mapFolder, targetLayerName);
-            //将所有的geometry放入一个arraylist.
+            IGeometry filteredGeometry = distanceRestraintFilter(targetFeatureClass, restraint);
+            if (filteredGeometry == null)
+            {
+                return;
+            }
+            for (int i = 0; i < featureList.Count; i++)
+            {
+                Feature feature = featureList[i];
+                double distance = distanceRestraint(feature.relativeFeature.Shape, filteredGeometry);
+                if (distance < restraint)
+                {
+                    featureList.Remove(feature);
+                    i--;
+                }
+            }
+        }
+
+        private void smallerEqualDistanceRestraint(string targetLayerName, double restraint, List<Feature> featureList)
+        {
+            IFeatureClass targetFeatureClass = GisUtil.getFeatureClass(mapFolder, targetLayerName);
+            IGeometry filteredGeometry = distanceRestraintFilter(targetFeatureClass, restraint);
+            if (filteredGeometry == null)
+            {
+                featureList.Clear();
+                return;
+            }
+            for (int i = 0; i < featureList.Count; i++)
+            {
+                Feature feature = featureList[i];
+                double distance = distanceRestraint(feature.relativeFeature.Shape, filteredGeometry);
+                if (distance > restraint)
+                {
+                    featureList.Remove(feature);
+                    i--;
+                }
+            }
+        }
+
+        private double overlapRestraint(IGeometry srcGeometry, IFeatureClass targetFeatureClass)
+        {
+            srcGeometry.SpatialReference = mapControl.SpatialReference;
+            ITopologicalOperator geomTopoOp = srcGeometry as ITopologicalOperator;
+            IArea geomArea = srcGeometry as IArea;
+            ISpatialFilter cityFilter = new SpatialFilterClass();
+            cityFilter.Geometry = srcGeometry;
+            cityFilter.GeometryField = "SHAPE";
+            cityFilter.SpatialRel = esriSpatialRelEnum.esriSpatialRelIntersects;
+            IFeatureCursor feaCursor = targetFeatureClass.Search(cityFilter, false);
+
+            //获取所有与该块相交的要素, 然后检测其相交的面积, 依照比例计算最终的值.
+            IFeature overlapFeature = feaCursor.NextFeature();
+            if (overlapFeature == null)
+            {
+                return 0;
+            }
+            double overlapFeatureValue = 0;
+            while (overlapFeature != null)
+            {
+                if (overlapFeature != null)
+                {
+                    IGeometry overlapGeom = overlapFeature.ShapeCopy;
+                    overlapGeom.SpatialReference = mapControl.SpatialReference;
+                    IGeometry intersectedGeom = geomTopoOp.Intersect(overlapGeom, esriGeometryDimension.esriGeometry2Dimension);
+                    IArea intersectedGeomArea = intersectedGeom as IArea;
+                    //获取gridcode.
+                    ITable table = overlapFeature.Table;
+                    IRow row = table.GetRow(0);
+                    int fieldNum = table.FindField("GRIDCODE");
+                    double value = (double)overlapFeature.get_Value(fieldNum);
+                    overlapFeatureValue = overlapFeatureValue + value * (intersectedGeomArea.Area / geomArea.Area);
+                }
+                overlapFeature = feaCursor.NextFeature();
+            }
+            return overlapFeatureValue;
+        }
+
+        private void biggerOverlapRestraint(string targetLayerName, double restraint, List<Feature> featureList)
+        {
+            IFeatureClass targetFeatureClass = GisUtil.getFeatureClass(targetFolder, targetLayerName); 
+            for (int i = 0; i < featureList.Count; i++)
+            {
+                Feature feature = featureList[i];
+                double overlap = overlapRestraint(feature.relativeFeature.Shape, targetFeatureClass);
+                if (overlap <= restraint)
+                {
+                    featureList.Remove(feature);
+                    i--;
+                }
+            }
+        }
+
+        private void smallerOverlapRestraint(string targetLayerName, double restraint, List<Feature> featureList)
+        {
+            IFeatureClass targetFeatureClass = GisUtil.getFeatureClass(targetFolder, targetLayerName);
+            for (int i = 0; i < featureList.Count; i++)
+            {
+                Feature feature = featureList[i];
+                double overlap = overlapRestraint(feature.relativeFeature.Shape, targetFeatureClass);
+                if (overlap >= restraint)
+                {
+                    featureList.Remove(feature);
+                    i--;
+                }
+            }
+        }
+
+        private void biggerEqualOverlapRestraint(string targetLayerName, double restraint, List<Feature> featureList)
+        {
+            IFeatureClass targetFeatureClass = GisUtil.getFeatureClass(targetFolder, targetLayerName);
+            for (int i = 0; i < featureList.Count; i++)
+            {
+                Feature feature = featureList[i];
+                double overlap = overlapRestraint(feature.relativeFeature.Shape, targetFeatureClass);
+                if (overlap < restraint)
+                {
+                    featureList.Remove(feature);
+                    i--;
+                } 
+            }
+        }
+
+        private void smallerEqualOverlapRestraint(string targetLayerName, double restraint, List<Feature> featureList)
+        {
+            IFeatureClass targetFeatureClass = GisUtil.getFeatureClass(targetFolder, targetLayerName);
+            for (int i = 0; i < featureList.Count; i++)
+            {
+                Feature feature = featureList[i];
+                double overlap = overlapRestraint(feature.relativeFeature.Shape, targetFeatureClass);
+                if (overlap > restraint)
+                {
+                    featureList.Remove(feature);
+                    i--;
+                }
+            }
+        }
+
+        private double distanceStandard(IGeometry srcGeometry, IGeometry targetGeometry)
+        {
+            srcGeometry.SpatialReference = mapControl.SpatialReference;
+            targetGeometry.SpatialReference = mapControl.SpatialReference;
+            IProximityOperator proOp = srcGeometry as IProximityOperator;
+            return proOp.ReturnDistance(targetGeometry);
+        }
+
+        private void positiveDistanceStandard(string targetLayerName, double standard, List<Feature> featureList)
+        {
+            IFeatureClass targetFeatureClass = GisUtil.getFeatureClass(mapFolder, targetLayerName);
             List<IGeometry> geometryList = new List<IGeometry>();
             for (int i = 0; i < targetFeatureClass.FeatureCount(null); i++)
             {
                 geometryList.Add(targetFeatureClass.GetFeature(i).ShapeCopy);
             }
-            IGeometry geometry = GisUtil.unionAllFeature(geometryList);
-            IProximityOperator proOp = geometry as IProximityOperator;
-
-            //求到路的距离.
-            for (int i = 0; i < featureClass.FeatureCount(null); i++)
+            IGeometry unionGeometry = GisUtil.unionAllFeature(geometryList);
+            List<double> distanceList = new List<double>();
+            for (int i = 0; i < featureList.Count; i++)
             {
-                IFeature fea = featureClass.GetFeature(i);
-                IGeometry geom = fea.ShapeCopy;
-                geom.SpatialReference = mapControl.SpatialReference;
-                double distance = proOp.ReturnDistance(geom);
+                Feature feature = featureList[i];
+                double distance = distanceRestraint(feature.relativeFeature.Shape, unionGeometry);
                 distanceList.Add(distance);
             }
-            return distanceList;
-        }
 
-        private void positiveDistanceStandard(IFeatureClass featureClass, string targetLayerName, double standard, List<Feature> featureList)
-        {
-            List<double> distanceList = distanceStandard(featureClass, targetLayerName);
             distanceList = normalize(distanceList, true);
             for (int i = 0; i < featureList.Count; i++)
             {
-                if (featureList[i].inUse == 1)
-                {
-                    featureList[i].score += standard * distanceList[i];
-                }
+                featureList[i].score += standard * distanceList[i];
             }
         }
 
-        private void negativeDistanceStandard(IFeatureClass featureClass, string targetLayerName, double standard, List<Feature> featureList)
+        private void negativeDistanceStandard(string targetLayerName, double standard, List<Feature> featureList)
         {
-            List<double> distanceList = distanceStandard(featureClass, targetLayerName);
+            IFeatureClass targetFeatureClass = GisUtil.getFeatureClass(mapFolder, targetLayerName);
+            List<IGeometry> geometryList = new List<IGeometry>();
+            for (int i = 0; i < targetFeatureClass.FeatureCount(null); i++)
+            {
+                geometryList.Add(targetFeatureClass.GetFeature(i).ShapeCopy);
+            }
+            IGeometry unionGeometry = GisUtil.unionAllFeature(geometryList);
+            List<double> distanceList = new List<double>();
+            for (int i = 0; i < featureList.Count; i++)
+            {
+                Feature feature = featureList[i];
+                double distance = distanceRestraint(feature.relativeFeature.Shape, unionGeometry);
+                distanceList.Add(distance);
+            }
+
             distanceList = normalize(distanceList, false);
             for (int i = 0; i < featureList.Count; i++)
             {
-                if (featureList[i].inUse == 1)
-                {
-                    featureList[i].score += standard * distanceList[i];
-                }
+                featureList[i].score += standard * distanceList[i];
             }
         }
 
-        private List<double> overlapStandard(IFeatureClass featureClass, string targetLayerName)
+        private double overlapStandard(IGeometry srcGeometry, IFeatureClass targetFeatureClass)
         {
-            List<double> overlapList = new List<double>();
-            IFeatureClass targetFeatureClass = GisUtil.getFeatureClass(mapFolder, targetLayerName);
-            for (int i = 0; i < featureClass.FeatureCount(null); i++)
+            srcGeometry.SpatialReference = mapControl.SpatialReference;
+            ITopologicalOperator tpOp = srcGeometry as ITopologicalOperator;
+            IPolygon srcPolygon = srcGeometry as IPolygon;
+            IArea area = srcGeometry as IArea;
+            ISpatialFilter cityFilter = new SpatialFilterClass();
+            cityFilter.Geometry = srcGeometry;
+            cityFilter.GeometryField = "SHAPE";
+            cityFilter.SpatialRel = esriSpatialRelEnum.esriSpatialRelIntersects;
+            IFeatureCursor feaCursor = targetFeatureClass.Search(cityFilter, false);
+
+            //获取所有与该块相交的要素, 然后检测其相交的面积, 依照比例计算最终的值.
+            IFeature cityFea = feaCursor.NextFeature();
+            
+            double overlap = 0;
+            while (cityFea != null)
             {
-                IFeature feature = featureClass.GetFeature(i);
-                IGeometry geometry = feature.ShapeCopy;
-                geometry.SpatialReference = mapControl.SpatialReference;
-                ITopologicalOperator tpOp = geometry as ITopologicalOperator;
-                IArea area = geometry as IArea;
-                ISpatialFilter cityFilter = new SpatialFilterClass();
-                cityFilter.Geometry = geometry;
-                cityFilter.GeometryField = "SHAPE";
-                cityFilter.SpatialRel = esriSpatialRelEnum.esriSpatialRelIntersects;
-                IFeatureCursor feaCursor = targetFeatureClass.Search(cityFilter, false);
-
-                //获取所有与该块相交的要素, 然后检测其相交的面积, 依照比例计算最终的值.
-                IFeature cityFea = feaCursor.NextFeature();
-                double overlap = 0;
-                while (cityFea != null)
-                {
-                    if (cityFea != null)
-                    {
-                        IGeometry intersectedGeom = tpOp.Intersect(cityFea.ShapeCopy, esriGeometryDimension.esriGeometry2Dimension);
-                        IArea intersectedGeomArea = intersectedGeom as IArea;
-                        //获取gridcode.
-                        ITable table = cityFea.Table;
-                        IRow row = table.GetRow(0);
-                        int fieldNum = table.FindField("GRIDCODE");
-                        double value = (double)cityFea.get_Value(fieldNum);
-                        overlap = overlap + value * (intersectedGeomArea.Area / area.Area);
-                    }
-                    cityFea = feaCursor.NextFeature();
-                }
-                overlapList.Add(overlap);
+                IGeometry cityGeom = cityFea.Shape;
+                cityGeom.SpatialReference = mapControl.SpatialReference;
+                IGeometry intersectedGeom = tpOp.Intersect(cityGeom, esriGeometryDimension.esriGeometry2Dimension);
+                IArea intersectedGeomArea = intersectedGeom as IArea;
+                //获取gridcode.
+                ITable table = cityFea.Table;
+                IRow row = table.GetRow(0);
+               
+                int fieldNum = table.FindField("GRIDCODE");
+                double value = (double)cityFea.get_Value(fieldNum);
+                overlap = overlap + value * (intersectedGeomArea.Area / area.Area);
+                cityFea = feaCursor.NextFeature();
             }
-            return overlapList;
+            return overlap;
         }
 
-        private void positiveOverlapStandard(IFeatureClass featureClass, string targetLayerName, double standard, List<Feature> featureList)
+        private void positiveOverlapStandard(string targetLayerName, double standard, List<Feature> featureList)
         {
-            List<double> overlapList = overlapStandard(featureClass, targetLayerName);
+            IFeatureClass targetFeatureClass = GisUtil.getFeatureClass(targetFolder, targetLayerName);
+            List<double> overlapList = new List<double>();
+            for (int i = 0; i < featureList.Count; i++)
+            {
+                overlapList.Add(overlapStandard(featureList[i].relativeFeature.Shape, targetFeatureClass));
+            }
+
             overlapList = normalize(overlapList, true);
             for (int i = 0; i < featureList.Count; i++)
             {
-                if (featureList[i].inUse == 1)
-                {
-                    featureList[i].score += standard * overlapList[i];
-                }
+                featureList[i].score += standard * overlapList[i];
             }
         }
 
-        private void negativeOverlapStandard(IFeatureClass featureClass, string targetLayerName, double standard, List<Feature> featureList)
+        private void negativeOverlapStandard(string targetLayerName, double standard, List<Feature> featureList)
         {
-            List<double> overlapList = overlapStandard(featureClass, targetLayerName);
+            IFeatureClass targetFeatureClass = GisUtil.getFeatureClass(targetFolder, targetLayerName);
+            List<double> overlapList = new List<double>();
+            for (int i = 0; i < featureList.Count; i++)
+            {
+                overlapList.Add(overlapStandard(featureList[i].relativeFeature.Shape, targetFeatureClass));
+            }
+
             overlapList = normalize(overlapList, false);
             for (int i = 0; i < featureList.Count; i++)
             {
-                if (featureList[i].inUse == 1)
-                {
-                    featureList[i].score += standard * overlapList[i];
-                }
+                featureList[i].score += standard * overlapList[i];
             }
         }
 
-        private void DrawSelectResult(IFeatureClass fishnetFeaCls)
+        private void convertRasterToPolygon(AxMapControl mapControl, string folder)
+        {
+            List<IRasterLayer> rasterLayerList = GisUtil.GetRasterLayer(mapControl);
+            for (int i = 0; i < rasterLayerList.Count; i++)
+            {
+                IRasterLayer layer = rasterLayerList[i];
+                string layerName = layer.Name;
+                string destPath = folder + "\\" + layerName + ".shp";
+                GisUtil.RasterToFeature(layer.FilePath, destPath);
+            }
+        }
+
+        private void DrawSelectResult(List<Feature> featureList)
         {
             //第八, 按不同的成绩用不同的颜色画方块.
             for (int i = 0; i < featureList.Count; i++)
             {
                 IElement element;
-                if (((Feature)featureList[i]).inUse == 1)
-                {
-                    element = GisUtil.drawPolygonByScore(fishnetFeaCls.GetFeature(i).ShapeCopy, ((Feature)featureList[i]).score, mapControl);
-                }
-                else
-                {
-                    element = GisUtil.drawPolygonByScore(fishnetFeaCls.GetFeature(i).ShapeCopy, 0, mapControl);
-                }
+                element = GisUtil.drawPolygonByScore(featureList[i].relativeFeature.ShapeCopy, featureList[i].score, mapControl);
                 drawnElementList.Add(element);
             }
         }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Data.SqlClient;
+using ESRI.ArcGIS.Geodatabase;
 
 namespace Intersect
 {
@@ -64,12 +65,27 @@ namespace Intersect
             }
         }
 
+        private IFeature relativeFea;
+        public IFeature relativeFeature
+        {
+            get
+            {
+                return relativeFea;
+            }
+            set
+            {
+                relativeFea = value;
+            }
+        }
+
+
         public Feature()
         {
             fID = C.ERROR_INT;
             fInUse = C.ERROR_INT;
             fScore = C.ERROR_DOUBLE;
             prID = C.ERROR_INT;
+            relativeFea = null;
         }
 
         private void InitBySqlDataReader(SqlDataReader reader)

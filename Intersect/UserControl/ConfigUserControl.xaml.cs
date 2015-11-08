@@ -13,6 +13,8 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using ESRI.ArcGIS.Controls;
 using System.Threading;
+using ESRI.ArcGIS.Geodatabase;
+using ESRI.ArcGIS.Carto;
 
 namespace Intersect
 {
@@ -70,8 +72,18 @@ namespace Intersect
                     {
                         valid = true;
                         onFinish(true);
-                        SiteSelector siteSelector = new SiteSelector(mapControl, program.id);
-                        siteSelector.startSelectSite();
+                        IFeatureClass resultFeatureClass;
+                        if ((resultFeatureClass = GisUtil.getFeatureClass(System.IO.Path.GetDirectoryName(project.path), "评价结果.shp")) != null)
+                        {
+                            IFeatureLayer resultFeatureLayer = new FeatureLayerClass();
+                            resultFeatureLayer.FeatureClass = resultFeatureClass;
+                            mapControl.AddLayer(resultFeatureLayer);
+                        }
+                        else
+                        {
+                            SiteSelector siteSelector = new SiteSelector(mapControl, program.id);
+                            siteSelector.startSelectSite();
+                        }
                     }
                 });
             });

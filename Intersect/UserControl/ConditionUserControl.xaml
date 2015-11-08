@@ -186,12 +186,6 @@
                                         </Binding>
                                     </ComboBox.SelectedIndex>
                                     <ComboBoxItem>
-                                        <TextBlock>相交正向</TextBlock>
-                                    </ComboBoxItem>
-                                    <ComboBoxItem>
-                                        <TextBlock>相交负向</TextBlock>
-                                    </ComboBoxItem>
-                                    <ComboBoxItem>
                                         <TextBlock>距离正向</TextBlock>
                                     </ComboBoxItem>
                                     <ComboBoxItem>

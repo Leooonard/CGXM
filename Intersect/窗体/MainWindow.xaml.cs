@@ -136,11 +136,7 @@ namespace Intersect
             }
 
             mapControl.LoadMxFile(path, 0, "");
-
-            //移动地图视角.
-            IEnvelope extent = mapControl.get_Layer(0).AreaOfInterest;
-            extent.Expand(5, 5, true);
-            mapControl.Extent = extent;
+            mapControl.MoveLayerTo(0, mapControl.LayerCount - 1);
         }
 
         private void MapControl_MouseDown(object sender, IMapControlEvents2_OnMouseDownEvent e)

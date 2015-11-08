@@ -11,6 +11,7 @@ using ESRI.ArcGIS.Carto;
 using ESRI.ArcGIS.Controls;
 using ESRI.ArcGIS.Geometry;
 using System.Threading;
+using ESRI.ArcGIS.Geodatabase;
 
 namespace Intersect
 {
@@ -202,6 +203,13 @@ namespace Intersect
             if (mainWindow.checkMap(project.path))
             {
                 mainWindow.LoadMap(project.path);
+                IFeature baseFeature = GisUtil.GetBaseFeature(mainWindow.mapControl, project.baseMapIndex);
+                //移动地图视角.
+                IEnvelope extent = baseFeature.Shape.Envelope;
+                extent.Expand(1, 1, true);
+                mainWindow.mapControl.Extent = extent;
+                mainWindow.mapControl.ActiveView.Refresh();
+
                 if (!GisUtil.CheckMapIntegrity(System.IO.Path.GetDirectoryName(project.path), mainWindow.mapControl))
                 {
                     Ut.M("地图数据错误");

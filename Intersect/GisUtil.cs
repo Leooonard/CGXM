@@ -292,14 +292,17 @@ namespace Intersect
             else
             {
                 IGeometry geom = geometryList[0] as IGeometry;
-                Ut.M(geometryList.Count.ToString());
+
+                ITopologicalOperator topoOp = geom as ITopologicalOperator;
+                IGeometryCollection pGeoCol = new GeometryBagClass();//定义Geometry类集合
                 for (int i = 1; i < geometryList.Count; i++)
                 {
-                    ITopologicalOperator topoOp = geom as ITopologicalOperator;
                     IGeometry tempGeom = geometryList[i] as IGeometry;
-                    geom = topoOp.Union(tempGeom);
-                    Ut.W(i.ToString() + " : " + geometryList.Count.ToString());
+                    pGeoCol.AddGeometry(tempGeom);
                 }
+                IEnumGeometry enumGeom = pGeoCol as IEnumGeometry;
+                topoOp.ConstructUnion(enumGeom);
+
                 return geom;
             }
         }
