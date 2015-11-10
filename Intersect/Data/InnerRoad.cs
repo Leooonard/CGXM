@@ -81,11 +81,11 @@ namespace Intersect
 
         public InnerRoad()
         {
-            irID = C.ERROR_INT;
-            prID = C.ERROR_INT;
-            vID = C.ERROR_INT;
+            irID = Const.ERROR_INT;
+            prID = Const.ERROR_INT;
+            vID = Const.ERROR_INT;
             irName = DEFAULT_IRNAME;
-            irPath = C.ERROR_STRING;
+            irPath = Const.ERROR_STRING;
         }
 
         private void initBySqlDataReader(SqlDataReader reader)
@@ -99,7 +99,7 @@ namespace Intersect
             if (irPath != "")
             {
                 List<Point> pointList = InnerRoad.ConvertStringToPointList(irPath);
-                lineElement = GisUtil.getILineElementFromPointList(pointList);
+                lineElement = GisTool.getILineElementFromPointList(pointList);
             }
         }
 
@@ -107,12 +107,12 @@ namespace Intersect
         {
             if (shieldVariableList == null)
                 shieldVariableList = new List<string>();
-            if (!shieldVariableList.Contains("id") && irID == C.ERROR_INT)
-                return C.INNER_ERROR_TIP;
-            if (!shieldVariableList.Contains("programID") && prID == C.ERROR_INT)
-                return C.INNER_ERROR_TIP;
-            if (!shieldVariableList.Contains("villageID") && vID == C.ERROR_INT)
-                return C.INNER_ERROR_TIP;
+            if (!shieldVariableList.Contains("id") && irID == Const.ERROR_INT)
+                return Const.INNER_ERROR_TIP;
+            if (!shieldVariableList.Contains("programID") && prID == Const.ERROR_INT)
+                return Const.INNER_ERROR_TIP;
+            if (!shieldVariableList.Contains("villageID") && vID == Const.ERROR_INT)
+                return Const.INNER_ERROR_TIP;
             if (!shieldVariableList.Contains("name") && (irName.Length == 0 || irName.Length > IRNAME_MAX_LENGTH))
                 return String.Format("内部路名长度须在0-{0}之间.", IRNAME_MAX_LENGTH);
             if (!shieldVariableList.Contains("path") && irPath.Length == 0)
@@ -124,11 +124,11 @@ namespace Intersect
         {
             if (shieldVariableList == null)
                 shieldVariableList = new List<string>();
-            if (!shieldVariableList.Contains("irID") && irID == C.ERROR_INT)
+            if (!shieldVariableList.Contains("irID") && irID == Const.ERROR_INT)
                 return false;
-            if (!shieldVariableList.Contains("prID") && prID == C.ERROR_INT)
+            if (!shieldVariableList.Contains("prID") && prID == Const.ERROR_INT)
                 return false;
-            if (!shieldVariableList.Contains("vID") && vID == C.ERROR_INT)
+            if (!shieldVariableList.Contains("vID") && vID == Const.ERROR_INT)
                 return false;
             if (!shieldVariableList.Contains("irName") && (irName.Length == 0 || irName.Length > IRNAME_MAX_LENGTH))
                 return false;
@@ -167,7 +167,7 @@ namespace Intersect
 
         public bool saveOrUpdate()
         {
-            if (id == C.ERROR_INT)
+            if (id == Const.ERROR_INT)
             {
                 return save();
             }
@@ -179,7 +179,7 @@ namespace Intersect
 
         public void updatePath()
         {
-            List<Point> pointList = GisUtil.getPointListFromILineElement(lineElement);
+            List<Point> pointList = GisTool.getPointListFromILineElement(lineElement);
             irPath = InnerRoad.ConvertPointListToString(pointList);
         }
 

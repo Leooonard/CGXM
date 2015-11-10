@@ -63,10 +63,10 @@ namespace Intersect
 
         public NetSize()
         {
-            nsID = C.ERROR_INT;
-            nsWidth = C.ERROR_DOUBLE;
-            nsHeight = C.ERROR_DOUBLE;
-            prID = C.ERROR_INT;
+            nsID = Const.ERROR_INT;
+            nsWidth = Const.ERROR_DOUBLE;
+            nsHeight = Const.ERROR_DOUBLE;
+            prID = Const.ERROR_INT;
         }
 
         public void initBySqlDataReader(SqlDataReader reader)
@@ -82,14 +82,14 @@ namespace Intersect
         {
             if (shieldVariableList == null)
                 shieldVariableList = new List<string>();
-            if (!shieldVariableList.Contains("id") && nsID == C.ERROR_INT)
-                return C.INNER_ERROR_TIP;
-            if (!shieldVariableList.Contains("width") && nsWidth == C.ERROR_DOUBLE)
+            if (!shieldVariableList.Contains("id") && nsID == Const.ERROR_INT)
+                return Const.INNER_ERROR_TIP;
+            if (!shieldVariableList.Contains("width") && nsWidth == Const.ERROR_DOUBLE)
                 return "网格宽度须大于0";
-            if (!shieldVariableList.Contains("height") && nsHeight == C.ERROR_DOUBLE)
+            if (!shieldVariableList.Contains("height") && nsHeight == Const.ERROR_DOUBLE)
                 return "网格高度须大于0";
-            if (!shieldVariableList.Contains("programID") && prID == C.ERROR_INT)
-                return C.INNER_ERROR_TIP;
+            if (!shieldVariableList.Contains("programID") && prID == Const.ERROR_INT)
+                return Const.INNER_ERROR_TIP;
             return "";
         }
 
@@ -97,13 +97,13 @@ namespace Intersect
         {
             if (shieldVariableList == null)
                 shieldVariableList = new List<string>();
-            if (!shieldVariableList.Contains("nsID") && nsID == C.ERROR_INT)
+            if (!shieldVariableList.Contains("nsID") && nsID == Const.ERROR_INT)
                 return false;
-            if (!shieldVariableList.Contains("nsWidth") && nsWidth == C.ERROR_DOUBLE)
+            if (!shieldVariableList.Contains("nsWidth") && nsWidth == Const.ERROR_DOUBLE)
                 return false;
-            if (!shieldVariableList.Contains("nsHeight") && nsHeight == C.ERROR_DOUBLE)
+            if (!shieldVariableList.Contains("nsHeight") && nsHeight == Const.ERROR_DOUBLE)
                 return false;
-            if (!shieldVariableList.Contains("prID") && prID == C.ERROR_INT)
+            if (!shieldVariableList.Contains("prID") && prID == Const.ERROR_INT)
                 return false;
             return true;
         }

@@ -62,8 +62,8 @@ namespace Intersect
             color2.Red = 255;
             color2.Green = 0;
             color2.Blue = 255;
-            GisUtil.drawPolygon(polygon1, mapControl, color1);
-            GisUtil.drawPolygon(polygon2, mapControl, color2);
+            GisTool.drawPolygon(polygon1, mapControl, color1);
+            GisTool.drawPolygon(polygon2, mapControl, color2);
             if (startPt.X < endPt.X)
             {
                 //从左至右的线, polygon1在上方.
@@ -149,10 +149,10 @@ namespace Intersect
             IArea iarea = geom as IArea;
             if (Math.Abs(iarea.Area) > MAX_AREA)
             {
-                Ut.M("所选择区域过大, 请重新选择");
+                Tool.M("所选择区域过大, 请重新选择");
                 return false;
             }
-            IPolygon centerArea = GisUtil.PreProcessArea(geom); //中间用来规划的地块.
+            IPolygon centerArea = GisTool.PreProcessArea(geom); //中间用来规划的地块.
             ITopologicalOperator tpOp = geom as ITopologicalOperator;
             tpOp.Simplify();
             tpOp = centerArea as ITopologicalOperator;
@@ -162,8 +162,8 @@ namespace Intersect
 
             //将该图形添加到areaList中.
             area = new Area(centerArea, aroundArea, geom, new PolylineClass());
-            GisUtil.drawPolygon(centerArea, mapControl, GisUtil.RandomRgbColor());
-            GisUtil.drawPolygon(aroundArea, mapControl, GisUtil.RandomRgbColor());
+            GisTool.drawPolygon(centerArea, mapControl, GisTool.RandomRgbColor());
+            GisTool.drawPolygon(aroundArea, mapControl, GisTool.RandomRgbColor());
             return true;
         }
 
@@ -212,7 +212,7 @@ namespace Intersect
                 return false;
             }
             //2个点. 说明是切割关系, 直接将图形内的切割线放入数组.
-            GisUtil.DrawPolyline(line, mapControl);
+            GisTool.DrawPolyline(line, mapControl);
             IPoint startPt = intersectedPtCol.get_Point(0);
             IPoint endPt = intersectedPtCol.get_Point(1);
             line = new PolylineClass();
@@ -225,8 +225,8 @@ namespace Intersect
 
         private void saveShp(string folder, string name, IGeometry geom, string geometryType = "polygon")
         {
-            GisUtil.CreateShapefile(folder, name, mapControl.SpatialReference, geometryType);
-            IFeatureClass feaCls = GisUtil.getFeatureClass(folder, name);
+            GisTool.CreateShapefile(folder, name, mapControl.SpatialReference, geometryType);
+            IFeatureClass feaCls = GisTool.getFeatureClass(folder, name);
             IFeature fea = feaCls.CreateFeature();
 
             IWorkspaceEdit wEdit = (feaCls as IDataset).Workspace as IWorkspaceEdit;
@@ -259,8 +259,8 @@ namespace Intersect
         {
             string folder = System.IO.Path.GetDirectoryName(path);
             string name = System.IO.Path.GetFileName(path);
-            GisUtil.CreateShapefile(folder, name, mapControl.SpatialReference);
-            IFeatureClass feaCls = GisUtil.getFeatureClass(folder, name);
+            GisTool.CreateShapefile(folder, name, mapControl.SpatialReference);
+            IFeatureClass feaCls = GisTool.getFeatureClass(folder, name);
             for (int i = 0; i < drawnHouseList.Count; i++)
             {
                 List<IGeometry> housePolygonList = drawnHouseList[i].makeHousePolygon()[1] as List<IGeometry>;

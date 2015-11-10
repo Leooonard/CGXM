@@ -421,6 +421,9 @@
     <Compile Include="Converter\MainRoadNeedDeleteToMainRoadGridVisibilityConverter.cs" />
     <Compile Include="Converter\VillageIDToVillageNameConverter.cs" />
     <Compile Include="Data\InnerRoad.cs" />
+    <Compile Include="Lib\AnimationHelper.cs" />
+    <Compile Include="Lib\FileHelper.cs" />
+    <Compile Include="Point.cs" />
     <Compile Include="UserControl\HouseItemUserControl.xaml.cs">
       <DependentUpon>HouseItemUserControl.xaml</DependentUpon>
     </Compile>
@@ -449,9 +452,9 @@
     <Compile Include="Data\CityPlanStandard.cs" />
     <Compile Include="Data\CommonHouse.cs" />
     <Compile Include="Data\Condition.cs" />
-    <Compile Include="C.cs" />
+    <Compile Include="Const.cs" />
     <Compile Include="CreateProgramWindow.cs" />
-    <Compile Include="CreateProjectWindowWrapper.cs" />
+    <Compile Include="窗体\项目编辑\CreateProjectWindowHelper.cs" />
     <Compile Include="CxLegend.xaml.cs">
       <DependentUpon>CxLegend.xaml</DependentUpon>
     </Compile>
@@ -461,12 +464,11 @@
     <Compile Include="Data\NetSize.cs" />
     <Compile Include="Data\SiteResult.cs" />
     <Compile Include="Data\Village.cs" />
-    <Compile Include="MainWindowWrapper.cs" />
+    <Compile Include="窗体\项目执行\MainWindowHelper.cs" />
     <Compile Include="UserControl\NetSizeUserControl.xaml.cs">
       <DependentUpon>NetSizeUserControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="NotNegativeDoubleValidationRule.cs" />
-    <Compile Include="Point.cs" />
     <Compile Include="UserControl\ProgramStepUserControl.xaml.cs">
       <DependentUpon>ProgramStepUserControl.xaml</DependentUpon>
     </Compile>
@@ -481,7 +483,7 @@
     </Compile>
     <Compile Include="UncompleteLabelComboBoxManager.cs" />
     <Compile Include="VillageColorRandomer.cs" />
-    <Compile Include="窗体\OpenWindow.xaml.cs">
+    <Compile Include="窗体\开始\OpenWindow.xaml.cs">
       <DependentUpon>OpenWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="UserControl\Pager.xaml.cs">
@@ -495,12 +497,12 @@
     <Compile Include="LoadingWindowUC.xaml.cs">
       <DependentUpon>LoadingWindowUC.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ModifyProjectWindowWrapper.cs" />
+    <Compile Include="窗体\项目编辑\ModifyProjectWindowHelper.cs" />
     <Compile Include="NotNullValidationRule.cs" />
     <Compile Include="ProgramWindow.cs" />
     <Compile Include="Data\Config.cs" />
     <Compile Include="Data\Feature.cs" />
-    <Compile Include="GisUtil.cs" />
+    <Compile Include="Lib\GisTool.cs" />
     <Compile Include="HouseManager.cs" />
     <Compile Include="houseGenerator.cs" />
     <Compile Include="IntersectedAreaInfo.cs" />
@@ -518,7 +520,7 @@
     <Compile Include="UCWindow.cs" />
     <Compile Include="ModifyProgramWindow.cs" />
     <Compile Include="UsefulComment.cs" />
-    <Compile Include="Ut.cs" />
+    <Compile Include="Lib\Tool.cs" />
     <Page Include="UserControl\HouseItemUserControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -571,7 +573,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="窗体\OpenWindow.xaml">
+    <Page Include="窗体\开始\OpenWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -579,11 +581,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="窗体\ProjectWindow.xaml">
+    <Page Include="窗体\项目编辑\ProjectWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="窗体\MainWindow.xaml">
+    <Page Include="窗体\项目执行\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -591,11 +593,11 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="ProjectWindowWrapper.cs" />
-    <Compile Include="窗体\ProjectWindow.xaml.cs">
+    <Compile Include="窗体\项目编辑\ProjectWindowHelper.cs" />
+    <Compile Include="窗体\项目编辑\ProjectWindow.xaml.cs">
       <DependentUpon>ProjectWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="窗体\MainWindow.xaml.cs">
+    <Compile Include="窗体\项目执行\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>

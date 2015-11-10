@@ -22,7 +22,7 @@ namespace Intersect
             program.select();
             StringValidationRule rule = new StringValidationRule();
             rule.maxLength = Program.PRNAME_MAX_LENGTH;
-            Ut.bind(program, "name", BindingMode.TwoWay, programNameTextBox, TextBox.TextProperty
+            Tool.bind(program, "name", BindingMode.TwoWay, programNameTextBox, TextBox.TextProperty
                 , new List<ValidationRule>() { rule });
         }
 
@@ -30,13 +30,13 @@ namespace Intersect
         {
             if (!checkUIElementValid())
             {
-                Ut.M("请完整填写信息");
+                Tool.M("请完整填写信息");
                 return -1;
             }
             string validMsg = program.checkValid();
             if (validMsg != "")
             {
-                Ut.M(validMsg);
+                Tool.M(validMsg);
                 return -1;
             }
             program.update();

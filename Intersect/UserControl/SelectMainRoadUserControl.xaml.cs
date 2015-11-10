@@ -60,7 +60,7 @@ namespace Intersect
 
             foreach (MainRoad mainRoad in mainRoadList)
             {
-                GisUtil.DrawPolylineElement(mainRoad.lineElement, mapControl);   
+                GisTool.DrawPolylineElement(mainRoad.lineElement, mapControl);   
             }
 
             valid = isValid();
@@ -83,7 +83,7 @@ namespace Intersect
             {
                 mainRoad.delete();
                 if(mainRoad.lineElement != null)
-                    GisUtil.ErasePolylineElement(mainRoad.lineElement, mapControl);
+                    GisTool.ErasePolylineElement(mainRoad.lineElement, mapControl);
             }
         }
 
@@ -101,7 +101,7 @@ namespace Intersect
             }
 
             BindingGroup bindingGroup = SelectMainRoadStackPanel.BindingGroup;
-            if (Ut.checkBindingGroup(bindingGroup))
+            if (Tool.checkBindingGroup(bindingGroup))
             {
                 return true;
             }
@@ -145,7 +145,7 @@ namespace Intersect
             mainWindow.mask();
             mapControlMouseDown = delegate(object sender2, IMapControlEvents2_OnMouseDownEvent e2)
             {
-                GisUtil.ResetToolbarControl(toolbarControl);
+                GisTool.ResetToolbarControl(toolbarControl);
                 onMapControlMouseDown();
                 return true;
             };
@@ -162,7 +162,7 @@ namespace Intersect
                 MainRoad mainRoad = mainRoadList[i];
                 if (mainRoad.id == mrID)
                 {
-                    GisUtil.ErasePolylineElement(mainRoad.lineElement, mapControl);
+                    GisTool.ErasePolylineElement(mainRoad.lineElement, mapControl);
                     mainRoad.needDelete = true;
                     return;
                 }
@@ -182,7 +182,7 @@ namespace Intersect
             element.Geometry = mainRoadPolyline;
             mainRoadList[mainRoadList.Count - 1].lineElement = mainRoadLineElement;
             mainRoadList[mainRoadList.Count - 1].updatePath();
-            GisUtil.DrawPolylineElement(mainRoadLineElement, mapControl);
+            GisTool.DrawPolylineElement(mainRoadLineElement, mapControl);
             mapControlMouseDown = null;
             mainWindow.unmask();
             return true;
@@ -197,15 +197,15 @@ namespace Intersect
             {
                 if (mainRoad.lineElement == null)
                     continue;
-                if (mainRoad.id == C.ERROR_INT)
+                if (mainRoad.id == Const.ERROR_INT)
                     continue; //新创建的路没有变色功能
                 if (mainRoad.id == mainRoadID)
                 {
-                    GisUtil.UpdatePolylineElementColor(mainRoad.lineElement, mapControl, 0, 255, 0);
+                    GisTool.UpdatePolylineElementColor(mainRoad.lineElement, mapControl, 0, 255, 0);
                 }
                 else
                 {
-                    GisUtil.RestorePolylineElementColor(mainRoad.lineElement, mapControl);
+                    GisTool.RestorePolylineElementColor(mainRoad.lineElement, mapControl);
                 }
             }
         }
@@ -216,7 +216,7 @@ namespace Intersect
             {
                 if (isDirty())
                 {
-                    if (Ut.C("继续操作会清空之后的数据, 是否继续?"))
+                    if (Tool.C("继续操作会清空之后的数据, 是否继续?"))
                     {
                         dirty = true;
                         valid = true;
@@ -230,20 +230,20 @@ namespace Intersect
                         }
 
                         //1. 靠主路生成区域.
-                        GisUtil.CreateShapefile(C.PROGRAM_FOLDER, SiteSelectorUserControl.MAINROAD_LIST_SHP_NAME, mapControl.SpatialReference, "polyline");
+                        GisTool.CreateShapefile(Const.PROGRAM_FOLDER, SiteSelectorUserControl.MAINROAD_LIST_SHP_NAME, mapControl.SpatialReference, "polyline");
                         List<IGeometry> mainRoadGeometryList = new List<IGeometry>();
                         foreach (MainRoad mainRoad in mainRoadList)
                         {
                             IElement element = mainRoad.lineElement as IElement;
                             mainRoadGeometryList.Add(element.Geometry);
                         }
-                        GisUtil.AddGeometryListToShpFile(mainRoadGeometryList, C.PROGRAM_FOLDER, SiteSelectorUserControl.MAINROAD_LIST_SHP_NAME);
-                        cachedVillageAreaPolygonList = GisUtil.GetPolygonListFromPolylineList(
-                            Ut.MakePath(C.PROGRAM_FOLDER, SiteSelectorUserControl.MAINROAD_LIST_SHP_NAME),
-                            Ut.MakePath(C.PROGRAM_FOLDER, SiteSelectorUserControl.VILLAGE_AREA_SHP_NAME));
+                        GisTool.AddGeometryListToShpFile(mainRoadGeometryList, Const.PROGRAM_FOLDER, SiteSelectorUserControl.MAINROAD_LIST_SHP_NAME);
+                        cachedVillageAreaPolygonList = GisTool.GetPolygonListFromPolylineList(
+                            System.IO.Path.Combine(Const.PROGRAM_FOLDER, SiteSelectorUserControl.MAINROAD_LIST_SHP_NAME),
+                            System.IO.Path.Combine(Const.PROGRAM_FOLDER, SiteSelectorUserControl.VILLAGE_AREA_SHP_NAME));
                         foreach (IPolygon polygon in cachedVillageAreaPolygonList)
                         {
-                            GisUtil.drawPolygon(polygon, mapControl);
+                            GisTool.drawPolygon(polygon, mapControl);
                         }
 
                         //2. 检查生成的区域是否符合标准.
@@ -260,7 +260,7 @@ namespace Intersect
                             }
                         }
                         if (errorFlag)
-                            Ut.M("生成的图形中包含错误.");
+                            Tool.M("生成的图形中包含错误.");
 
                         //3. 区域形成village对象和相应的内部路对象.
                         villageList = new ObservableCollection<Village>();
@@ -294,7 +294,7 @@ namespace Intersect
             }
             else
             {
-                Ut.M("请完整填写信息");
+                Tool.M("请完整填写信息");
                 return;
             }
         }

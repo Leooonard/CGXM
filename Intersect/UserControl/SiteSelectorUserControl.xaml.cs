@@ -190,7 +190,7 @@ namespace Intersect
                 case 1:
                     if (!SelectMainRoadUserControl.valid)
                     {
-                        Ut.M("请完整填写主路信息.");
+                        Tool.M("请完整填写主路信息.");
                         return false;
                     }
                     break;

@@ -126,25 +126,25 @@ namespace Intersect
 
         public CommonHouse()
         {
-            chID = C.ERROR_INT;
-            chHeight = C.ERROR_DOUBLE;
-            chFrontGap = C.ERROR_DOUBLE;
-            chFloor = C.ERROR_INT;
-            chFloorHeight = C.ERROR_DOUBLE;
-            chBackGapRatio = C.ERROR_DOUBLE;
-            chBackGap = C.ERROR_DOUBLE;
-            vID = C.ERROR_INT;
+            chID = Const.ERROR_INT;
+            chHeight = Const.ERROR_DOUBLE;
+            chFrontGap = Const.ERROR_DOUBLE;
+            chFloor = Const.ERROR_INT;
+            chFloorHeight = Const.ERROR_DOUBLE;
+            chBackGapRatio = Const.ERROR_DOUBLE;
+            chBackGap = Const.ERROR_DOUBLE;
+            vID = Const.ERROR_INT;
         }
 
         public static CommonHouse GetDefaultCommonHouse()
         {
             CommonHouse commonHouse = new CommonHouse();
-            commonHouse.height = C.DEFAULT_NUMBER_VALUE;
-            commonHouse.frontGap = C.DEFAULT_NUMBER_VALUE;
-            commonHouse.floor = C.DEFAULT_NUMBER_VALUE;
-            commonHouse.floorHeight = C.DEFAULT_NUMBER_VALUE;
-            commonHouse.backGapRatio = C.DEFAULT_NUMBER_VALUE;
-            commonHouse.backGap = C.ERROR_INT;
+            commonHouse.height = Const.DEFAULT_NUMBER_VALUE;
+            commonHouse.frontGap = Const.DEFAULT_NUMBER_VALUE;
+            commonHouse.floor = Const.DEFAULT_NUMBER_VALUE;
+            commonHouse.floorHeight = Const.DEFAULT_NUMBER_VALUE;
+            commonHouse.backGapRatio = Const.DEFAULT_NUMBER_VALUE;
+            commonHouse.backGap = Const.ERROR_INT;
             return commonHouse;
         }
 
@@ -152,8 +152,8 @@ namespace Intersect
         {
             if (shieldVariableList == null)
                 shieldVariableList = new List<string>();
-            if (!shieldVariableList.Contains("id") && chID == C.ERROR_INT)
-                return C.INNER_ERROR_TIP;
+            if (!shieldVariableList.Contains("id") && chID == Const.ERROR_INT)
+                return Const.INNER_ERROR_TIP;
             if (!shieldVariableList.Contains("height") && chHeight < 0)
                 return "户型进深须大于0";
             if (!shieldVariableList.Contains("frontGap") && chFrontGap < 0)
@@ -164,8 +164,8 @@ namespace Intersect
                 return "户型层高须大于0";
             if (!shieldVariableList.Contains("backGapRatio") && chBackGapRatio < 0)
                 return "户型后深系数须大于0";
-            if (!shieldVariableList.Contains("villageID") && vID == C.ERROR_INT)
-                return C.INNER_ERROR_TIP;
+            if (!shieldVariableList.Contains("villageID") && vID == Const.ERROR_INT)
+                return Const.INNER_ERROR_TIP;
             return "";
         }
 
@@ -173,7 +173,7 @@ namespace Intersect
         {
             if (shieldVariableList == null)
                 shieldVariableList = new List<string>();
-            if (!shieldVariableList.Contains("chID") && chID == C.ERROR_INT)
+            if (!shieldVariableList.Contains("chID") && chID == Const.ERROR_INT)
                 return false;
             if (!shieldVariableList.Contains("chHeight") && chHeight < 0)
                 return false;
@@ -183,7 +183,7 @@ namespace Intersect
                 return false;
             if (!shieldVariableList.Contains("chFloorHeight") && chFloorHeight < 0)
                 return false;
-            if (!shieldVariableList.Contains("vID") && vID == C.ERROR_INT)
+            if (!shieldVariableList.Contains("vID") && vID == Const.ERROR_INT)
                 return false;
             return true;
         }
@@ -210,7 +210,7 @@ namespace Intersect
 
         public bool saveOrUpdate()
         {
-            if (chID == C.ERROR_INT)
+            if (chID == Const.ERROR_INT)
             {
                 return save();
             }
@@ -222,7 +222,7 @@ namespace Intersect
 
         public override bool delete()
         {
-            if (chID == C.ERROR_INT)
+            if (chID == Const.ERROR_INT)
                 return false;
             string sqlCommand = String.Format(@"delete from CommonHouse where chID={0}", chID);
             Sql sql = new Sql();
@@ -244,7 +244,7 @@ namespace Intersect
 
         public override bool select()
         {
-            if (chID == C.ERROR_INT)
+            if (chID == Const.ERROR_INT)
                 return false;
             string sqlCommand = String.Format("select * from CommonHouse where chID={0}", chID);
             Sql sql = new Sql();

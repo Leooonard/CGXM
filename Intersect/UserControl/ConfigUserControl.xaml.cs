@@ -73,7 +73,7 @@ namespace Intersect
                         valid = true;
                         onFinish(true);
                         IFeatureClass resultFeatureClass;
-                        if ((resultFeatureClass = GisUtil.getFeatureClass(System.IO.Path.GetDirectoryName(project.path), "评价结果.shp")) != null)
+                        if ((resultFeatureClass = GisTool.getFeatureClass(System.IO.Path.GetDirectoryName(project.path), "评价结果.shp")) != null)
                         {
                             IFeatureLayer resultFeatureLayer = new FeatureLayerClass();
                             resultFeatureLayer.FeatureClass = resultFeatureClass;
@@ -111,7 +111,7 @@ namespace Intersect
             {
                 if (isDirty())
                 {
-                    if (Ut.C("已对设置做出修改, 继续执行将删除之前的数据, 是否继续?"))
+                    if (Tool.C("已对设置做出修改, 继续执行将删除之前的数据, 是否继续?"))
                     {
                         dirty = true;
                     }
@@ -131,7 +131,7 @@ namespace Intersect
             }
             else
             {
-                Ut.M("请完整填写信息.");
+                Tool.M("请完整填写信息.");
                 return;
             }
         }

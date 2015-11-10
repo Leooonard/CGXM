@@ -81,10 +81,10 @@ namespace Intersect
 
         public Feature()
         {
-            fID = C.ERROR_INT;
-            fInUse = C.ERROR_INT;
-            fScore = C.ERROR_DOUBLE;
-            prID = C.ERROR_INT;
+            fID = Const.ERROR_INT;
+            fInUse = Const.ERROR_INT;
+            fScore = Const.ERROR_DOUBLE;
+            prID = Const.ERROR_INT;
             relativeFea = null;
         }
 
@@ -100,14 +100,14 @@ namespace Intersect
         {
             if (shieldVariableList == null)
                 shieldVariableList = new List<string>();
-            if (!shieldVariableList.Contains("id") && fID == C.ERROR_INT)
-                return C.INNER_ERROR_TIP;
-            if (!shieldVariableList.Contains("inUse") && fInUse == C.ERROR_INT)
-                return C.INNER_ERROR_TIP;
-            if (!shieldVariableList.Contains("score") && fScore == C.ERROR_DOUBLE)
-                return C.INNER_ERROR_TIP;
-            if (!shieldVariableList.Contains("programID") && prID == C.ERROR_INT)
-                return C.INNER_ERROR_TIP;
+            if (!shieldVariableList.Contains("id") && fID == Const.ERROR_INT)
+                return Const.INNER_ERROR_TIP;
+            if (!shieldVariableList.Contains("inUse") && fInUse == Const.ERROR_INT)
+                return Const.INNER_ERROR_TIP;
+            if (!shieldVariableList.Contains("score") && fScore == Const.ERROR_DOUBLE)
+                return Const.INNER_ERROR_TIP;
+            if (!shieldVariableList.Contains("programID") && prID == Const.ERROR_INT)
+                return Const.INNER_ERROR_TIP;
             return "";
         }
 
@@ -115,13 +115,13 @@ namespace Intersect
         {
             if (shieldVariableList == null)
                 shieldVariableList = new List<string>();
-            if (!shieldVariableList.Contains("fID") && fID == C.ERROR_INT)
+            if (!shieldVariableList.Contains("fID") && fID == Const.ERROR_INT)
                 return false;
-            if (!shieldVariableList.Contains("fInUse") && fInUse == C.ERROR_INT)
+            if (!shieldVariableList.Contains("fInUse") && fInUse == Const.ERROR_INT)
                 return false;
-            if (!shieldVariableList.Contains("fScore") && fScore == C.ERROR_DOUBLE)
+            if (!shieldVariableList.Contains("fScore") && fScore == Const.ERROR_DOUBLE)
                 return false;
-            if (!shieldVariableList.Contains("prID") && prID == C.ERROR_INT)
+            if (!shieldVariableList.Contains("prID") && prID == Const.ERROR_INT)
                 return false;
             return true;
         }

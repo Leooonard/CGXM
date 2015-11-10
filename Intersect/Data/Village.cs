@@ -104,22 +104,22 @@ namespace Intersect
 
         public Village()
         {
-            vID = C.ERROR_INT;
-            prID = C.ERROR_INT;
+            vID = Const.ERROR_INT;
+            prID = Const.ERROR_INT;
             vName = VNAME_DEFAULT_VALUE;
-            vBoundary = C.ERROR_STRING;
-            vInUse = C.ERROR_BOOL;
-            polygonElementColorString = C.ERROR_STRING;
+            vBoundary = Const.ERROR_STRING;
+            vInUse = Const.ERROR_BOOL;
+            polygonElementColorString = Const.ERROR_STRING;
         }
         
         public override string checkValid(List<string> shieldVariableList = null)
         {
             if (shieldVariableList == null)
                 shieldVariableList = new List<string>();
-            if (!shieldVariableList.Contains("id") && vID == C.ERROR_INT)
+            if (!shieldVariableList.Contains("id") && vID == Const.ERROR_INT)
                 return "区域ID为空";
-            if (!shieldVariableList.Contains("programID") && prID == C.ERROR_INT)
-                return C.INNER_ERROR_TIP;
+            if (!shieldVariableList.Contains("programID") && prID == Const.ERROR_INT)
+                return Const.INNER_ERROR_TIP;
             if (!shieldVariableList.Contains("name") && (vName.Length == 0 || vName.Length > VNAME_MAX_LENGTH))
                 return String.Format("区域名长度须在0-{0}之间", VNAME_MAX_LENGTH);
             if (!shieldVariableList.Contains("boundary") && vBoundary.Length == 0)
@@ -131,9 +131,9 @@ namespace Intersect
         {
             if (shieldVariableList == null)
                 shieldVariableList = new List<string>();
-            if (!shieldVariableList.Contains("vID") && vID == C.ERROR_INT)
+            if (!shieldVariableList.Contains("vID") && vID == Const.ERROR_INT)
                 return false;
-            if (!shieldVariableList.Contains("prID") && prID == C.ERROR_INT)
+            if (!shieldVariableList.Contains("prID") && prID == Const.ERROR_INT)
                 return false;
             if (!shieldVariableList.Contains("vName") && (vName.Length == 0 || vName.Length > VNAME_MAX_LENGTH))
                 return false;
@@ -151,7 +151,7 @@ namespace Intersect
             vBoundary = reader[3].ToString();
             vInUse = Boolean.Parse(reader[4].ToString());
             List<Point> pointList = Village.ConvertStringToPointList(vBoundary);
-            polygonElement = GisUtil.getIPolygonElementFromPointList(pointList);
+            polygonElement = GisTool.getIPolygonElementFromPointList(pointList);
         }
 
         public override bool save()
@@ -174,7 +174,7 @@ namespace Intersect
 
         public bool saveOrUpdate()
         {
-            if (id == C.ERROR_INT)
+            if (id == Const.ERROR_INT)
             {
                 return save();
             }
@@ -186,7 +186,7 @@ namespace Intersect
 
         public void updateBoundary()
         {
-            List<Point> pointList = GisUtil.getPointListFromIPolygonElement(polygonElement);
+            List<Point> pointList = GisTool.getPointListFromIPolygonElement(polygonElement);
             vBoundary = Village.ConvertPointListToString(pointList);
         }
 

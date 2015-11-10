@@ -12,6 +12,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Media.Animation;
+using Intersect.Lib;
 
 namespace Intersect
 {
@@ -100,7 +101,7 @@ namespace Intersect
             newStep = nowStep;
             StepInfoTextBlock.Text = stepInfo;
             NextStepButton.IsEnabled = true;
-            Ut.startDoubleAnimation((double)lastStep / (double)totalStep * totalWidth, (double)newStep / (double)totalStep * totalWidth, ANIMATION_DURATION, StepRectangle, new PropertyPath("Width"));
+            AnimationHelper.startDoubleAnimation((double)lastStep / (double)totalStep * totalWidth, (double)newStep / (double)totalStep * totalWidth, ANIMATION_DURATION, StepRectangle, new PropertyPath("Width"));
             if(previewStepButtonClick != null)
                 previewStepButtonClick(sender, e);
         }
@@ -124,7 +125,7 @@ namespace Intersect
             newStep = nowStep;
             StepInfoTextBlock.Text = stepInfo;
             PreviewStepButton.IsEnabled = true;
-            Ut.startDoubleAnimation((double)lastStep / (double)totalStep * totalWidth, (double)newStep / (double)totalStep * totalWidth, ANIMATION_DURATION, StepRectangle, new PropertyPath("Width"));
+            AnimationHelper.startDoubleAnimation((double)lastStep / (double)totalStep * totalWidth, (double)newStep / (double)totalStep * totalWidth, ANIMATION_DURATION, StepRectangle, new PropertyPath("Width"));
             if(nextStepButtonClick != null)
                 nextStepButtonClick(sender, e);
         }

@@ -99,18 +99,18 @@ namespace Intersect
 
         public Config()
         {
-            cdID = C.ERROR_INT;
-            prID = C.ERROR_INT;
-            cfID = C.ERROR_INT;
-            cfValue = C.ERROR_DOUBLE;
-            cfName = C.ERROR_STRING;
-            cfRealStandard = C.ERROR_STRING;
+            cdID = Const.ERROR_INT;
+            prID = Const.ERROR_INT;
+            cfID = Const.ERROR_INT;
+            cfValue = Const.ERROR_DOUBLE;
+            cfName = Const.ERROR_STRING;
+            cfRealStandard = Const.ERROR_STRING;
         }
 
         public static Config GetDefaultConfig()
         {
             Config config = new Config();
-            config.value = C.DEFAULT_NUMBER_VALUE;
+            config.value = Const.DEFAULT_NUMBER_VALUE;
             return config;
         }
 
@@ -118,12 +118,12 @@ namespace Intersect
         {
             if (shieldVariableList == null)
                 shieldVariableList = new List<string>();
-            if (!shieldVariableList.Contains("id") && cfID == C.ERROR_INT)
-                return C.INNER_ERROR_TIP;
-            if (!shieldVariableList.Contains("programID") && prID == C.ERROR_INT)
-                return C.INNER_ERROR_TIP;
-            if (!shieldVariableList.Contains("conditionID") && cdID == C.ERROR_INT)
-                return C.INNER_ERROR_TIP;
+            if (!shieldVariableList.Contains("id") && cfID == Const.ERROR_INT)
+                return Const.INNER_ERROR_TIP;
+            if (!shieldVariableList.Contains("programID") && prID == Const.ERROR_INT)
+                return Const.INNER_ERROR_TIP;
+            if (!shieldVariableList.Contains("conditionID") && cdID == Const.ERROR_INT)
+                return Const.INNER_ERROR_TIP;
             if (!shieldVariableList.Contains("value") && cfValue < 0)
                 return "配置值不能小于0";
             return "";
@@ -133,11 +133,11 @@ namespace Intersect
         {
             if (shieldVariableList == null)
                 shieldVariableList = new List<string>();
-            if (!shieldVariableList.Contains("cfID") && cfID == C.ERROR_INT)
+            if (!shieldVariableList.Contains("cfID") && cfID == Const.ERROR_INT)
                 return false;
-            if (!shieldVariableList.Contains("prID") && prID == C.ERROR_INT)
+            if (!shieldVariableList.Contains("prID") && prID == Const.ERROR_INT)
                 return false;
-            if (!shieldVariableList.Contains("cdID") && cdID == C.ERROR_INT)
+            if (!shieldVariableList.Contains("cdID") && cdID == Const.ERROR_INT)
                 return false;
             if (!shieldVariableList.Contains("cfValue") && cfValue < 0)
                 return false;

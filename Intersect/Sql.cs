@@ -168,7 +168,7 @@ namespace Intersect
             }
         }
 
-        private bool commonOperation(string comm)
+        public bool commonOperation(string comm)
         {
             //对于增删改3个操作, 流程完全相同, 抽成一个函数.
             SqlConnection conn = openConn();
@@ -178,7 +178,7 @@ namespace Intersect
             return result != 0;
         }
 
-        private SqlDataReader commonSelectOperation(string comm)
+        public SqlDataReader commonSelectOperation(string comm)
         {
             SqlConnection conn = openConn();
             SqlCommand com = new SqlCommand(comm, conn);
@@ -216,6 +216,7 @@ namespace Intersect
             reader.Read();
             return Int32.Parse(reader[0].ToString());
         }
+
         //-----Project-----
 
         //-----Condition-----
@@ -433,7 +434,7 @@ namespace Intersect
         {
             SqlDataReader reader = commonSelectOperation(comm);
             if (!reader.HasRows)
-                return C.ERROR_INT;
+                return Const.ERROR_INT;
             reader.Read();
             int id = Int32.Parse(reader[0].ToString());
             closeConnection();
@@ -493,7 +494,7 @@ namespace Intersect
         {
             SqlDataReader reader = commonSelectOperation(comm);
             if (!reader.HasRows)
-                return C.ERROR_INT;
+                return Const.ERROR_INT;
             reader.Read();
             int id = Int32.Parse(reader[0].ToString());
             closeConnection();
@@ -526,7 +527,7 @@ namespace Intersect
         {
             SqlDataReader reader = commonSelectOperation(comm);
             if (!reader.HasRows)
-                return C.ERROR_INT;
+                return Const.ERROR_INT;
             reader.Read();
             int id = Int32.Parse(reader[0].ToString());
             closeConnection();

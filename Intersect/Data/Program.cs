@@ -69,9 +69,9 @@ namespace Intersect
 
         public Program()
         {
-            prID = C.ERROR_INT;
-            prName = C.ERROR_STRING;
-            pID = C.ERROR_INT;
+            prID = Const.ERROR_INT;
+            prName = Const.ERROR_STRING;
+            pID = Const.ERROR_INT;
 
             _visible = false;
             step = 0;
@@ -95,12 +95,12 @@ namespace Intersect
         {
             if (shieldVariableList == null)
                 shieldVariableList = new List<string>();
-            if (!shieldVariableList.Contains("id") && prID == C.ERROR_INT)
-                return C.INNER_ERROR_TIP;
+            if (!shieldVariableList.Contains("id") && prID == Const.ERROR_INT)
+                return Const.INNER_ERROR_TIP;
             if (!shieldVariableList.Contains("name") && (prName.Length == 0 || prName.Length > PRNAME_MAX_LENGTH))
                 return String.Format("方案名长度须在0-{0}之间", PRNAME_MAX_LENGTH);
-            if (!shieldVariableList.Contains("projectID") && pID == C.ERROR_INT)
-                return C.INNER_ERROR_TIP;
+            if (!shieldVariableList.Contains("projectID") && pID == Const.ERROR_INT)
+                return Const.INNER_ERROR_TIP;
             return "";
         }
 
@@ -108,11 +108,11 @@ namespace Intersect
         {
             if (shieldVariableList == null)
                 shieldVariableList = new List<string>();
-            if (!shieldVariableList.Contains("prID") && prID == C.ERROR_INT)
+            if (!shieldVariableList.Contains("prID") && prID == Const.ERROR_INT)
                 return false;
             if (!shieldVariableList.Contains("prName") && (prName.Length == 0 || prName.Length > PRNAME_MAX_LENGTH))
                 return false;
-            if (!shieldVariableList.Contains("pID") && pID == C.ERROR_INT)
+            if (!shieldVariableList.Contains("pID") && pID == Const.ERROR_INT)
                 return false;
             return true;
         }

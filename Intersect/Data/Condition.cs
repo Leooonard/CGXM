@@ -116,9 +116,9 @@ namespace Intersect
         {
             get
             {
-                if (_labelIndex == C.ERROR_INT && lID == C.ERROR_INT)
-                    return C.ERROR_INT;
-                if (_labelIndex != C.ERROR_INT)
+                if (_labelIndex == Const.ERROR_INT && lID == Const.ERROR_INT)
+                    return Const.ERROR_INT;
+                if (_labelIndex != Const.ERROR_INT)
                     return _labelIndex;
                 for (int i = 0; i < labelList.Count; i++)
                 {
@@ -128,7 +128,7 @@ namespace Intersect
                         return i;
                     }
                 }
-                return C.ERROR_INT;
+                return Const.ERROR_INT;
             }
             set 
             {
@@ -139,15 +139,15 @@ namespace Intersect
 
         public Condition()
         {
-            cdID = C.ERROR_INT;
-            cdName = C.ERROR_STRING;
-            cdType = C.ERROR_INT;
-            cdCategory = C.ERROR_INT;
-            labelID = C.ERROR_INT;
-            programID = C.ERROR_INT;
-            cdValue = C.ERROR_DOUBLE;
+            cdID = Const.ERROR_INT;
+            cdName = Const.ERROR_STRING;
+            cdType = Const.ERROR_INT;
+            cdCategory = Const.ERROR_INT;
+            labelID = Const.ERROR_INT;
+            programID = Const.ERROR_INT;
+            cdValue = Const.ERROR_DOUBLE;
             labelList = new ObservableCollection<Label>();
-            _labelIndex = C.ERROR_INT;
+            _labelIndex = Const.ERROR_INT;
         }
 
         public Condition(int programID):this()
@@ -170,19 +170,19 @@ namespace Intersect
         {
             if (shieldVariableList == null)
                 shieldVariableList = new List<string>();
-            if (!shieldVariableList.Contains("id") && cdID == C.ERROR_INT)
-                return C.INNER_ERROR_TIP;
+            if (!shieldVariableList.Contains("id") && cdID == Const.ERROR_INT)
+                return Const.INNER_ERROR_TIP;
             if (!shieldVariableList.Contains("name") && (cdName.Length == 0 || cdName.Length > CDNAME_MAX_LENGTH))
                 return String.Format("条件名长度须在0-{0}之间", CDNAME_MAX_LENGTH);
-            if (!shieldVariableList.Contains("type") && cdType == C.ERROR_INT)
+            if (!shieldVariableList.Contains("type") && cdType == Const.ERROR_INT)
                 return "条件类型不能为空";
-            if (!shieldVariableList.Contains("category") && cdCategory == C.ERROR_INT)
+            if (!shieldVariableList.Contains("category") && cdCategory == Const.ERROR_INT)
                 return "条件种类不能为空";
-            if (!shieldVariableList.Contains("labelID") && labelID == C.ERROR_INT)
+            if (!shieldVariableList.Contains("labelID") && labelID == Const.ERROR_INT)
                 return "条件关联图层不能为空";
-            if (!shieldVariableList.Contains("programID") && prID == C.ERROR_INT)
-                return C.INNER_ERROR_TIP;
-            if (!shieldVariableList.Contains("value") && cdValue == C.ERROR_DOUBLE)
+            if (!shieldVariableList.Contains("programID") && prID == Const.ERROR_INT)
+                return Const.INNER_ERROR_TIP;
+            if (!shieldVariableList.Contains("value") && cdValue == Const.ERROR_DOUBLE)
                 return "条件值不能为空";
             return "";
         }
@@ -191,19 +191,19 @@ namespace Intersect
         {
             if (shieldVariableList == null)
                 shieldVariableList = new List<string>();
-            if (!shieldVariableList.Contains("cdID") && cdID == C.ERROR_INT)
+            if (!shieldVariableList.Contains("cdID") && cdID == Const.ERROR_INT)
                 return false;
             if (!shieldVariableList.Contains("cdName") && (cdName.Length == 0 || cdName.Length > CDNAME_MAX_LENGTH))
                 return false;
-            if (!shieldVariableList.Contains("cdType") && cdType == C.ERROR_INT)
+            if (!shieldVariableList.Contains("cdType") && cdType == Const.ERROR_INT)
                 return false;
-            if (!shieldVariableList.Contains("cdCategory") && cdCategory == C.ERROR_INT)
+            if (!shieldVariableList.Contains("cdCategory") && cdCategory == Const.ERROR_INT)
                 return false;
-            if (!shieldVariableList.Contains("lID") && lID == C.ERROR_INT)
+            if (!shieldVariableList.Contains("lID") && lID == Const.ERROR_INT)
                 return false;
-            if (!shieldVariableList.Contains("prID") && prID == C.ERROR_INT)
+            if (!shieldVariableList.Contains("prID") && prID == Const.ERROR_INT)
                 return false;
-            if (!shieldVariableList.Contains("cdValue") && cdValue == C.ERROR_DOUBLE)
+            if (!shieldVariableList.Contains("cdValue") && cdValue == Const.ERROR_DOUBLE)
                 return false;
             return true;
         }
@@ -238,7 +238,7 @@ namespace Intersect
 
         public override bool delete()
         {
-            if (cdID == C.ERROR_INT)
+            if (cdID == Const.ERROR_INT)
                 return false;
             string sqlCommand = String.Format("delete from Condition where cdID={0}", cdID);
             Sql sql = new Sql();
@@ -247,7 +247,7 @@ namespace Intersect
 
         public override bool select()
         {
-            if (cdID == C.ERROR_INT)
+            if (cdID == Const.ERROR_INT)
                 return false;
             string sqlCommand = String.Format("select * from Condition where cdID={0}", cdID);
             Sql sql = new Sql();

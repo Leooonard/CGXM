@@ -53,7 +53,7 @@ namespace Intersect
                 onPropertyChanged("content");
             }
         }
-        //this attribute is deprecated.
+
         private string lMapLayerName;
         public string mapLayerName
         {
@@ -80,19 +80,6 @@ namespace Intersect
                 onPropertyChanged("isChoosed");
             }
         }
-        private string lMapLayerPath;
-        public string mapLayerPath
-        {
-            get
-            {
-                return lMapLayerPath;
-            }
-            set
-            {
-                lMapLayerPath = value;
-                onPropertyChanged("mapLayerPath");
-            }
-        }
 
         private int lType;
         public int type
@@ -108,6 +95,20 @@ namespace Intersect
             }
         }
 
+        private bool lisRaster;
+        public bool isRaster
+        {
+            get
+            {
+                return lisRaster;
+            }
+            set
+            {
+                lisRaster = value;
+                onPropertyChanged("isRaster");
+            }
+        }
+
         public UncompleteLabelComboBoxManager uncomleteLabelContentManager
         {
             get;
@@ -116,13 +117,13 @@ namespace Intersect
 
         public Label()
         {
-            lID = C.ERROR_INT;
-            pID = C.ERROR_INT;
-            lContent = C.ERROR_STRING;
-            lMapLayerName = C.ERROR_STRING;
-            lIsChoosed = C.ERROR_BOOL;
-            lMapLayerPath = C.ERROR_STRING;
+            lID = Const.ERROR_INT;
+            pID = Const.ERROR_INT;
+            lContent = Const.ERROR_STRING;
+            lMapLayerName = Const.ERROR_STRING;
+            lIsChoosed = Const.ERROR_BOOL;
             lType = 1;
+            lisRaster = Const.ERROR_BOOL;
             uncomleteLabelContentManager = new UncompleteLabelComboBoxManager();
         }
 
@@ -134,8 +135,8 @@ namespace Intersect
             lContent = reader[2].ToString();
             lMapLayerName = reader[3].ToString();
             lIsChoosed = Boolean.Parse(reader[4].ToString());
-            lMapLayerPath = reader[5].ToString();
-            lType = Int32.Parse(reader[6].ToString());
+            lType = Int32.Parse(reader[5].ToString());
+            lisRaster = Boolean.Parse(reader[6].ToString());
             uncomleteLabelContentManager = new UncompleteLabelComboBoxManager();
         }
 
@@ -149,18 +150,16 @@ namespace Intersect
         {
             if (shieldVariableList == null)
                 shieldVariableList = new List<string>();
-            if (!shieldVariableList.Contains("id") && lID == C.ERROR_INT)
-                return C.INNER_ERROR_TIP;
-            if (!shieldVariableList.Contains("projectID") && pID == C.ERROR_INT)
-                return C.INNER_ERROR_TIP;
+            if (!shieldVariableList.Contains("id") && lID == Const.ERROR_INT)
+                return Const.INNER_ERROR_TIP;
+            if (!shieldVariableList.Contains("projectID") && pID == Const.ERROR_INT)
+                return Const.INNER_ERROR_TIP;
             if (!shieldVariableList.Contains("content") && (lContent.Length == 0 || lContent.Length > MAX_LCONTENT_LENGTH))
                 return String.Format("标注长度须在0-{0}之间.", MAX_LCONTENT_LENGTH);
             if (!shieldVariableList.Contains("mapLayerName") && (lMapLayerName.Length == 0 || lMapLayerName.Length > MAX_LMAPLAYERNAME_LENGTH))
                 return "关联地图图层为空";
-            if (!shieldVariableList.Contains("mapLayerPath") && (lMapLayerPath.Length == 0 || lMapLayerPath.Length > MAX_LMAPLAYERPATH_LENGTH))
-                return "关联地图图层为空";
-            if (!shieldVariableList.Contains("type") && lType == C.ERROR_INT)
-                return C.INNER_ERROR_TIP;
+            if (!shieldVariableList.Contains("type") && lType == Const.ERROR_INT)
+                return Const.INNER_ERROR_TIP;
             return "";
         }
 
@@ -168,17 +167,15 @@ namespace Intersect
         {
             if (shieldVariableList == null)
                 shieldVariableList = new List<string>();
-            if (!shieldVariableList.Contains("lID") && lID == C.ERROR_INT)
+            if (!shieldVariableList.Contains("lID") && lID == Const.ERROR_INT)
                 return false;
-            if (!shieldVariableList.Contains("pID") && pID == C.ERROR_INT)
+            if (!shieldVariableList.Contains("pID") && pID == Const.ERROR_INT)
                 return false;
             if (!shieldVariableList.Contains("lContent") && (lContent.Length == 0 || lContent.Length > MAX_LCONTENT_LENGTH))
                 return false;
             if (!shieldVariableList.Contains("lMapLayerName") && (lMapLayerName.Length == 0 || lMapLayerName.Length > MAX_LMAPLAYERNAME_LENGTH))
                 return false;
-            if (!shieldVariableList.Contains("lMapLayerPath") && (lMapLayerPath.Length == 0 || lMapLayerPath.Length > MAX_LMAPLAYERPATH_LENGTH))
-                return false;
-            if (!shieldVariableList.Contains("lType") && lType == C.ERROR_INT)
+            if (!shieldVariableList.Contains("lType") && lType == Const.ERROR_INT)
                 return false;
             return true;
         }
@@ -187,8 +184,8 @@ namespace Intersect
         {
             if (!isValid(new List<string>() { "lID"}))
                 return false;
-            string sqlCommand = String.Format(@"insert into Label (pID,lContent,lMapLayerName,lIsChoosed,lMapLayerPath,lType) values ({0}, '{1}', '{2}', {3}, '{4}', {5})"
-                , pID, lContent, lMapLayerName, lIsChoosed ? 1 : 0, lMapLayerPath, lType);
+            string sqlCommand = String.Format(@"insert into Label (pID,lContent,lMapLayerName,lIsChoosed,lType, lisRaster) values ({0}, '{1}', '{2}', {3}, {4}, {5})"
+                , pID, lContent, lMapLayerName, lIsChoosed ? 1 : 0, lType, lisRaster ? 1 : 0);
             Sql sql = new Sql();
             return sql.insertLabel(sqlCommand);
         }
@@ -197,15 +194,15 @@ namespace Intersect
         {
             if (!isValid())
                 return false;
-            string sqlCommand = String.Format(@"update Label set pID={0},lContent='{1}',lMapLayerName='{2}',lIsChoosed={3}, lMapLayerPath='{4}',lType='{5}' where lID={6}"
-                , pID, lContent, lMapLayerName, lIsChoosed ? 1 : 0, lMapLayerPath, lType, lID);
+            string sqlCommand = String.Format(@"update Label set pID={0},lContent='{1}',lMapLayerName='{2}',lIsChoosed={3}, lType='{5}', lisRaster={6} where lID={7}"
+                , pID, lContent, lMapLayerName, lIsChoosed ? 1 : 0, lType, lisRaster ? 1 : 0, lID);
             Sql sql = new Sql();
             return sql.updateLabel(sqlCommand);
         }
 
         public override bool delete()
         {
-            if (!isValid(new List<string>() { "pID", "lContent", "lMapLayerName", "lIsChoosed", "lMapLayerPath", "lType"}))
+            if (!isValid(new List<string>() { "pID", "lContent", "lMapLayerName", "lIsChoosed", "lType", "lisRaster"}))
                 return false;
             string sqlCommand = String.Format(@"delete from Label where lID={0}", lID);
             Sql sql = new Sql();
@@ -214,7 +211,7 @@ namespace Intersect
 
         public override bool select()
         {
-            if (!isValid(new List<string>() { "pID", "lContent", "lMapLayerName", "lIsChoosed", "lMapLayerPath", "lType"}))
+            if (!isValid(new List<string>() { "pID", "lContent", "lMapLayerName", "lIsChoosed", "lType", "lisRaster"}))
                 return false;
             string sqlCommand = String.Format(@"select * from Label where lID={0}", lID);
             Sql sql = new Sql();

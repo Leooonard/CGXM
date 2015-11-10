@@ -10,11 +10,11 @@ none
 false
 DEBUG;TRACE
 C:\Users\Mavericks\Documents\Visual Studio 2010\Projects\Intersect\Intersect\App.xaml
-17-732968274
+17-1805833024
 
-8227382396
+841933197834
 112-1134880838
-UserControl\HouseItemUserControl.xaml;UserControl\HousePlacerUserControl.xaml;UserControl\SelectInnerRoadUserControl.xaml;UserControl\CaculateUserControl.xaml;UserControl\ConditionUserControl.xaml;UserControl\ConfigUserControl.xaml;CxLegend.xaml;LoadingWindowUC.xaml;UserControl\NetSizeUserControl.xaml;UserControl\ProgramStepUserControl.xaml;UserControl\SelectMainRoadUserControl.xaml;UserControl\SelectVillageUserControl.xaml;UserControl\SiteSelectorUserControl.xaml;窗体\OpenWindow.xaml;UserControl\Pager.xaml;窗体\ProjectWindow.xaml;窗体\MainWindow.xaml;
+UserControl\HouseItemUserControl.xaml;UserControl\HousePlacerUserControl.xaml;UserControl\SelectInnerRoadUserControl.xaml;UserControl\CaculateUserControl.xaml;UserControl\ConditionUserControl.xaml;UserControl\ConfigUserControl.xaml;CxLegend.xaml;LoadingWindowUC.xaml;UserControl\NetSizeUserControl.xaml;UserControl\ProgramStepUserControl.xaml;UserControl\SelectMainRoadUserControl.xaml;UserControl\SelectVillageUserControl.xaml;UserControl\SiteSelectorUserControl.xaml;窗体\开始\OpenWindow.xaml;UserControl\Pager.xaml;窗体\项目编辑\ProjectWindow.xaml;窗体\项目执行\MainWindow.xaml;
 
-True
+False
 

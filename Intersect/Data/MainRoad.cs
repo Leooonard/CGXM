@@ -68,20 +68,20 @@ namespace Intersect
 
         public MainRoad()
         {
-            mrID = C.ERROR_INT;
-            prID = C.ERROR_INT;
+            mrID = Const.ERROR_INT;
+            prID = Const.ERROR_INT;
             mrName = MRNAME_DEFAULT_NAME;
-            mrPath = C.ERROR_STRING;
+            mrPath = Const.ERROR_STRING;
         }
 
         public override string checkValid(List<string> shieldVariableList = null)
         {
             if (shieldVariableList == null)
                 shieldVariableList = new List<string>();
-            if (!shieldVariableList.Contains("id") && mrID == C.ERROR_INT)
-                return C.INNER_ERROR_TIP;
-            if (!shieldVariableList.Contains("programID") && prID == C.ERROR_INT)
-                return C.INNER_ERROR_TIP;
+            if (!shieldVariableList.Contains("id") && mrID == Const.ERROR_INT)
+                return Const.INNER_ERROR_TIP;
+            if (!shieldVariableList.Contains("programID") && prID == Const.ERROR_INT)
+                return Const.INNER_ERROR_TIP;
             if (!shieldVariableList.Contains("name") && (mrName.Length == 0 || mrName.Length > MRNAME_MAX_LENGTH))
                 return String.Format("主路名长度须在0-{0}之间.", MRNAME_MAX_LENGTH);
             if (!shieldVariableList.Contains("path") && mrPath.Length == 0)
@@ -93,9 +93,9 @@ namespace Intersect
         {
             if (shieldVariableList == null)
                 shieldVariableList = new List<string>();
-            if (!shieldVariableList.Contains("mrID") && mrID == C.ERROR_INT)
+            if (!shieldVariableList.Contains("mrID") && mrID == Const.ERROR_INT)
                 return false;
-            if (!shieldVariableList.Contains("prID") && prID == C.ERROR_INT)
+            if (!shieldVariableList.Contains("prID") && prID == Const.ERROR_INT)
                 return false;
             if (!shieldVariableList.Contains("mrName") && (mrName.Length == 0 || mrName.Length > MRNAME_MAX_LENGTH))
                 return false;
@@ -112,7 +112,7 @@ namespace Intersect
             mrName = reader[2].ToString();
             mrPath = reader[3].ToString();
             List<Point> pointList = MainRoad.ConvertStringToPointList(mrPath);
-            lineElement = GisUtil.getILineElementFromPointList(pointList);
+            lineElement = GisTool.getILineElementFromPointList(pointList);
         }
 
         public override bool save()
@@ -135,7 +135,7 @@ namespace Intersect
 
         public void updatePath()
         {
-            List<Point> pointList = GisUtil.getPointListFromILineElement(lineElement);
+            List<Point> pointList = GisTool.getPointListFromILineElement(lineElement);
             mrPath = MainRoad.ConvertPointListToString(pointList);
         }
 
@@ -151,7 +151,7 @@ namespace Intersect
 
         public bool saveOrUpdate()
         {
-            if (id == C.ERROR_INT)
+            if (id == Const.ERROR_INT)
             {
                 return save();
             }

@@ -30,7 +30,7 @@ namespace Intersect
         {
             if (netSize == null)
                 return;
-            if (netSize.id == C.ERROR_INT)
+            if (netSize.id == Const.ERROR_INT)
                 netSize.save();
             else
                 netSize.update();
@@ -39,7 +39,7 @@ namespace Intersect
         public bool isValid()
         {
             BindingGroup bindingGroup = NetSizeGrid.BindingGroup;
-            if (!Ut.checkBindingGroup(bindingGroup))
+            if (!Tool.checkBindingGroup(bindingGroup))
             {
                 return false;
             }
@@ -68,9 +68,9 @@ namespace Intersect
                 netSize.id = NetSize.GetLastNetSizeID();
             }
 
-            Ut.bind(netSize, "width", BindingMode.TwoWay, NetSizeWidthTextBox, TextBox.TextProperty
+            Tool.bind(netSize, "width", BindingMode.TwoWay, NetSizeWidthTextBox, TextBox.TextProperty
                 , new List<ValidationRule>() { new PositiveDoubleValidationRule() }, "NetSizeBindingGroup");
-            Ut.bind(netSize, "height", BindingMode.TwoWay, NetSizeHeightTextBox, TextBox.TextProperty
+            Tool.bind(netSize, "height", BindingMode.TwoWay, NetSizeHeightTextBox, TextBox.TextProperty
                 , new List<ValidationRule>() { new PositiveDoubleValidationRule() }, "NetSizeBindingGroup");
         }
     }

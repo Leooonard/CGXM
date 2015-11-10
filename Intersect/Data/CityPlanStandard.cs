@@ -48,10 +48,10 @@ namespace Intersect
 
         public CityPlanStandard()
         {
-            cpsID = C.ERROR_INT;
-            cpsNumber = C.ERROR_STRING;
-            cpsShortDescription = C.ERROR_STRING;
-            cpsLongDescription = C.ERROR_STRING;
+            cpsID = Const.ERROR_INT;
+            cpsNumber = Const.ERROR_STRING;
+            cpsShortDescription = Const.ERROR_STRING;
+            cpsLongDescription = Const.ERROR_STRING;
         }
 
         public override string checkValid(List<string> shieldVariableList = null)
@@ -81,7 +81,7 @@ namespace Intersect
 
         public override bool select()
         {
-            if (cpsID == C.ERROR_INT)
+            if (cpsID == Const.ERROR_INT)
                 return false;
             string sqlCommand = String.Format("select * from CityPlanStandard where cpsID = {0}", cpsID.ToString());
             Sql sql = new Sql();
@@ -120,7 +120,7 @@ namespace Intersect
             string SqlCommand = String.Format(@"select cpsID from CityPlanStandard where cpsNumber='{0}'", number);
             Sql sql = new Sql();
             int cpsID = sql.selectCityPlanStandardIDByCpsNumber(SqlCommand);
-            if (cpsID == C.ERROR_INT)
+            if (cpsID == Const.ERROR_INT)
                 return false;
             CityPlanStandard cityPlanStandard = new CityPlanStandard();
             cityPlanStandard.id = cpsID;
@@ -133,7 +133,7 @@ namespace Intersect
             string sqlCommand = String.Format(@"select cpsID from CityPlanStandard where cpsNumber='{0}'", number);
             Sql sql = new Sql();
             int cpsID = sql.selectCityPlanStandardIDByCpsNumber(sqlCommand);
-            if (cpsID == C.ERROR_INT)
+            if (cpsID == Const.ERROR_INT)
                 return null;
             CityPlanStandard cityPlanStandard = new CityPlanStandard();
             cityPlanStandard.id = cpsID;

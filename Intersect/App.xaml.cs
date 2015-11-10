@@ -9,6 +9,7 @@ using ESRI.ArcGIS.Controls;
 using ESRI.ArcGIS.PublisherControls;
 using ESRI.ArcGIS.esriSystem;
 using System.IO;
+using Intersect.Lib;
 
 namespace Intersect
 {
@@ -17,16 +18,14 @@ namespace Intersect
     /// </summary>
     public partial class App : Application
     {
-        public const string TEMP_PATH = @"C:\CGXM\";
-
         public App()
         {
             InitArcGISLicence();
 
-            //开一个专门用来放临时文件的文件夹。
-            if (!Directory.Exists(TEMP_PATH))
+            //检查工作目录在不在. 不存在就新开一个。
+            if (!Directory.Exists(Const.WORKSPACE_PATH))
             {
-                Directory.CreateDirectory(TEMP_PATH);
+                Directory.CreateDirectory(Const.WORKSPACE_PATH);
             }
         }
 

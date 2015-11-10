@@ -60,13 +60,17 @@ namespace Intersect
                         Condition condition = new Condition();
                         condition.labelID = label.id;
                         condition.programID = program.id;
-                        if (label.type == C.LABEL_TYPE_RESTRAINT)
-                            condition.type = C.CONFIG_TYPE_RESTRAINT;
-                        else
-                            condition.type = C.CONFIG_TYPE_STANDARD;
+                        if (label.type == Const.LABEL_TYPE_RESTRAINT)
+                        {
+                            condition.type = Const.CONFIG_TYPE_RESTRAINT;                            
+                        }
+                        else if (label.type == Const.LABEL_TYPE_STANDARD)
+                        {
+                            condition.type = Const.CONFIG_TYPE_STANDARD;
+                        }
                         condition.saveWithoutCheck();
                         condition.id = Condition.GetLastConditionID();
-                        if (label.type == C.LABEL_TYPE_RESTRAINT)
+                        if (label.type == Const.LABEL_TYPE_RESTRAINT)
                             restraintConditionList.Add(condition);
                         else
                             standardConditionList.Add(condition);
@@ -83,7 +87,7 @@ namespace Intersect
                     label.select();
                     if (label.isChoosed)
                     {
-                        if (label.type == C.LABEL_TYPE_RESTRAINT)
+                        if (label.type == Const.LABEL_TYPE_RESTRAINT)
                             restraintConditionList.Add(condition);
                         else
                             standardConditionList.Add(condition);
@@ -169,7 +173,7 @@ namespace Intersect
         public bool isValid()
         {
             BindingGroup bindingGroup = ConditionStepStackPanel.BindingGroup;
-            if (!Ut.checkBindingGroup(bindingGroup))
+            if (!Tool.checkBindingGroup(bindingGroup))
             {
                 return false;
             }

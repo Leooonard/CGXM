@@ -52,8 +52,8 @@ namespace Intersect
         public HouseItemUserControl()
         {
             InitializeComponent();
-            Ut.bind(this, "Title", BindingMode.TwoWay, HouseItemTitleTextBlock, TextBlock.TextProperty, new List<ValidationRule>());
-            Ut.bind(this, "Value", BindingMode.TwoWay, HouseItemValueTextBox, TextBox.TextProperty, new List<ValidationRule>());
+            Tool.bind(this, "Title", BindingMode.TwoWay, HouseItemTitleTextBlock, TextBlock.TextProperty, new List<ValidationRule>());
+            Tool.bind(this, "Value", BindingMode.TwoWay, HouseItemValueTextBox, TextBox.TextProperty, new List<ValidationRule>());
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

@@ -72,17 +72,17 @@ namespace Intersect
             mainWindow = mw;
             foreach (Village village in villageList)
             {
-                GisUtil.drawPolygonElement(village.polygonElement, mapControl);
-                GisUtil.UpdatePolygonElementColor(village.polygonElement, mapControl
+                GisTool.drawPolygonElement(village.polygonElement, mapControl);
+                GisTool.UpdatePolygonElementColor(village.polygonElement, mapControl
                     , VillageColorRandomer.GetRedFromColorString(village.polygonElementColorString)
                     , VillageColorRandomer.GetGreenFromColorString(village.polygonElementColorString)
                     , VillageColorRandomer.GetBlueFromColorString(village.polygonElementColorString));
                 if (village.innerRoad.lineElement != null)
-                    GisUtil.DrawPolylineElement(village.innerRoad.lineElement, mapControl);
+                    GisTool.DrawPolylineElement(village.innerRoad.lineElement, mapControl);
                 if (village.inUse)
                 {
                     string reverseColorString = VillageColorRandomer.GetReverseVillageColorString(village.polygonElementColorString);
-                    GisUtil.UpdatePolygonElementOutline(village.polygonElement, mapControl
+                    GisTool.UpdatePolygonElementOutline(village.polygonElement, mapControl
                         , VillageColorRandomer.GetRedFromColorString(reverseColorString)
                         , VillageColorRandomer.GetGreenFromColorString(reverseColorString)
                         , VillageColorRandomer.GetBlueFromColorString(reverseColorString));
@@ -103,10 +103,10 @@ namespace Intersect
             foreach (Village village in villageList)
             {
                 village.delete();
-                GisUtil.ErasePolygonElement(village.polygonElement, mapControl);
+                GisTool.ErasePolygonElement(village.polygonElement, mapControl);
                 //内部路不用删除, 在删除village时, 数据库级联删除.
                 if(village.innerRoad.lineElement != null)
-                    GisUtil.ErasePolylineElement(village.innerRoad.lineElement, mapControl);
+                    GisTool.ErasePolylineElement(village.innerRoad.lineElement, mapControl);
             }
             villageList = new ObservableCollection<Village>();
         }
@@ -123,17 +123,17 @@ namespace Intersect
                 village.innerRoad.saveWithoutCheck();
                 village.innerRoad.id = InnerRoad.GetLastInnerRoadID();
                 village.polygonElementColorString = villageColorRandomer.randomColor();
-                GisUtil.drawPolygonElement(village.polygonElement, mapControl);
-                GisUtil.UpdatePolygonElementColor(village.polygonElement, mapControl
+                GisTool.drawPolygonElement(village.polygonElement, mapControl);
+                GisTool.UpdatePolygonElementColor(village.polygonElement, mapControl
                     , VillageColorRandomer.GetRedFromColorString(village.polygonElementColorString)
                     , VillageColorRandomer.GetGreenFromColorString(village.polygonElementColorString)
                     , VillageColorRandomer.GetBlueFromColorString(village.polygonElementColorString));
                 if (village.innerRoad.lineElement != null)
-                    GisUtil.DrawPolylineElement(village.innerRoad.lineElement, mapControl);
+                    GisTool.DrawPolylineElement(village.innerRoad.lineElement, mapControl);
                 if (village.inUse)
                 {
                     string reverseColorString = VillageColorRandomer.GetReverseVillageColorString(village.polygonElementColorString);
-                    GisUtil.UpdatePolygonElementOutline(village.polygonElement, mapControl
+                    GisTool.UpdatePolygonElementOutline(village.polygonElement, mapControl
                         , VillageColorRandomer.GetRedFromColorString(reverseColorString)
                         , VillageColorRandomer.GetGreenFromColorString(reverseColorString)
                         , VillageColorRandomer.GetBlueFromColorString(reverseColorString));
@@ -158,7 +158,7 @@ namespace Intersect
                 return false;
 
             BindingGroup bindingGroup = SelectVillageStackPanel.BindingGroup;
-            if (!Ut.checkBindingGroup(bindingGroup))
+            if (!Tool.checkBindingGroup(bindingGroup))
             {
                 return false;
             }
@@ -221,11 +221,11 @@ namespace Intersect
             {
                 if (village.id == villageID)
                 {
-                    GisUtil.UpdatePolygonElementOutline(village.polygonElement, mapControl, 255, 255, 0);
+                    GisTool.UpdatePolygonElementOutline(village.polygonElement, mapControl, 255, 255, 0);
                 }
                 else
                 {
-                    GisUtil.RestorePolygonElementOutline(village.polygonElement, mapControl);
+                    GisTool.RestorePolygonElementOutline(village.polygonElement, mapControl);
                 }
             }
             return;
@@ -237,7 +237,7 @@ namespace Intersect
             {
                 if (isDirty())
                 {
-                    if (Ut.C("将改变之后的数据. 是否继续?"))
+                    if (Tool.C("将改变之后的数据. 是否继续?"))
                     {
                         valid = true;
                         dirty = true;
@@ -263,7 +263,7 @@ namespace Intersect
             }
             else
             {
-                Ut.M("请完整填写信息.");
+                Tool.M("请完整填写信息.");
                 return;
             }
         }
@@ -282,7 +282,7 @@ namespace Intersect
             IPointCollection pointCollection = villageBoundaryPolylineTopologicalOperator.Intersect(innerRoadPolyline, esriGeometryDimension.esriGeometry0Dimension) as IPointCollection;
             if (pointCollection.PointCount < 2)
             {
-                Ut.M("内部路必须穿过小区");
+                Tool.M("内部路必须穿过小区");
                 mainWindow.unmask();
                 return;
             }
@@ -290,14 +290,14 @@ namespace Intersect
 
             if (village.innerRoad.lineElement != null)
             {
-                GisUtil.ErasePolylineElement(village.innerRoad.lineElement, mapControl);
+                GisTool.ErasePolylineElement(village.innerRoad.lineElement, mapControl);
             }
             ILineElement innerRoadLineElement = new LineElementClass();
             IElement element = innerRoadLineElement as IElement;
             element.Geometry = innerRoadPolyline;
             village.innerRoad.lineElement = innerRoadLineElement;
             village.innerRoad.updatePath();
-            GisUtil.DrawPolylineElement(innerRoadLineElement, mapControl);
+            GisTool.DrawPolylineElement(innerRoadLineElement, mapControl);
             mainWindow.unmask();
         }
 
@@ -322,7 +322,7 @@ namespace Intersect
                 {
                     if (isVillageTooBig(village.polygonElement))
                     {
-                        Ut.M("所选区域过大, 无法选择");
+                        Tool.M("所选区域过大, 无法选择");
                         checkBox.IsChecked = false;
                         e.Handled = true;
                         return;
@@ -331,14 +331,14 @@ namespace Intersect
                     if (isChecked)
                     {
                         string reverseColorString = VillageColorRandomer.GetReverseVillageColorString(village.polygonElementColorString);
-                        GisUtil.UpdatePolygonElementOutline(village.polygonElement, mapControl
+                        GisTool.UpdatePolygonElementOutline(village.polygonElement, mapControl
                             , VillageColorRandomer.GetRedFromColorString(reverseColorString)
                             , VillageColorRandomer.GetGreenFromColorString(reverseColorString)
                             , VillageColorRandomer.GetBlueFromColorString(reverseColorString));
                     }
                     else
                     {
-                        GisUtil.RestorePolygonElementOutline(village.polygonElement, mapControl);
+                        GisTool.RestorePolygonElementOutline(village.polygonElement, mapControl);
                     }
                 }
             }
@@ -358,7 +358,7 @@ namespace Intersect
                 {
                     mapControlMouseDown = delegate(object sender2, IMapControlEvents2_OnMouseDownEvent e2)
                     {
-                        GisUtil.ResetToolbarControl(toolbarControl);
+                        GisTool.ResetToolbarControl(toolbarControl);
                         onMapControlMouseDown(village);
                         mapControlMouseDown = null;
                         return true;

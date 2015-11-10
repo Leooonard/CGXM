@@ -67,23 +67,23 @@ namespace Intersect
 
         public Project()
         {
-            pID = C.ERROR_INT;
-            pName = C.ERROR_STRING;
-            pPath = C.ERROR_STRING;
-            pBaseMapIndex = C.ERROR_INT;
+            pID = Const.ERROR_INT;
+            pName = Const.ERROR_STRING;
+            pPath = Const.ERROR_STRING;
+            pBaseMapIndex = Const.ERROR_INT;
         }
 
         public override string checkValid(List<string> shieldVariableList = null)
         {
             if (shieldVariableList == null)
                 shieldVariableList = new List<string>();
-            if (!shieldVariableList.Contains("id") && pID == C.ERROR_INT)
+            if (!shieldVariableList.Contains("id") && pID == Const.ERROR_INT)
                 return "项目ID为空";
             if (!shieldVariableList.Contains("name") && (pName.Length == 0 || pName.Length > PMNAME_MAX_LENGTH))
                 return String.Format("项目名长度须在0-{0}之间", PMNAME_MAX_LENGTH);
             if (!shieldVariableList.Contains("path") && pPath.Length == 0)
                 return "项目路径不能为空";
-            if (!shieldVariableList.Contains("baseMapIndex") && pBaseMapIndex == C.ERROR_INT)
+            if (!shieldVariableList.Contains("baseMapIndex") && pBaseMapIndex == Const.ERROR_INT)
                 return "项目基础图层不能为空";
             return "";
         }
@@ -92,13 +92,13 @@ namespace Intersect
         {
             if (shieldVariableList == null)
                 shieldVariableList = new List<string>();
-            if (!shieldVariableList.Contains("pID") && pID == C.ERROR_INT)
+            if (!shieldVariableList.Contains("pID") && pID == Const.ERROR_INT)
                 return false;
             if (!shieldVariableList.Contains("pName") && (pName.Length == 0 || pName.Length > PMNAME_MAX_LENGTH))
                 return false;
             if (!shieldVariableList.Contains("pPath") && pPath.Length == 0)
                 return false;
-            if (!shieldVariableList.Contains("pBaseMapIndex") && pBaseMapIndex == C.ERROR_INT)
+            if (!shieldVariableList.Contains("pBaseMapIndex") && pBaseMapIndex == Const.ERROR_INT)
                 return false;
             return true;
         }
@@ -213,6 +213,18 @@ namespace Intersect
             string sqlCommand = String.Format("select max(pID) from Project");
             Sql sql = new Sql();
             return sql.selectMaxProjectAndMapID(sqlCommand);
+        }
+
+        public static bool ProjectNameExist(string projectName)
+        {
+            string sqlCommand = String.Format("select * from Project where pName = '{0}'", projectName);
+            Sql sql = new Sql();
+            SqlDataReader reader = sql.commonSelectOperation(sqlCommand);
+            while(reader.Read())
+            {
+                return true;
+            }
+            return false;
         }
 
         public static ObservableCollection<Project> GetAllProject()

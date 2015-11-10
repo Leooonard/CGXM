@@ -131,24 +131,24 @@ namespace Intersect
 
         public House()
         {
-            hID = C.ERROR_INT;
-            hWidth = C.ERROR_DOUBLE;
-            hLeftGap = C.ERROR_DOUBLE;
-            hRightGap = C.ERROR_DOUBLE;
-            vID = C.ERROR_INT;
-            hUnit = C.ERROR_INT;
-            hHouseHold = C.ERROR_INT;
-            hName = C.ERROR_STRING;
+            hID = Const.ERROR_INT;
+            hWidth = Const.ERROR_DOUBLE;
+            hLeftGap = Const.ERROR_DOUBLE;
+            hRightGap = Const.ERROR_DOUBLE;
+            vID = Const.ERROR_INT;
+            hUnit = Const.ERROR_INT;
+            hHouseHold = Const.ERROR_INT;
+            hName = Const.ERROR_STRING;
         }
 
         public static House GetDefaultHouse()
         {
             House house = new House();
-            house.width = C.DEFAULT_NUMBER_VALUE;
-            house.leftGap = C.DEFAULT_NUMBER_VALUE;
-            house.rightGap = C.DEFAULT_NUMBER_VALUE;
-            house.unit = C.DEFAULT_NUMBER_VALUE;
-            house.houseHold = C.DEFAULT_NUMBER_VALUE;
+            house.width = Const.DEFAULT_NUMBER_VALUE;
+            house.leftGap = Const.DEFAULT_NUMBER_VALUE;
+            house.rightGap = Const.DEFAULT_NUMBER_VALUE;
+            house.unit = Const.DEFAULT_NUMBER_VALUE;
+            house.houseHold = Const.DEFAULT_NUMBER_VALUE;
             house.name = DEFAULT_HOUSE_NAME;
             return house;
         }
@@ -157,16 +157,16 @@ namespace Intersect
         {
             if (shieldVariableList == null)
                 shieldVariableList = new List<string>();
-            if (!shieldVariableList.Contains("id") && hID == C.ERROR_INT)
-                return C.INNER_ERROR_TIP;
+            if (!shieldVariableList.Contains("id") && hID == Const.ERROR_INT)
+                return Const.INNER_ERROR_TIP;
             if (!shieldVariableList.Contains("width") && hWidth < 0)
                 return "户型面宽须大于0";
             if (!shieldVariableList.Contains("leftGap") && hLeftGap < 0)
                 return "户型左间距须大于0";
             if (!shieldVariableList.Contains("rightGap") && hRightGap < 0)
                 return "户型面右间距大于0";
-            if (!shieldVariableList.Contains("villageID") && vID == C.ERROR_INT)
-                return C.INNER_ERROR_TIP;
+            if (!shieldVariableList.Contains("villageID") && vID == Const.ERROR_INT)
+                return Const.INNER_ERROR_TIP;
             if (!shieldVariableList.Contains("unit") && hUnit < 0)
                 return "户型户数须大于0";
             if (!shieldVariableList.Contains("houseHold") && hHouseHold < 0)
@@ -180,7 +180,7 @@ namespace Intersect
         {
             if (shieldVariableList == null)
                 shieldVariableList = new List<string>();
-            if (!shieldVariableList.Contains("hID") && hID == C.ERROR_INT)
+            if (!shieldVariableList.Contains("hID") && hID == Const.ERROR_INT)
                 return false;
             if (!shieldVariableList.Contains("hWidth") && hWidth < 0)
                 return false;
@@ -188,7 +188,7 @@ namespace Intersect
                 return false;
             if (!shieldVariableList.Contains("hRightGap") && hRightGap < 0)
                 return false;
-            if (!shieldVariableList.Contains("vID") && vID == C.ERROR_INT)
+            if (!shieldVariableList.Contains("vID") && vID == Const.ERROR_INT)
                 return false;
             if (!shieldVariableList.Contains("hUnit") && hUnit < 0)
                 return false;
@@ -229,7 +229,7 @@ namespace Intersect
 
         public bool saveOrUpdate()
         {
-            if (hID == C.ERROR_INT)
+            if (hID == Const.ERROR_INT)
             {
                 return save();
             }
@@ -241,7 +241,7 @@ namespace Intersect
 
         public override bool delete()
         {
-            if (hID == C.ERROR_INT)
+            if (hID == Const.ERROR_INT)
                 return false;
             string sqlCommand = String.Format(@"delete from House where hID={0}", hID);
             Sql sql = new Sql();
@@ -263,7 +263,7 @@ namespace Intersect
 
         public override bool select()
         {
-            if (hID == C.ERROR_INT)
+            if (hID == Const.ERROR_INT)
                 return false;
             string sqlCommand = String.Format(@"select * from House where hID={0}", hID);
             Sql sql = new Sql();

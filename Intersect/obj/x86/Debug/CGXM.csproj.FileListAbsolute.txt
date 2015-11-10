@@ -17,12 +17,6 @@ C:\Users\Mavericks\Documents\Visual Studio 2010\Projects\Intersect\Intersect\obj
 C:\Users\Mavericks\Documents\Visual Studio 2010\Projects\Intersect\Intersect\obj\x86\Debug\CGXM.csproj.GenerateResource.Cache
 C:\Users\Mavericks\Documents\Visual Studio 2010\Projects\Intersect\Intersect\obj\x86\Debug\Intersect.exe
 C:\Users\Mavericks\Documents\Visual Studio 2010\Projects\Intersect\Intersect\obj\x86\Debug\Intersect.pdb
-C:\Users\Mavericks\Documents\Visual Studio 2010\Projects\Intersect\Intersect\obj\x86\Debug\窗体\OpenWindow.baml
-C:\Users\Mavericks\Documents\Visual Studio 2010\Projects\Intersect\Intersect\obj\x86\Debug\窗体\OpenWindow.g.cs
-C:\Users\Mavericks\Documents\Visual Studio 2010\Projects\Intersect\Intersect\obj\x86\Debug\窗体\ProjectWindow.g.cs
-C:\Users\Mavericks\Documents\Visual Studio 2010\Projects\Intersect\Intersect\obj\x86\Debug\窗体\MainWindow.g.cs
-C:\Users\Mavericks\Documents\Visual Studio 2010\Projects\Intersect\Intersect\obj\x86\Debug\窗体\ProjectWindow.baml
-C:\Users\Mavericks\Documents\Visual Studio 2010\Projects\Intersect\Intersect\obj\x86\Debug\窗体\MainWindow.baml
 C:\Users\Mavericks\Documents\Visual Studio 2010\Projects\Intersect\Intersect\obj\x86\Debug\App.baml
 C:\Users\Mavericks\Documents\Visual Studio 2010\Projects\Intersect\Intersect\obj\x86\Debug\UserControl\CaculateUserControl.baml
 C:\Users\Mavericks\Documents\Visual Studio 2010\Projects\Intersect\Intersect\obj\x86\Debug\UserControl\NetSizeUserControl.baml
@@ -48,3 +42,9 @@ C:\Users\Mavericks\Documents\Visual Studio 2010\Projects\Intersect\Intersect\obj
 C:\Users\Mavericks\Documents\Visual Studio 2010\Projects\Intersect\Intersect\obj\x86\Debug\UserControl\HousePlacerUserControl.baml
 C:\Users\Mavericks\Documents\Visual Studio 2010\Projects\Intersect\Intersect\obj\x86\Debug\UserControl\HouseItemUserControl.g.cs
 C:\Users\Mavericks\Documents\Visual Studio 2010\Projects\Intersect\Intersect\obj\x86\Debug\UserControl\HouseItemUserControl.baml
+C:\Users\Mavericks\Documents\Visual Studio 2010\Projects\Intersect\Intersect\obj\x86\Debug\窗体\开始\OpenWindow.g.cs
+C:\Users\Mavericks\Documents\Visual Studio 2010\Projects\Intersect\Intersect\obj\x86\Debug\窗体\项目编辑\ProjectWindow.g.cs
+C:\Users\Mavericks\Documents\Visual Studio 2010\Projects\Intersect\Intersect\obj\x86\Debug\窗体\项目执行\MainWindow.g.cs
+C:\Users\Mavericks\Documents\Visual Studio 2010\Projects\Intersect\Intersect\obj\x86\Debug\窗体\开始\OpenWindow.baml
+C:\Users\Mavericks\Documents\Visual Studio 2010\Projects\Intersect\Intersect\obj\x86\Debug\窗体\项目编辑\ProjectWindow.baml
+C:\Users\Mavericks\Documents\Visual Studio 2010\Projects\Intersect\Intersect\obj\x86\Debug\窗体\项目执行\MainWindow.baml

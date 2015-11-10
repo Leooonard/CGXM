@@ -73,7 +73,7 @@ namespace Intersect
             {
                 foreach (InnerRoad innerRoad in innerRoadList)
                 {
-                    GisUtil.DrawPolylineElement(innerRoad.lineElement, mapControl);
+                    GisTool.DrawPolylineElement(innerRoad.lineElement, mapControl);
                 }
             }
 
@@ -93,7 +93,7 @@ namespace Intersect
             }
 
             BindingGroup bindingGroup = SelectInnerRoadStackPanel.BindingGroup;
-            if (Ut.checkBindingGroup(bindingGroup))
+            if (Tool.checkBindingGroup(bindingGroup))
             {
                 return true;
             }
@@ -126,7 +126,7 @@ namespace Intersect
             foreach (InnerRoad innerRoad in innerRoadList)
             {
                 innerRoad.delete();
-                GisUtil.ErasePolylineElement(innerRoad.lineElement, mapControl);
+                GisTool.ErasePolylineElement(innerRoad.lineElement, mapControl);
             }
 
             init(program.id, mapControl, toolbarControl, mainWindow);
@@ -144,7 +144,7 @@ namespace Intersect
                 if (innerRoad.id == innerRoadID)
                 {
                     if(innerRoad.lineElement != null)
-                        GisUtil.ErasePolylineElement(innerRoad.lineElement, mapControl);
+                        GisTool.ErasePolylineElement(innerRoad.lineElement, mapControl);
                     mapControlMouseDown = delegate(object sender2, IMapControlEvents2_OnMouseDownEvent e2)
                     {
                         onMapControlMouseDown(sender2, e2, innerRoad);
@@ -165,7 +165,7 @@ namespace Intersect
             element.Geometry = innerRoadPolyline;
             innerRoad.lineElement = innerRoadLineElement;
             innerRoad.updatePath();
-            GisUtil.DrawPolylineElement(innerRoadLineElement, mapControl);
+            GisTool.DrawPolylineElement(innerRoadLineElement, mapControl);
             mainWindow.unmask();
         }
 
@@ -179,12 +179,12 @@ namespace Intersect
                 if (innerRoad.id == innerRoadID)
                 {
                     if(innerRoad.lineElement != null)
-                        GisUtil.UpdatePolylineElementColor(innerRoad.lineElement, mapControl, 0, 255, 0);
+                        GisTool.UpdatePolylineElementColor(innerRoad.lineElement, mapControl, 0, 255, 0);
                 }
                 else
                 {
                     if(innerRoad.lineElement != null)
-                        GisUtil.RestorePolylineElementColor(innerRoad.lineElement, mapControl);
+                        GisTool.RestorePolylineElementColor(innerRoad.lineElement, mapControl);
                 }
             }
         }

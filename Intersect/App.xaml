@@ -1,7 +1,7 @@
 ﻿<Application x:Class="Intersect.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             StartupUri="窗体/OpenWindow.xaml">
+             StartupUri="窗体/开始/OpenWindow.xaml">
     <Application.Resources>
         <Style x:Key="OperationButton">
             <Setter Property="Button.FontSize" Value="12"></Setter>

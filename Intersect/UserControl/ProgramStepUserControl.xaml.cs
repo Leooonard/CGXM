@@ -13,6 +13,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using ESRI.ArcGIS.Controls;
 using System.Threading;
+using System.Text.RegularExpressions;
 
 namespace Intersect
 {
@@ -34,6 +35,7 @@ namespace Intersect
             { "HousePlacerTabItem" , 2 } 
         };
         public delegate void OnFinish(bool finish); //子控件使用这个函数通知父控件, 自身已经填写完毕, 父控件帮助子控件改变tab header的样式.
+        public static string PROGRAM_FOLDER_NAME; //点开方案后，方案文件夹名也就确定了，需要暴露出去。
 
         public ProgramStepUserControl()
         {
@@ -57,6 +59,8 @@ namespace Intersect
             program = new Program();
             program.id = programID;
             program.select();
+
+            PROGRAM_FOLDER_NAME = Regex.Replace(program.name, @"\s+", "_");
 
             mapControl = mc;
             toolbarControl = tc;
@@ -145,9 +149,9 @@ namespace Intersect
             TabItem tabItem = grid.Parent as TabItem;
             TabControl tabControl = tabItem.Parent as TabControl;
             int result = TabChange(tabControl, tabItem.Name);
-            if (result == C.ERROR_INT)
+            if (result == Const.ERROR_INT)
             {
-                Ut.M("有错误");
+                Tool.M("有错误");
                 e.Handled = true;
                 return false;
             }
@@ -182,7 +186,7 @@ namespace Intersect
                     if (TabNameToNumberDict[tabName] - TabNameToNumberDict[tabItem.Name] <= 0)
                         return 0;
                     if (TabNameToNumberDict[tabName] - TabNameToNumberDict[tabItem.Name] > 1)
-                        return C.ERROR_INT;
+                        return Const.ERROR_INT;
                     switch (tabItem.Name)
                     {
                         case "ConfigTabItem":
@@ -199,7 +203,7 @@ namespace Intersect
                                 }
                             }
                             else
-                                return C.ERROR_INT;
+                                return Const.ERROR_INT;
                             break;
                         case "SiteSelectorTabItem":
                             if (SiteSelectorUserControl.valid)
@@ -217,12 +221,12 @@ namespace Intersect
                                 }
                             }
                             else
-                                return C.ERROR_INT;
+                                return Const.ERROR_INT;
                             break;
                         case "HousePlacerTabItem":
                             break;
                         default:
-                            return C.ERROR_INT;
+                            return Const.ERROR_INT;
                     }
                 }
             }

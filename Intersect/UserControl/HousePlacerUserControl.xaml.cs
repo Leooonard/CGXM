@@ -166,7 +166,7 @@ namespace Intersect
             if (villageList.Count == 0)
                 return false;
             BindingGroup bindingGroup = HousePlacerStackPanel.BindingGroup;
-            if (!Ut.checkBindingGroup(bindingGroup)) 
+            if (!Tool.checkBindingGroup(bindingGroup)) 
             {
                 return false;
             }
@@ -271,7 +271,7 @@ namespace Intersect
             {
                 if (isDirty())
                 {
-                    if (Ut.C("已对设置做出修改, 继续执行将删除之前的数据, 是否继续?"))
+                    if (Tool.C("已对设置做出修改, 继续执行将删除之前的数据, 是否继续?"))
                     {
                         dirty = true;
                     }
@@ -291,7 +291,7 @@ namespace Intersect
             }
             else
             {
-                Ut.M("请完整填写信息");
+                Tool.M("请完整填写信息");
                 return;
             }
         }
@@ -301,35 +301,47 @@ namespace Intersect
             foreach (Village village in villageList)
             {
                 PlaceManager placeManager = new PlaceManager(village.commonHouse, new List<House>(village.houseList), mapControl);
-                placeManager.makeArea(GisUtil.ConvertIPolygonElementToIPolygon(village.polygonElement));
-                if (placeManager.splitArea(GisUtil.ConvertILineElementToIPolyline(village.innerRoad.lineElement)))
+                placeManager.makeArea(GisTool.ConvertIPolygonElementToIPolygon(village.polygonElement));
+                if (placeManager.splitArea(GisTool.ConvertILineElementToIPolyline(village.innerRoad.lineElement)))
                 {
                     placeManager.place();
                     for (int i = 0; i < placeManager.drawnHouseList.Count; i++)
                     {
                         HouseManager houseManager = placeManager.drawnHouseList[i];
                         ArrayList housePolygonArrayList = houseManager.makeHousePolygon();
-                        GisUtil.drawPolygon(houseManager.makeHousePolygon()[0] as IPolygon, mapControl, GisUtil.RandomRgbColor());
+                        GisTool.drawPolygon(houseManager.makeHousePolygon()[0] as IPolygon, mapControl, GisTool.RandomRgbColor());
                         foreach (IGeometry geom in housePolygonArrayList[1] as List<IGeometry>)
                         {
-                            GisUtil.drawPolygon(geom as IPolygon, mapControl, GisUtil.RandomRgbColor());
+                            GisTool.drawPolygon(geom as IPolygon, mapControl, GisTool.RandomRgbColor());
                         }
                     }
-                    string path = App.TEMP_PATH + "\\" + "outerground.shp";
+                    string path = System.IO.Path.Combine(Const.WORKSPACE_PATH, MainWindowHelper.PROJECT_FOLDER_NAME, "outerground.shp");
                     placeManager.saveOuterGround(path);
 
-                    path = App.TEMP_PATH + "\\centerground.shp";
+                    path = System.IO.Path.Combine(Const.WORKSPACE_PATH,
+                        MainWindowHelper.PROJECT_FOLDER_NAME,
+                        ProgramStepUserControl.PROGRAM_FOLDER_NAME,
+                        "centerground.shp");
                     placeManager.saveCenterGround(path);
 
-                    path = App.TEMP_PATH + "\\result.shp";
+                    path = System.IO.Path.Combine(Const.WORKSPACE_PATH,
+                        MainWindowHelper.PROJECT_FOLDER_NAME,
+                        ProgramStepUserControl.PROGRAM_FOLDER_NAME,
+                        "result.shp");
                     placeManager.saveHouse(path);
 
-                    path = App.TEMP_PATH + "\\innerroad.shp";
+                    path = System.IO.Path.Combine(Const.WORKSPACE_PATH,
+                        MainWindowHelper.PROJECT_FOLDER_NAME,
+                        ProgramStepUserControl.PROGRAM_FOLDER_NAME,
+                        "innerroad.shp");
                     placeManager.saveInnerRoad(path);
 
-                    path = App.TEMP_PATH + "\\road.shp";
+                    path = System.IO.Path.Combine(Const.WORKSPACE_PATH,
+                        MainWindowHelper.PROJECT_FOLDER_NAME,
+                        ProgramStepUserControl.PROGRAM_FOLDER_NAME,
+                        "road.shp");
                     placeManager.saveRoad(path);
-                    Ut.M("摆放完成");
+                    Tool.M("摆放完成");
                 }
             }
         }

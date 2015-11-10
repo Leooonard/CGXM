@@ -57,8 +57,8 @@ namespace Intersect
             {
                 midPt.Y = midPt.Y + textAdjustGap;
             }
-            GisUtil.DrawPolyline(line, mapControl);
-            GisUtil.drawText(text, midPt, textColor, mapControl);
+            GisTool.DrawPolyline(line, mapControl);
+            GisTool.drawText(text, midPt, textColor, mapControl);
         }
 
         private void ClearShowcase()
@@ -101,7 +101,7 @@ namespace Intersect
                 ring.AddPoint(upperRightPt);
                 ring.AddPoint(lowerRightPt);
                 ring.AddPoint(lowerLeftPt);
-                innerPolygon = GisUtil.MakePolygonFromRing(ring);
+                innerPolygon = GisTool.MakePolygonFromRing(ring);
 
                 //每单元
                 double unitWidth = house.width / house.unit;
@@ -126,7 +126,7 @@ namespace Intersect
                     unitRing.AddPoint(unitUpperRightPt);
                     unitRing.AddPoint(unitLowerRightPt);
                     unitRing.AddPoint(unitLowerLeftPt);
-                    IPolygon unitPolygon = GisUtil.MakePolygonFromRing(unitRing);
+                    IPolygon unitPolygon = GisTool.MakePolygonFromRing(unitRing);
                     unitPolygonList.Add(unitPolygon);
                     unitUpperLeftX += unitWidth;
                 }
@@ -151,12 +151,12 @@ namespace Intersect
                 ring.AddPoint(upperRightPt);
                 ring.AddPoint(lowerRightPt);
                 ring.AddPoint(lowerLeftPt);
-                outerPolygon = GisUtil.MakePolygonFromRing(ring);
+                outerPolygon = GisTool.MakePolygonFromRing(ring);
             }
 
             if (outerPolygon != null)
             {
-                GisUtil.drawPolygon(outerPolygon, mapControl, outerColor);
+                GisTool.drawPolygon(outerPolygon, mapControl, outerColor);
             }
             else
             { 
@@ -164,7 +164,7 @@ namespace Intersect
             }
             if (innerPolygon != null)
             {
-                GisUtil.drawPolygon(innerPolygon, mapControl, innerColor);
+                GisTool.drawPolygon(innerPolygon, mapControl, innerColor);
             }
             else
             { 
@@ -172,7 +172,7 @@ namespace Intersect
             }
             for (int i = 0; i < unitPolygonList.Count; i++)
             {
-                GisUtil.drawPolygon(unitPolygonList[i], mapControl, innerColor);
+                GisTool.drawPolygon(unitPolygonList[i], mapControl, innerColor);
             }
 
             //绘制文字.
@@ -238,86 +238,86 @@ namespace Intersect
             extraTextPt.Y = upperRightPt.Y;
             extraTextY = extraTextPt.Y;
             if (house.width > 0)
-                GisUtil.drawText("面宽: " + String.Format("{0:F}", house.width) + "(米)", extraTextPt, textColor, mapControl);
+                GisTool.drawText("面宽: " + String.Format("{0:F}", house.width) + "(米)", extraTextPt, textColor, mapControl);
             else
-                GisUtil.drawText("面宽: 未知", extraTextPt, textColor, mapControl);
+                GisTool.drawText("面宽: 未知", extraTextPt, textColor, mapControl);
             extraTextPt = new PointClass();
             extraTextPt.X = upperRightPt.X + extraTextRightGap;
             extraTextPt.Y = extraTextY + extraTextBottomGap;
             extraTextY = extraTextPt.Y;
             if (commonHouse.height > 0)
-                GisUtil.drawText("进深:" + String.Format("{0:F}", commonHouse.height) + "(米)", extraTextPt, textColor, mapControl);
+                GisTool.drawText("进深:" + String.Format("{0:F}", commonHouse.height) + "(米)", extraTextPt, textColor, mapControl);
             else
-                GisUtil.drawText("进深: 未知", extraTextPt, textColor, mapControl);
+                GisTool.drawText("进深: 未知", extraTextPt, textColor, mapControl);
             extraTextPt = new PointClass(); //画房型名.
             extraTextPt.X = upperRightPt.X + extraTextRightGap;
             extraTextPt.Y = extraTextY + extraTextBottomGap;
             extraTextY = extraTextPt.Y;
             if (house.width > 0 && house.unit > 0)
-                GisUtil.drawText("每单元面宽: " + String.Format("{0:F}", house.width / house.unit) + "(米)", extraTextPt, textColor, mapControl);
+                GisTool.drawText("每单元面宽: " + String.Format("{0:F}", house.width / house.unit) + "(米)", extraTextPt, textColor, mapControl);
             else
-                GisUtil.drawText("每单元面宽: 未知", extraTextPt, textColor, mapControl);
+                GisTool.drawText("每单元面宽: 未知", extraTextPt, textColor, mapControl);
             extraTextPt = new PointClass(); //画房型名.
             extraTextPt.X = upperRightPt.X + extraTextRightGap;
             extraTextPt.Y = extraTextY + extraTextBottomGap;
             extraTextY = extraTextPt.Y;
             if (commonHouse.height > 0 && house.unit > 0)
-                GisUtil.drawText("每单元进深: " + String.Format("{0:F}", commonHouse.height / house.unit) + "(米)", extraTextPt, textColor, mapControl);
+                GisTool.drawText("每单元进深: " + String.Format("{0:F}", commonHouse.height / house.unit) + "(米)", extraTextPt, textColor, mapControl);
             else
-                GisUtil.drawText("每单元进深: 未知", extraTextPt, textColor, mapControl);
+                GisTool.drawText("每单元进深: 未知", extraTextPt, textColor, mapControl);
             extraTextPt = new PointClass(); //画房型名.
             extraTextPt.X = upperRightPt.X + extraTextRightGap;
             extraTextPt.Y = extraTextY + extraTextBottomGap;
             extraTextY = extraTextPt.Y;
-            GisUtil.drawText("房型名: " + house.name, extraTextPt, textColor, mapControl);
+            GisTool.drawText("房型名: " + house.name, extraTextPt, textColor, mapControl);
             extraTextPt = new PointClass(); //画层数.
             extraTextPt.X = upperRightPt.X + extraTextRightGap;
             extraTextPt.Y = extraTextY + extraTextBottomGap;
             extraTextY = extraTextPt.Y;
             if (commonHouse.floor > 0)
-                GisUtil.drawText("层数: " + commonHouse.floor.ToString() + "(层)", extraTextPt, textColor, mapControl);
+                GisTool.drawText("层数: " + commonHouse.floor.ToString() + "(层)", extraTextPt, textColor, mapControl);
             else
-                GisUtil.drawText("层数: 未知", extraTextPt, textColor, mapControl);
+                GisTool.drawText("层数: 未知", extraTextPt, textColor, mapControl);
             extraTextPt = new PointClass();
             extraTextPt.X = upperRightPt.X + extraTextRightGap;
             extraTextPt.Y = extraTextY + extraTextBottomGap;
             extraTextY = extraTextPt.Y;
             if (commonHouse.floorHeight > 0)
-                GisUtil.drawText("层高: " + String.Format("{0:F}", commonHouse.floorHeight) + "(米)", extraTextPt, textColor, mapControl);
+                GisTool.drawText("层高: " + String.Format("{0:F}", commonHouse.floorHeight) + "(米)", extraTextPt, textColor, mapControl);
             else
-                GisUtil.drawText("层高: 未知", extraTextPt, textColor, mapControl);
+                GisTool.drawText("层高: 未知", extraTextPt, textColor, mapControl);
             extraTextPt = new PointClass();
             extraTextPt.X = upperRightPt.X + extraTextRightGap;
             extraTextPt.Y = extraTextY + extraTextBottomGap;
             extraTextY = extraTextPt.Y;
             if (house.unit > 0)
-                GisUtil.drawText("单元数: " + house.unit.ToString(), extraTextPt, textColor, mapControl);
+                GisTool.drawText("单元数: " + house.unit.ToString(), extraTextPt, textColor, mapControl);
             else
-                GisUtil.drawText("单元数: 未知", extraTextPt, textColor, mapControl);
+                GisTool.drawText("单元数: 未知", extraTextPt, textColor, mapControl);
             extraTextPt = new PointClass();
             extraTextPt.X = upperRightPt.X + extraTextRightGap;
             extraTextPt.Y = extraTextY + extraTextBottomGap;
             extraTextY = extraTextPt.Y;
             if (house.houseHold > 0)
-                GisUtil.drawText("每单元户数: " + house.houseHold.ToString() + "(户)", extraTextPt, textColor, mapControl);
+                GisTool.drawText("每单元户数: " + house.houseHold.ToString() + "(户)", extraTextPt, textColor, mapControl);
             else
-                GisUtil.drawText("每单元户数: 未知", extraTextPt, textColor, mapControl);
+                GisTool.drawText("每单元户数: 未知", extraTextPt, textColor, mapControl);
             extraTextPt = new PointClass();
             extraTextPt.X = upperRightPt.X + extraTextRightGap;
             extraTextPt.Y = extraTextY + extraTextBottomGap;
             extraTextY = extraTextPt.Y;
             if (house.width > 0 && commonHouse.height > 0)
-                GisUtil.drawText("层面积: " + String.Format("{0:F}", house.width * commonHouse.height) + "(平方米)", extraTextPt, textColor, mapControl);
+                GisTool.drawText("层面积: " + String.Format("{0:F}", house.width * commonHouse.height) + "(平方米)", extraTextPt, textColor, mapControl);
             else
-                GisUtil.drawText("层面积: 未知", extraTextPt, textColor, mapControl);
+                GisTool.drawText("层面积: 未知", extraTextPt, textColor, mapControl);
             extraTextPt = new PointClass();
             extraTextPt.X = upperRightPt.X + extraTextRightGap;
             extraTextPt.Y = extraTextY + extraTextBottomGap;
             extraTextY = extraTextPt.Y;
             if (house.width > 0 && commonHouse.height > 0 && commonHouse.floor > 0)
-                GisUtil.drawText("总面积: " + String.Format("{0:F}", house.width * commonHouse.height * commonHouse.floor) + "(平方米)", extraTextPt, textColor, mapControl);
+                GisTool.drawText("总面积: " + String.Format("{0:F}", house.width * commonHouse.height * commonHouse.floor) + "(平方米)", extraTextPt, textColor, mapControl);
             else
-                GisUtil.drawText("总面积: 未知", extraTextPt, textColor, mapControl);
+                GisTool.drawText("总面积: 未知", extraTextPt, textColor, mapControl);
 
             //移动地图视角.
             if (outerPolygon == null)
