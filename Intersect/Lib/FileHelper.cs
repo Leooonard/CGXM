@@ -24,5 +24,9 @@ namespace Intersect.Lib
             }
         }
 
+        public static string FormatName(string name)
+        {
+            return Regex.Replace(name, @"\s+", "_");
+        }
     }
 }

@@ -11,6 +11,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Collections.ObjectModel;
+using System.IO;
+using Intersect.Lib;
 
 namespace Intersect
 {
@@ -63,6 +65,9 @@ namespace Intersect
                 Project project = new Project();
                 project.id = id;
                 project.delete();
+                string projectName = project.name;
+                //删除项目文件夹。
+                Directory.Delete(System.IO.Path.Combine(Const.WORKSPACE_PATH, FileHelper.FormatName(project.name)), true);
                 foreach (Project proj in projectList)
                 {
                     if (proj.id == id)
