@@ -47,6 +47,7 @@ namespace Intersect
         protected ProjectWindowCallback closeCallback;
         protected ProjectWindowCallback confirmCallback;
         public delegate void ProjectWindowCallback(int id);
+        public string sourceMapPath;
 
         public IMapDocument mapDocument = null;
 
@@ -73,15 +74,60 @@ namespace Intersect
                     }
                 });
             projectWindow.BrowseFileEventHandler += new EventHandler(browseFile);
-            projectWindow.comboBoxSelectionChangedEventHandler += new EventHandler(ComboBoxSelectionChanged);
+            projectWindow.baseMapLayerComboBoxSelectionChangedEventHandler += new EventHandler(baseMapLayerComboBoxSelectionChanged);
             projectWindow.uncompleteLabelContentComboBoxTextChangedEventHandler += new EventHandler(uncompleteLabelContentComboBoxTextChanged);
             projectWindow.uncompleteLabelContentComboBoxLostFocusEventHandler += new EventHandler(uncompleteLabelContentComboBoxLostFocus);
+            projectWindow.isChoosedCheckBoxClickEventHandler += new EventHandler(isChoosedCheckBoxClick);
+            projectWindow.uncompleteLabelIsChoosedCheckBoxClickEventHandler += new EventHandler(isChoosedCheckBoxClick);
 
             Init();
 
             projectWindow.CompleteLabelListBox.ItemsSource = completeLabelList;
             projectWindow.UncompleteLabelListBox.ItemsSource = uncompleteLabelList;
             projectWindow.BaseMapLayerComboBox.ItemsSource = villageNameList;
+        }
+
+        private void isChoosedCheckBoxClick(object sender, EventArgs e)
+        {
+            CheckBox isChoosedCheckBox = sender as CheckBox;
+            Grid grid = isChoosedCheckBox.Parent as Grid;
+            TextBlock mapLayerNameTextBlock = grid.Children[0] as TextBlock;
+            string mapLayerName = mapLayerNameTextBlock.Text;
+            bool isChoosed = (bool)isChoosedCheckBox.IsChecked;
+            ILayer layer = GisTool.getLayerByName(mapLayerName, projectWindow.mapControl);
+            if (isChoosed)
+            {
+                layer.Visible = true;
+                IRasterLayer rasterLayer = layer as IRasterLayer;
+                if (rasterLayer != null)
+                {
+                    ILayerEffects layerEffects = rasterLayer as ILayerEffects;
+                    layerEffects.Transparency = 60;
+                }
+            }
+            else
+            {
+                layer.Visible = false;
+            }
+
+            projectWindow.mapControl.ActiveView.Refresh();
+        }
+
+        private void baseMapLayerComboBoxSelectionChanged(object sender, EventArgs e)
+        {
+            ComboBox baseMapLayerComboBox = sender as ComboBox;
+            if (baseMapLayerComboBox.SelectedValue == null)
+            {
+                return;
+            }
+            string villageName = baseMapLayerComboBox.SelectedValue.ToString();
+            ILayer layer = GisTool.getLayerByName(BASE_LAYER_NAME, projectWindow.mapControl);
+            IQueryFilter filter = new QueryFilterClass();
+            filter.WhereClause = String.Format("Name='{0}'", villageName);
+            IFeatureLayer featureLayer = layer as IFeatureLayer;
+            IFeatureSelection featureSelection = featureLayer as IFeatureSelection;
+            featureSelection.SelectFeatures(filter, esriSelectionResultEnum.esriSelectionResultNew, false);
+            projectWindow.mapControl.Refresh();
         }
 
         private void uncompleteLabelContentComboBoxTextChanged(object sender, EventArgs e)
@@ -290,26 +336,6 @@ namespace Intersect
             return projectWindow.IsVisible;
         }
 
-        public void ComboBoxSelectionChanged(object sender, EventArgs e)
-        {
-            return; //这个功能先不用.
-            try
-            {
-                ComboBox comboBox = sender as ComboBox;
-                int index = comboBox.SelectedIndex;
-                string selectedMapLayerName = mapLayerNameList[index];
-                //先隐藏所有层.
-                GisTool.HideAllLayerInMap(projectWindow.mapControl);
-
-                //依靠名字找层, 再显示.
-                ILayer layer = GisTool.getLayerByName(selectedMapLayerName, projectWindow.mapControl);
-                layer.Visible = true;
-                projectWindow.mapControl.ActiveView.Refresh();
-            }
-            catch (Exception ex)
-            { }
-        }
-
         public ObservableCollection<string> updateVillageNameList(string villageLayerName, string villageLayerFieldName, AxMapControl mapControl)
         {
             ILayer baseLayer = GisTool.getLayerByName(villageLayerName, mapControl);
@@ -356,25 +382,14 @@ namespace Intersect
             projectWindow.mapControl.LoadMxFile(path);
         }
 
-        public void saveAsMap(string path)
+        public void processFile(string mapPath)
         {
-            IMapDocument mapDocument = new MapDocumentClass();
-            IMxdContents pMxdC;  
-            pMxdC = projectWindow.mapControl.Map as IMxdContents;
-            IMapDocument pMapDocument = new MapDocumentClass();
-            pMapDocument.Open(projectWindow.mapControl.DocumentFilename, "");
-            pMapDocument.ReplaceContents(pMxdC);
-            pMapDocument.SaveAs(path, true, true); 
-        }
-
-        public void processFile(string housePath)
-        {
-            if (!projectWindow.mapControl.CheckMxFile(housePath))
+            if (!projectWindow.mapControl.CheckMxFile(mapPath))
             {
                 throw new Exception();
             }
 
-            loadMap(housePath);
+            loadMap(mapPath);
 
             List<string> necessaryLayerNameList = new List<string>() 
             {
@@ -450,8 +465,8 @@ namespace Intersect
 
             projectWindow.mapControl.MoveLayerTo(baseLayerIndex, projectWindow.mapControl.LayerCount - 1);
 
-            project.path = housePath;
             project.baseMapIndex = -1;
+            project.path = System.IO.Path.GetDirectoryName(mapPath);
 
             projectWindow.BaseMapLayerComboBox.SelectedIndex = -1;
         }
@@ -459,22 +474,24 @@ namespace Intersect
         public void browseFile(object sender, EventArgs e)
         {
             System.Windows.Forms.OpenFileDialog fileDialog = new System.Windows.Forms.OpenFileDialog();
-            fileDialog.InitialDirectory = "C:\\";
+            fileDialog.InitialDirectory = Const.DEFAULT_FILE_DIALOG_FOLDER;
             fileDialog.Filter = "mxd files|*.mxd";
             if (fileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 projectWindow.mask();
-                string housePath = fileDialog.FileName;
+                string mapPath = fileDialog.FileName;
                 try
                 {
                     Init();
-                    processFile(housePath);
+                    processFile(mapPath);
+                    sourceMapPath = mapPath;
                 }
                 catch (Exception mapException)
                 {
                     Tool.M("地图文件错误, 错误信息: " + mapException.Message);
                     project.path = "";
                     projectWindow.mapControl.ClearLayers();
+                    projectWindow.mapControl.ActiveView.Refresh();
                 }
                 finally
                 {
@@ -482,5 +499,7 @@ namespace Intersect
                 }
             }
         }
+
+        
     }
 }

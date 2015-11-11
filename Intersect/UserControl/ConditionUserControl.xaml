@@ -258,10 +258,10 @@
                                         </Binding>
                                     </ComboBox.SelectedIndex>
                                     <ComboBoxItem>
-                                        <TextBlock>阈值</TextBlock>
+                                        <TextBlock>约束条件</TextBlock>
                                     </ComboBoxItem>
                                     <ComboBoxItem>
-                                        <TextBlock>权重</TextBlock>
+                                        <TextBlock>评价准则</TextBlock>
                                     </ComboBoxItem>
                                 </ComboBox>
                                 <ComboBox Name="ConditionCategoryComboBox" Grid.Column="3" Text="条件类型" Style="{StaticResource FlatComboBox}">

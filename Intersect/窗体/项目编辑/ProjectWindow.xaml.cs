@@ -27,9 +27,11 @@ namespace Intersect
         public event EventHandler CloseEventHandler;
         public event EventHandler ConfirmEventHandler;
         public event EventHandler BrowseFileEventHandler;
-        public event EventHandler comboBoxSelectionChangedEventHandler;
+        public event EventHandler baseMapLayerComboBoxSelectionChangedEventHandler;
         public event EventHandler uncompleteLabelContentComboBoxTextChangedEventHandler;
         public event EventHandler uncompleteLabelContentComboBoxLostFocusEventHandler;
+        public event EventHandler isChoosedCheckBoxClickEventHandler;
+        public event EventHandler uncompleteLabelIsChoosedCheckBoxClickEventHandler;
         public AxMapControl mapControl;
         public AxToolbarControl toolbarControl;
 
@@ -77,9 +79,9 @@ namespace Intersect
             this.BrowseFileEventHandler(sender, e);
         }
 
-        private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void BaseMapLayerComboBoxSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            comboBoxSelectionChangedEventHandler(sender, e);
+            baseMapLayerComboBoxSelectionChangedEventHandler(sender, e);
         }
 
         private void UncompleteLabelContentComboBoxTextChanged(object sender, TextChangedEventArgs e)
@@ -90,6 +92,16 @@ namespace Intersect
         private void UncompleteLabelContentComboBoxLostFocus(object sender, RoutedEventArgs e)
         {
             uncompleteLabelContentComboBoxLostFocusEventHandler(sender, e);
+        }
+
+        private void IsChoosedCheckBoxClick(object sender, RoutedEventArgs e)
+        {
+            isChoosedCheckBoxClickEventHandler(sender, e);
+        }
+
+        private void UncompleteLabelIsChoosedCheckBoxClick(object sender, RoutedEventArgs e)
+        {
+            uncompleteLabelIsChoosedCheckBoxClickEventHandler(sender, e);
         }
     }
 }

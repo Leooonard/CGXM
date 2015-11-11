@@ -64,10 +64,22 @@ namespace Intersect
             {
                 Project project = new Project();
                 project.id = id;
+                project.select();
+                //1. 删除项目文件夹。
+                try
+                {
+                    Directory.Delete(project.path, true);
+                }
+                catch (Exception deleteException)
+                {
+                    Tool.M("删除失败，请确保工作目录可用。" + deleteException.Message);
+                    return;
+                }
+
+                //2. 删除数据库中内容。
                 project.delete();
-                string projectName = project.name;
-                //删除项目文件夹。
-                Directory.Delete(System.IO.Path.Combine(Const.WORKSPACE_PATH, FileHelper.FormatName(project.name)), true);
+
+                //3. 项目列表中删除。
                 foreach (Project proj in projectList)
                 {
                     if (proj.id == id)

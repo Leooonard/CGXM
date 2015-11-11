@@ -13,6 +13,7 @@ using ESRI.ArcGIS.Geometry;
 using System.Threading;
 using ESRI.ArcGIS.Geodatabase;
 using System.Text.RegularExpressions;
+using Intersect.Lib;
 
 namespace Intersect
 {
@@ -42,14 +43,14 @@ namespace Intersect
                 });
             mainWindow.programNameTextBlockMouseDownEventHandler += new MouseButtonEventHandler(delegate(object sender, MouseButtonEventArgs e)
                 {
-                    if (e.ClickCount == 1)
+                    if (e.ClickCount == 2)
                     {
                         TextBlock textBlock = sender as TextBlock;
                         Grid grid = textBlock.Parent as Grid;
                         StackPanel stackPanel = grid.Parent as StackPanel;
                         programDetailMode(stackPanel);
                     }
-                    else if (e.ClickCount == 2)
+                    else if (e.ClickCount == 3)
                     {
                         TextBlock textBlock = sender as TextBlock;
                         Grid grid = textBlock.Parent as Grid;
@@ -91,9 +92,10 @@ namespace Intersect
             {
                 mainWindow.Dispatcher.BeginInvoke((ThreadStart)delegate()
                 {
-                    System.Threading.Thread.Sleep(5000);
+                    System.Threading.Thread.Sleep(500);
 
-                    mainWindow.LoadMap(project.path); //每次打开时, 重新读一下地图.
+                    string mapPath = FileHelper.FindExtension(System.IO.Path.Combine(project.path, Const.SOURCE_FOLDER_NAME), ".mxd");
+                    mainWindow.LoadMap(mapPath); //每次打开时, 重新读一下地图.
                     ProgramStepUserControl programStepUserControl = parentStackPanel.FindName("ProgramStepUserControl") as ProgramStepUserControl;
                     if (programStepUserControl.Visibility == System.Windows.Visibility.Visible)
                     {
@@ -108,7 +110,6 @@ namespace Intersect
                         int programID = Int32.Parse(programIDTextBlock.Text);
                         initProgramDetailMode(programStepUserControl, programID);
                     }
-
 
                     mainWindow.unmask();
                 });
@@ -205,9 +206,10 @@ namespace Intersect
         public void show()
         {
             mainWindow.Show();
-            if (mainWindow.checkMap(project.path))
+            string mxdPath = FileHelper.FindExtension(System.IO.Path.Combine(project.path, Const.SOURCE_FOLDER_NAME), ".mxd");
+            if (mainWindow.checkMap(mxdPath))
             {
-                mainWindow.LoadMap(project.path);
+                mainWindow.LoadMap(mxdPath);
                 IFeature baseFeature = GisTool.GetBaseFeature(mainWindow.mapControl, project.baseMapIndex);
                 //移动地图视角.
                 IEnvelope extent = baseFeature.Shape.Envelope;

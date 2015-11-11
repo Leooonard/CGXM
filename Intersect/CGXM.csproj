@@ -452,7 +452,7 @@
     <Compile Include="Data\CityPlanStandard.cs" />
     <Compile Include="Data\CommonHouse.cs" />
     <Compile Include="Data\Condition.cs" />
-    <Compile Include="Const.cs" />
+    <Compile Include="Lib\Const.cs" />
     <Compile Include="CreateProgramWindow.cs" />
     <Compile Include="窗体\项目编辑\CreateProjectWindowHelper.cs" />
     <Compile Include="CxLegend.xaml.cs">

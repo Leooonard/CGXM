@@ -323,7 +323,7 @@
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Column="0" TextAlignment="Center">选择评价范围</TextBlock>
                     <ComboBox Grid.Column="1" Name="BaseMapLayerComboBox" Style="{StaticResource FlatComboBox}"
-                              SelectionChanged="ComboBox_SelectionChanged" Margin="0,0,5,0"></ComboBox>
+                              SelectionChanged="BaseMapLayerComboBoxSelectionChanged" Margin="0,0,5,0"></ComboBox>
                 </Grid>
                 <Rectangle Fill="#e5e5e5" Height="1"></Rectangle>
                 <StackPanel Name="MapStackPanel" Style="{StaticResource NotErrorTip}" Orientation="Vertical" Width="400" Height="300">
@@ -335,9 +335,9 @@
                             <ColumnDefinition Width="1*"></ColumnDefinition>
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" TextAlignment="Center">图层名</TextBlock>
-                        <TextBlock Grid.Column="1" TextAlignment="Center">标签名</TextBlock>
+                        <TextBlock Grid.Column="1" TextAlignment="Center">标准类别名</TextBlock>
                         <TextBlock Grid.Column="2" TextAlignment="Center">使用图层</TextBlock>
-                        <TextBlock Grid.Column="3" TextAlignment="Center">阈值/权重</TextBlock>
+                        <TextBlock Grid.Column="3" TextAlignment="Center">约束条件/评价准则</TextBlock>
                     </Grid>
                     <Rectangle Height="1" Fill="Gray"></Rectangle>
                     <ScrollViewer VerticalScrollBarVisibility="Auto" Height="280">
@@ -376,11 +376,11 @@
                                             </TextBlock.Text>
                                             </TextBlock>
                                             <TextBlock Grid.Column="1" TextAlignment="Left" Text="{Binding Path=content, Mode=TwoWay}"></TextBlock>
-                                            <CheckBox Grid.Column="2" HorizontalAlignment="Center" IsChecked="{Binding Path=isChoosed, Mode=TwoWay}"></CheckBox>
+                                            <CheckBox Grid.Column="2" HorizontalAlignment="Center" IsChecked="{Binding Path=isChoosed, Mode=TwoWay}" Click="IsChoosedCheckBoxClick"></CheckBox>
                                             <ComboBox Style="{StaticResource FlatComboBox}" Grid.Column="3" SelectedIndex="{Binding Path=type, Mode=TwoWay}">
-                                                <ComboBoxItem>阈值</ComboBoxItem>
-                                                <ComboBoxItem>权重</ComboBoxItem>
-                                                <ComboBoxItem>阈值和权重</ComboBoxItem>
+                                                <ComboBoxItem>条件</ComboBoxItem>
+                                                <ComboBoxItem>准则</ComboBoxItem>
+                                                <ComboBoxItem>条件和准则</ComboBoxItem>
                                             </ComboBox>
                                             <TextBlock Name="IDTextBlock" Visibility="Collapsed" Text="{Binding Path=id}"></TextBlock>
                                         </Grid>
@@ -426,11 +426,7 @@
                                                     <Binding Path="uncomleteLabelContentManager.chooseableCityPlanStandardInfoList" Mode="TwoWay"></Binding>
                                                 </ComboBox.ItemsSource>
                                                 <ComboBox.Text>
-                                                    <Binding BindingGroupName="baseBindingGroup" Path="content" Mode="OneTime">
-                                                        <Binding.ValidationRules>
-                                                            <cls:StringValidationRule></cls:StringValidationRule>
-                                                        </Binding.ValidationRules>
-                                                    </Binding>
+                                                    <Binding BindingGroupName="baseBindingGroup" Path="content" Mode="OneTime"></Binding>
                                                 </ComboBox.Text>
                                                 <ComboBox.ItemTemplate>
                                                     <DataTemplate>
@@ -446,10 +442,11 @@
                                                     </DataTemplate>
                                                 </ComboBox.ItemTemplate>
                                             </ComboBox>
-                                            <CheckBox Name="UseLabelCheckBox" Grid.Column="2" HorizontalAlignment="Center" IsChecked="{Binding Path=isChoosed, Mode=TwoWay}"></CheckBox>
+                                            <CheckBox Name="UseLabelCheckBox" Grid.Column="2" HorizontalAlignment="Center" IsChecked="{Binding Path=isChoosed, Mode=TwoWay}"   Click="UncompleteLabelIsChoosedCheckBoxClick"></CheckBox>
                                             <ComboBox Style="{StaticResource FlatComboBox}" Grid.Column="3" SelectedIndex="{Binding Path=type, Mode=TwoWay}">
-                                                <ComboBoxItem>阈值</ComboBoxItem>
-                                                <ComboBoxItem>权重</ComboBoxItem>
+                                                <ComboBoxItem>约束条件</ComboBoxItem>
+                                                <ComboBoxItem>评价准则</ComboBoxItem>
+                                                <ComboBoxItem>约束条件和评价准则</ComboBoxItem>
                                             </ComboBox>
                                             <TextBlock Name="IDTextBlock" Visibility="Collapsed" Text="{Binding Path=id}"></TextBlock>
                                         </Grid>

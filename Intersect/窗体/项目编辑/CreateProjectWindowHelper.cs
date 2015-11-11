@@ -87,38 +87,47 @@ namespace Intersect
          */
         public int fileSave()
         {
-            string newDirectoryPath = Path.Combine((new string[] {
+            string newDirectoryPath = System.IO.Path.Combine((new string[] {
                 Const.WORKSPACE_PATH,
-                Regex.Replace(project.name, @"\s+", "_")
+                FileHelper.FormatName(project.name)
             }));
             
+
             if (Directory.Exists(newDirectoryPath))
             {
-                Directory.Delete(newDirectoryPath, true);
+                Tool.M("项目名已存在，不能重复。请修改。");
+                return Const.ERROR_INT;
             }
-            Directory.CreateDirectory(newDirectoryPath);
-
-            string rasterFolder = Path.Combine((new string[] {
-                    newDirectoryPath,
-                    "raster"
-                }));
-            if (Directory.Exists(rasterFolder))
+            try
             {
-                Directory.Delete(rasterFolder, true);
+                Directory.CreateDirectory(newDirectoryPath);
             }
+            catch (Exception writeInException)
+            {
+                Tool.M("工作目录无法写入。请确保目录没有正在使用。");
+                return Const.ERROR_INT;
+            }
+
+            string sourceFolder = System.IO.Path.Combine(new string[] { 
+                newDirectoryPath,
+                Const.SOURCE_FOLDER_NAME
+            });
+            Directory.CreateDirectory(sourceFolder);
+            FileHelper.DirectoryCopy(Path.GetDirectoryName(sourceMapPath), sourceFolder, true);
+
+            string rasterFolder = System.IO.Path.Combine((new string[] {
+                newDirectoryPath,
+                "raster"
+            }));
+            
             Directory.CreateDirectory(rasterFolder);
-            foreach(Label rasterLabel in rasterLayerLabelList)
+            foreach (Label rasterLabel in rasterLayerLabelList)
             {
                 string rasterPath = GisTool.ConvertRasterLayerToFeatureLayer(rasterFolder, GisTool.getLayerByName(rasterLabel.mapLayerName, projectWindow.mapControl) as IRasterLayer);
                 rasterLabel.mapLayerName = rasterPath;
             }
 
-            string newMapPath = Path.Combine((new string[] {
-                newDirectoryPath,
-                "map.mxd"
-            }));
-            project.path = newMapPath;
-            saveAsMap(newMapPath);
+            project.path = newDirectoryPath;
 
             return 0;
         }
@@ -134,7 +143,9 @@ namespace Intersect
             {
                 return Const.ERROR_INT;
             }
+            Tool.M("系统将工作目录，请保证当前源文件目录不移动。");
             fileSave();
+            Tool.M("完成。");
             return save();
         }
     }
