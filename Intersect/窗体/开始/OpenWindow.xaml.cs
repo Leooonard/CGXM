@@ -72,8 +72,7 @@ namespace Intersect
                 }
                 catch (Exception deleteException)
                 {
-                    Tool.M("删除失败，请确保工作目录可用。" + deleteException.Message);
-                    return;
+                    
                 }
 
                 //2. 删除数据库中内容。
