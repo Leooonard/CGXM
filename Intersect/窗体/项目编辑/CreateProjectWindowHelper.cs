@@ -108,6 +108,12 @@ namespace Intersect
                 return Const.ERROR_INT;
             }
 
+            string programsFolder = System.IO.Path.Combine(
+                newDirectoryPath,
+                Const.PROGRAMS_FOLDER_NAME
+            );
+            Directory.CreateDirectory(programsFolder);
+
             string sourceFolder = System.IO.Path.Combine(new string[] { 
                 newDirectoryPath,
                 Const.SOURCE_FOLDER_NAME
@@ -143,7 +149,7 @@ namespace Intersect
             {
                 return Const.ERROR_INT;
             }
-            Tool.M("系统将工作目录，请保证当前源文件目录不移动。");
+            Tool.M("系统将创建工作目录，请保证当前地图文件目录不移动。");
             fileSave();
             Tool.M("完成。");
             return save();
