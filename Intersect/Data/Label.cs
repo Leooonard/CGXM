@@ -156,7 +156,7 @@ namespace Intersect
                 return Const.INNER_ERROR_TIP;
             if (!shieldVariableList.Contains("content") && lIsChoosed && (lContent.Length == 0 || lContent.Length > MAX_LCONTENT_LENGTH))
                 return String.Format("类别名不能为空, 或长度大于{0}个字。", MAX_LCONTENT_LENGTH);
-            if (!shieldVariableList.Contains("mapLayerName") && (lMapLayerName.Length == 0 || lMapLayerName.Length > MAX_LMAPLAYERNAME_LENGTH))
+            if (!shieldVariableList.Contains("mapLayerName") && (lMapLayerName.Length == 0))
                 return "关联地图图层为空";
             if (!shieldVariableList.Contains("type") && lType == Const.ERROR_INT)
                 return Const.INNER_ERROR_TIP;
@@ -173,7 +173,7 @@ namespace Intersect
                 return false;
             if (!shieldVariableList.Contains("lContent") && lIsChoosed && (lContent.Length == 0 || lContent.Length > MAX_LCONTENT_LENGTH))
                 return false;
-            if (!shieldVariableList.Contains("lMapLayerName") && (lMapLayerName.Length == 0 || lMapLayerName.Length > MAX_LMAPLAYERNAME_LENGTH))
+            if (!shieldVariableList.Contains("lMapLayerName") && (lMapLayerName.Length == 0))
                 return false;
             if (!shieldVariableList.Contains("lType") && lType == Const.ERROR_INT)
                 return false;
