@@ -67,6 +67,21 @@ namespace Intersect
                 onPropertyChanged("mapLayerName");
             }
         }
+
+        private string lMapLayerPath;
+        public string mapLayerPath
+        {
+            get
+            {
+                return lMapLayerPath;
+            }
+            set
+            {
+                lMapLayerPath = value;
+                onPropertyChanged("mapLayerPath");
+            }
+        }
+
         private bool lIsChoosed;
         public bool isChoosed
         {
@@ -124,6 +139,7 @@ namespace Intersect
             lIsChoosed = Const.ERROR_BOOL;
             lType = 1;
             lisRaster = Const.ERROR_BOOL;
+            lMapLayerPath = Const.ERROR_STRING;
             uncomleteLabelContentManager = new UncompleteLabelComboBoxManager();
         }
 
@@ -137,6 +153,7 @@ namespace Intersect
             lIsChoosed = Boolean.Parse(reader[4].ToString());
             lType = Int32.Parse(reader[5].ToString());
             lisRaster = Boolean.Parse(reader[6].ToString());
+            lMapLayerPath = reader[7].ToString();
             uncomleteLabelContentManager = new UncompleteLabelComboBoxManager();
         }
 
@@ -184,8 +201,8 @@ namespace Intersect
         {
             if (!isValid(new List<string>() { "lID"}))
                 return false;
-            string sqlCommand = String.Format(@"insert into Label (pID,lContent,lMapLayerName,lIsChoosed,lType, lisRaster) values ({0}, '{1}', '{2}', {3}, {4}, {5})"
-                , pID, lContent, lMapLayerName, lIsChoosed ? 1 : 0, lType, lisRaster ? 1 : 0);
+            string sqlCommand = String.Format(@"insert into Label (pID,lContent,lMapLayerName,lIsChoosed,lType, lisRaster,lMapLayerPath) values ({0}, '{1}', '{2}', {3}, {4}, {5},'{6}')"
+                , pID, lContent, lMapLayerName, lIsChoosed ? 1 : 0, lType, lisRaster ? 1 : 0, lMapLayerPath);
             Sql sql = new Sql();
             return sql.insertLabel(sqlCommand);
         }
@@ -194,15 +211,15 @@ namespace Intersect
         {
             if (!isValid())
                 return false;
-            string sqlCommand = String.Format(@"update Label set pID={0},lContent='{1}',lMapLayerName='{2}',lIsChoosed={3}, lType='{5}', lisRaster={6} where lID={7}"
-                , pID, lContent, lMapLayerName, lIsChoosed ? 1 : 0, lType, lisRaster ? 1 : 0, lID);
+            string sqlCommand = String.Format(@"update Label set pID={0},lContent='{1}',lMapLayerName='{2}',lIsChoosed={3}, lType='{5}', lisRaster={6}, lMapLayerPath='{7}' where lID={8}"
+                , pID, lContent, lMapLayerName, lIsChoosed ? 1 : 0, lType, lisRaster ? 1 : 0, lMapLayerPath, lID);
             Sql sql = new Sql();
             return sql.updateLabel(sqlCommand);
         }
 
         public override bool delete()
         {
-            if (!isValid(new List<string>() { "pID", "lContent", "lMapLayerName", "lIsChoosed", "lType", "lisRaster"}))
+            if (!isValid(new List<string>() { "pID", "lContent", "lMapLayerName", "lIsChoosed", "lType", "lisRaster", "lMapLayerPath"}))
                 return false;
             string sqlCommand = String.Format(@"delete from Label where lID={0}", lID);
             Sql sql = new Sql();
@@ -211,7 +228,7 @@ namespace Intersect
 
         public override bool select()
         {
-            if (!isValid(new List<string>() { "pID", "lContent", "lMapLayerName", "lIsChoosed", "lType", "lisRaster"}))
+            if (!isValid(new List<string>() { "pID", "lContent", "lMapLayerName", "lIsChoosed", "lType", "lisRaster", "lMapLayerPath"}))
                 return false;
             string sqlCommand = String.Format(@"select * from Label where lID={0}", lID);
             Sql sql = new Sql();
