@@ -130,7 +130,7 @@ namespace Intersect
             foreach (Label rasterLabel in rasterLayerLabelList)
             {
                 string rasterPath = GisTool.ConvertRasterLayerToFeatureLayer(rasterFolder, GisTool.getLayerByName(rasterLabel.mapLayerName, projectWindow.mapControl) as IRasterLayer);
-                rasterLabel.mapLayerName = rasterPath;
+                rasterLabel.mapLayerPath = rasterPath;
             }
 
             project.path = newDirectoryPath;
@@ -145,13 +145,19 @@ namespace Intersect
          */
         protected override int confirm()
         {
+            projectWindow.ConfirmButton.IsEnabled = false;
+            projectWindow.CloseButton.IsEnabled = false;
             if (check() == Const.ERROR_INT)
             {
+                projectWindow.ConfirmButton.IsEnabled = true;
+                projectWindow.CloseButton.IsEnabled = true;
                 return Const.ERROR_INT;
             }
             Tool.M("系统将创建工作目录，请保证当前地图文件目录不移动。");
             fileSave();
             Tool.M("完成。");
+            projectWindow.ConfirmButton.IsEnabled = true;
+            projectWindow.CloseButton.IsEnabled = true;
             return save();
         }
     }
