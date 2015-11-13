@@ -15,6 +15,7 @@ using System.Collections.ObjectModel;
 using ESRI.ArcGIS.Controls;
 using ESRI.ArcGIS.Geometry;
 using ESRI.ArcGIS.Carto;
+using ESRI.ArcGIS.Display;
 
 namespace Intersect
 {
@@ -139,6 +140,9 @@ namespace Intersect
         {
             MainRoad mainRoad = new MainRoad();
             mainRoad.programID = program.id;
+            mainRoad.saveWithoutCheck();
+            mainRoad.id = MainRoad.GetLastMainRoadID();
+            mainRoad.name = "主路#" + mainRoad.id.ToString();
             mainRoadList.Add(mainRoad);
 
             //把左栏遮盖, 让用户在右侧画线.
@@ -163,7 +167,8 @@ namespace Intersect
                 if (mainRoad.id == mrID)
                 {
                     GisTool.ErasePolylineElement(mainRoad.lineElement, mapControl);
-                    mainRoad.needDelete = true;
+                    mainRoad.delete();
+                    i--;
                     return;
                 }
             }
@@ -214,87 +219,86 @@ namespace Intersect
         {
             if (isValid())
             {
-                if (isDirty())
+                if (Tool.C("继续操作会清空之后的数据, 是否继续?"))
                 {
-                    if (Tool.C("继续操作会清空之后的数据, 是否继续?"))
+                    dirty = true;
+                    valid = true;
+
+                    foreach (MainRoad mainRoad in mainRoadList)
                     {
-                        dirty = true;
-                        valid = true;
+                        mainRoad.update();
+                    }
 
-                        foreach (MainRoad mainRoad in mainRoadList)
-                        {
-                            if (mainRoad.needDelete)
-                                mainRoad.delete();
-                            else
-                                mainRoad.saveOrUpdate();
-                        }
+                    //1. 靠主路生成区域.
+                    GisTool.CreateShapefile(program.path, SiteSelectorUserControl.MAINROAD_LIST_SHP_NAME, mapControl.SpatialReference, "polyline");
+                    List<IGeometry> mainRoadGeometryList = new List<IGeometry>();
+                    foreach (MainRoad mainRoad in mainRoadList)
+                    {
+                        IElement element = mainRoad.lineElement as IElement;
+                        mainRoadGeometryList.Add(element.Geometry);
+                    }
+                    GisTool.AddGeometryListToShpFile(mainRoadGeometryList, program.path, SiteSelectorUserControl.MAINROAD_LIST_SHP_NAME);
+                    cachedVillageAreaPolygonList = GisTool.GetPolygonListFromPolylineList(
+                        System.IO.Path.Combine(program.path, SiteSelectorUserControl.MAINROAD_LIST_SHP_NAME),
+                        System.IO.Path.Combine(program.path, SiteSelectorUserControl.VILLAGE_AREA_SHP_NAME));
+                    foreach (IPolygon polygon in cachedVillageAreaPolygonList)
+                    {
+                        GisTool.drawPolygon(polygon, mapControl);
+                        IArea area = polygon as IArea;
+                        IRgbColor textColor = new RgbColor();
+                        textColor.Red = 255;
+                        textColor.Green = 0;
+                        textColor.Blue = 0;
+                        GisTool.drawText(area.Area.ToString(), area.Centroid, textColor, mapControl);
+                    }
 
-                        //1. 靠主路生成区域.
-                        GisTool.CreateShapefile(Const.PROGRAM_FOLDER, SiteSelectorUserControl.MAINROAD_LIST_SHP_NAME, mapControl.SpatialReference, "polyline");
-                        List<IGeometry> mainRoadGeometryList = new List<IGeometry>();
-                        foreach (MainRoad mainRoad in mainRoadList)
+                    //2. 检查生成的区域是否符合标准.
+                    bool errorFlag = false;
+                    if (cachedVillageAreaPolygonList.Count == 0)
+                    {
+                        errorFlag = true;
+                    }
+                    foreach (IPolygon polygon in cachedVillageAreaPolygonList)
+                    {
+                        IArea area = polygon as IArea;
+                        if (area.Area > Village.VILLAGE_MAX_SIZE)
                         {
-                            IElement element = mainRoad.lineElement as IElement;
-                            mainRoadGeometryList.Add(element.Geometry);
-                        }
-                        GisTool.AddGeometryListToShpFile(mainRoadGeometryList, Const.PROGRAM_FOLDER, SiteSelectorUserControl.MAINROAD_LIST_SHP_NAME);
-                        cachedVillageAreaPolygonList = GisTool.GetPolygonListFromPolylineList(
-                            System.IO.Path.Combine(Const.PROGRAM_FOLDER, SiteSelectorUserControl.MAINROAD_LIST_SHP_NAME),
-                            System.IO.Path.Combine(Const.PROGRAM_FOLDER, SiteSelectorUserControl.VILLAGE_AREA_SHP_NAME));
-                        foreach (IPolygon polygon in cachedVillageAreaPolygonList)
-                        {
-                            GisTool.drawPolygon(polygon, mapControl);
-                        }
-
-                        //2. 检查生成的区域是否符合标准.
-                        bool errorFlag = false;
-                        if (cachedVillageAreaPolygonList.Count == 0)
                             errorFlag = true;
-                        foreach (IPolygon polygon in cachedVillageAreaPolygonList)
-                        {
-                            IArea area = polygon as IArea;
-                            if (area.Area > Village.VILLAGE_MAX_SIZE)
-                            {
-                                errorFlag = true;
-                                break;
-                            }
-                        }
-                        if (errorFlag)
-                            Tool.M("生成的图形中包含错误.");
-
-                        //3. 区域形成village对象和相应的内部路对象.
-                        villageList = new ObservableCollection<Village>();
-                        foreach (IPolygon polygon in cachedVillageAreaPolygonList)
-                        {
-                            Village village = new Village();
-                            village.programID = program.id;
-                            IPolygonElement polygonElement = new PolygonElementClass();
-                            IElement element = polygonElement as IElement;
-                            element.Geometry = polygon;
-                            village.polygonElement = polygonElement;
-                            village.updateBoundary();
-
-                            InnerRoad innerRoad = new InnerRoad();
-                            innerRoad.programID = program.id;
-                            innerRoad.villageID = village.id;
-                            village.innerRoad = innerRoad;
-                            villageList.Add(village);
+                            break;
                         }
                     }
-                    else
+                    if (errorFlag)
                     {
-                        return;
+                        Tool.M("生成的图形中包含错误.");                        
+                    }
+
+                    //3. 区域形成village对象和相应的内部路对象.
+                    villageList = new ObservableCollection<Village>();
+                    foreach (IPolygon polygon in cachedVillageAreaPolygonList)
+                    {
+                        Village village = new Village();
+                        village.programID = program.id;
+                        IPolygonElement polygonElement = new PolygonElementClass();
+                        IElement element = polygonElement as IElement;
+                        element.Geometry = polygon;
+                        village.polygonElement = polygonElement;
+                        village.updateBoundary();
+
+                        InnerRoad innerRoad = new InnerRoad();
+                        innerRoad.programID = program.id;
+                        innerRoad.villageID = village.id;
+                        village.innerRoad = innerRoad;
+                        villageList.Add(village);
                     }
                 }
                 else
                 {
-                    valid = true;
                     return;
                 }
             }
             else
             {
-                Tool.M("请完整填写信息");
+                Tool.M("主路没有构成完整区域，请重试。");
                 return;
             }
         }

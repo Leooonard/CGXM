@@ -39,6 +39,6 @@
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
-        <Button Name="FinishMainRoadButton" Style="{StaticResource OperationButton}" HorizontalAlignment="Center" Width="200" Click="FinishMainRoadButtonClick">添加完成</Button>
+        <Button Name="FinishMainRoadButton" Style="{StaticResource OperationButton}" HorizontalAlignment="Center" Width="200" Click="FinishMainRoadButtonClick">生成区域</Button>
     </StackPanel>
 </UserControl>
