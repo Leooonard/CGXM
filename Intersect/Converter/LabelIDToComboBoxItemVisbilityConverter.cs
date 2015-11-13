@@ -8,6 +8,7 @@ namespace Intersect
 {
     public class LabelIDToComboBoxItemVisbilityConverter : IValueConverter
     {
+
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             int labelID = (int)value;
