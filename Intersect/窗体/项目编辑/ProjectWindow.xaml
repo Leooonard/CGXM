@@ -5,7 +5,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:wi="clr-namespace:System.Windows.Forms.Integration;assembly=WindowsFormsIntegration"
-    xmlns:cls="clr-namespace:Intersect" Width="800" Height="630"
+    xmlns:cls="clr-namespace:Intersect" Width="1000" Height="768"
 >
 
     <Window.Resources>
@@ -281,8 +281,8 @@
     </Window.Resources>
 
     <Grid>
-        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal" Width="800" Height="600">
-            <StackPanel Background="White" Width="400" Height="600" Name="BaseStackPanel" Style="{StaticResource NotErrorTip}">
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal" Width="1000" Height="738">
+            <StackPanel Background="White" Width="500" Height="738" Name="BaseStackPanel" Style="{StaticResource NotErrorTip}">
                 <StackPanel.BindingGroup>
                     <BindingGroup Name="baseBindingGroup"></BindingGroup>
                 </StackPanel.BindingGroup>
@@ -297,20 +297,20 @@
                     </Grid.RowDefinitions>
                     <Grid Grid.Row="0" Margin="0, 5, 0, 5">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="0.2*"></ColumnDefinition>
-                            <ColumnDefinition Width="0.8*"></ColumnDefinition>
+                            <ColumnDefinition Width="0.3*"></ColumnDefinition>
+                            <ColumnDefinition Width="0.7*"></ColumnDefinition>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" TextAlignment="Center" FontSize="12" Padding="0, 5, 0, 0">项目名</TextBlock>
+                        <TextBlock Grid.Column="0" TextAlignment="Left" FontSize="12" Padding="20, 0, 0, 0">项目名</TextBlock>
                         <TextBox Grid.Column="1" Name="NameTextBox" Style="{StaticResource ErrorTip}">
                         </TextBox>
                     </Grid>
                     <Grid Grid.Row="1" Margin="0, 5, 0, 5">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="0.2*"></ColumnDefinition>
-                            <ColumnDefinition Width="0.7*"></ColumnDefinition>
+                            <ColumnDefinition Width="0.3*"></ColumnDefinition>
+                            <ColumnDefinition Width="0.6*"></ColumnDefinition>
                             <ColumnDefinition Width="0.1*"></ColumnDefinition>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" TextAlignment="Center" FontSize="12" Padding="0, 5, 0, 0">地图路径</TextBlock>
+                        <TextBlock Grid.Column="0" TextAlignment="Left" FontSize="12" Padding="20, 0, 0, 0">地图路径</TextBlock>
                         <TextBox Grid.Column="1" Name="PathTextBox" Style="{StaticResource ErrorTip}"></TextBox>
                         <Button Grid.Column="2" Style="{StaticResource operationButton}" Width="Auto" Name="BrowseFileButton" Click="BrowseFileButton_Click">浏览</Button>
                     </Grid>
@@ -318,29 +318,29 @@
                 <Rectangle Fill="#e5e5e5" Height="1"></Rectangle>
                 <Grid Margin="0,5,0,5">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="3*"></ColumnDefinition>
-                        <ColumnDefinition Width="7*"></ColumnDefinition>
+                        <ColumnDefinition Width="0.3*"></ColumnDefinition>
+                        <ColumnDefinition Width="0.7*"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="0" TextAlignment="Center">选择评价范围</TextBlock>
+                    <TextBlock Grid.Column="0" TextAlignment="Left" Padding="20, 0, 0, 0">选择评价范围</TextBlock>
                     <ComboBox Grid.Column="1" Name="BaseMapLayerComboBox" Style="{StaticResource FlatComboBox}"
                               SelectionChanged="BaseMapLayerComboBoxSelectionChanged" Margin="0,0,5,0"></ComboBox>
                 </Grid>
                 <Rectangle Fill="#e5e5e5" Height="1"></Rectangle>
-                <StackPanel Name="MapStackPanel" Style="{StaticResource NotErrorTip}" Orientation="Vertical" Width="400" Height="300">
-                    <Grid Width="400" Height="19">
+                <StackPanel Name="MapStackPanel" Style="{StaticResource NotErrorTip}" Orientation="Vertical" Width="500" Height="400">
+                    <Grid Width="470" Height="19">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="3*"></ColumnDefinition>
                             <ColumnDefinition Width="3*"></ColumnDefinition>
                             <ColumnDefinition Width="1*"></ColumnDefinition>
-                            <ColumnDefinition Width="1*"></ColumnDefinition>
+                            <ColumnDefinition Width="3*"></ColumnDefinition>
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" TextAlignment="Center">图层名</TextBlock>
                         <TextBlock Grid.Column="1" TextAlignment="Center">标准类别名</TextBlock>
                         <TextBlock Grid.Column="2" TextAlignment="Center">使用图层</TextBlock>
-                        <TextBlock Grid.Column="3" TextAlignment="Center">约束条件/评价准则</TextBlock>
+                        <TextBlock Grid.Column="3" TextAlignment="Center">处理方式</TextBlock>
                     </Grid>
                     <Rectangle Height="1" Fill="Gray"></Rectangle>
-                    <ScrollViewer VerticalScrollBarVisibility="Auto" Height="280">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Height="380">
                         <StackPanel>
                             <ListBox Name="CompleteLabelListBox" AlternationCount="2" BorderThickness="0">
                                 <ListBox.ItemContainerStyle>
@@ -363,24 +363,24 @@
                                 </ListBox.ItemContainerStyle>
                                 <ListBox.ItemTemplate>
                                     <DataTemplate>
-                                        <Grid Width="380">
+                                        <Grid Width="470">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="3*"></ColumnDefinition>
                                                 <ColumnDefinition Width="3*"></ColumnDefinition>
                                                 <ColumnDefinition Width="1*"></ColumnDefinition>
-                                                <ColumnDefinition Width="1*"></ColumnDefinition>
+                                                <ColumnDefinition Width="3*"></ColumnDefinition>
                                             </Grid.ColumnDefinitions>
-                                            <TextBlock Grid.Column="0" TextAlignment="Left">
-                                            <TextBlock.Text>
-                                                <Binding Path="mapLayerName" Mode="TwoWay"></Binding>
-                                            </TextBlock.Text>
+                                            <TextBlock Grid.Column="0" TextAlignment="Left" Padding="15, 0, 0, 0">
+                                                <TextBlock.Text>
+                                                    <Binding Path="mapLayerName" Mode="TwoWay"></Binding>
+                                                </TextBlock.Text>
                                             </TextBlock>
                                             <TextBlock Grid.Column="1" TextAlignment="Left" Text="{Binding Path=content, Mode=TwoWay}"></TextBlock>
                                             <CheckBox Grid.Column="2" HorizontalAlignment="Center" IsChecked="{Binding Path=isChoosed, Mode=TwoWay}" Click="IsChoosedCheckBoxClick"></CheckBox>
                                             <ComboBox Style="{StaticResource FlatComboBox}" Grid.Column="3" SelectedIndex="{Binding Path=type, Mode=TwoWay}">
-                                                <ComboBoxItem>条件</ComboBoxItem>
-                                                <ComboBoxItem>准则</ComboBoxItem>
-                                                <ComboBoxItem>条件和准则</ComboBoxItem>
+                                                <ComboBoxItem>约束条件</ComboBoxItem>
+                                                <ComboBoxItem>评价准则</ComboBoxItem>
+                                                <ComboBoxItem>约束条件和评价准则</ComboBoxItem>
                                             </ComboBox>
                                             <TextBlock Name="IDTextBlock" Visibility="Collapsed" Text="{Binding Path=id}"></TextBlock>
                                         </Grid>
@@ -408,14 +408,14 @@
                                 </ListBox.ItemContainerStyle>
                                 <ListBox.ItemTemplate>
                                     <DataTemplate>
-                                        <Grid Width="380">
+                                        <Grid Width="470">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="3*"></ColumnDefinition>
                                                 <ColumnDefinition Width="3*"></ColumnDefinition>
                                                 <ColumnDefinition Width="1*"></ColumnDefinition>
-                                                <ColumnDefinition Width="1*"></ColumnDefinition>
+                                                <ColumnDefinition Width="3*"></ColumnDefinition>
                                             </Grid.ColumnDefinitions>
-                                            <TextBlock Name="MapLayerNameTextBlock" Grid.Column="0" TextAlignment="Left">
+                                            <TextBlock Name="MapLayerNameTextBlock" Grid.Column="0" TextAlignment="Left" Padding="15, 0, 0, 0">
                                                 <TextBlock.Text>
                                                     <Binding Path="mapLayerName" Mode="TwoWay"></Binding>
                                                 </TextBlock.Text>
@@ -459,15 +459,21 @@
                 
                 <!--<cls:Pager x:Name="StepPager"></cls:Pager>-->
                 <Grid Height="90">
-                    <Button Content="确定" Style="{StaticResource operationButton}" HorizontalAlignment="Right" Margin="0, 10, 10, 0" VerticalAlignment="Center" Name="ConfirmButton" Click="ConfirmButton_Click" />
-                    <Button Content="关闭" Style="{StaticResource warningButton}" HorizontalAlignment="Right" Margin="0, 10, 120, 0" VerticalAlignment="Center" Name="CloseButton" Click="CloseButton_Click" />
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="3*"></ColumnDefinition>
+                        <ColumnDefinition Width="3*"></ColumnDefinition>
+                        <ColumnDefinition Width="1*"></ColumnDefinition>
+                        <ColumnDefinition Width="3*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Button Grid.Column="1" Content="关闭" Style="{StaticResource warningButton}" HorizontalAlignment="Left" VerticalAlignment="Center" Name="CloseButton" Click="CloseButton_Click" />
+                    <Button Grid.Column="3" Content="确定" Style="{StaticResource operationButton}" HorizontalAlignment="Left" VerticalAlignment="Center" Name="ConfirmButton" Click="ConfirmButton_Click" />
                 </Grid>
             </StackPanel>
-            <StackPanel Width="400" Height="600">
-                <wi:WindowsFormsHost Name="windowToolbarHost" Width="400" Height="30"/>
-                <wi:WindowsFormsHost Name="windowMapHost" Width="400" Height="570"/>
+            <StackPanel Width="500" Height="738">
+                <wi:WindowsFormsHost Name="windowToolbarHost" Width="500" Height="30"/>
+                <wi:WindowsFormsHost Name="windowMapHost" Width="500" Height="738"/>
             </StackPanel>
-            <Border Margin="-1200, 0, 0, 0" Height="600" Width="400" BorderBrush="Black" BorderThickness="1" Background="#70000000" Visibility="Collapsed" Name="ProjectMask">
+            <Border Margin="-1600, 0, 0, 0" Height="738" Width="600" BorderBrush="Black" BorderThickness="1" Background="#70000000" Visibility="Collapsed" Name="ProjectMask">
                 <Grid>
                     <TextBlock Margin="0" TextWrapping="Wrap" Text="执 行 中 ..." HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="26.667" FontWeight="Bold" Foreground="White"/>
                 </Grid>
