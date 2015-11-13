@@ -372,7 +372,7 @@ namespace Intersect
             }
 
             mapControl.DeleteLayer(index);
-            FileHelper.DeleteSameNameFiles(program.path, layerName);
+            GisTool.DeleteShapeFile(System.IO.Path.Combine(program.path, layerName + ".shp"));
         }
 
         public bool addShapeFile(string shpName, string layerName)

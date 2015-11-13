@@ -905,6 +905,15 @@ namespace Intersect
             workspaceEdit.StopEditing(true);
         }
 
+        public static void DeleteShapeFile(string path)
+        {
+            IWorkspaceFactory workspaceFactory = new ShapefileWorkspaceFactoryClass();
+            IFeatureWorkspace featureWorkspace = workspaceFactory.OpenFromFile(System.IO.Path.GetDirectoryName(path), 0) as IFeatureWorkspace;//pathName为路径名
+            IFeatureClass featureClass = featureWorkspace.OpenFeatureClass(System.IO.Path.GetFileName(path));//fileName为文件名(不包含路径)
+            IDataset dataSet = featureClass as IDataset;
+            dataSet.Delete();
+        }
+
         public static void CreateShapefile(string strShapeFolder, string strShapeName, ISpatialReference spatialRef, string geometryType = "polygon")
         {
             //如果该文件已经存在, 删除该文件名开头的所有不同后缀的文件.
