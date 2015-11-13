@@ -24,7 +24,6 @@ namespace Intersect
         private Program program;
         private ObservableCollection<Condition> restraintConditionList;
         private ObservableCollection<Condition> standardConditionList;
-        private ObservableCollection<Condition> extraConditionList;
 
         public ConditionUserControl()
         {
@@ -47,7 +46,6 @@ namespace Intersect
             ObservableCollection<Condition> tempList;
             restraintConditionList = new ObservableCollection<Condition>();
             standardConditionList = new ObservableCollection<Condition>();
-            extraConditionList = new ObservableCollection<Condition>();
             tempList = program.getAllRelatedCondition();
             if (tempList.Count == 0)
             {
@@ -57,23 +55,49 @@ namespace Intersect
                 {
                     if (label.isChoosed)
                     {
-                        Condition condition = new Condition();
-                        condition.labelID = label.id;
-                        condition.programID = program.id;
                         if (label.type == Const.LABEL_TYPE_RESTRAINT)
                         {
-                            condition.type = Const.CONFIG_TYPE_RESTRAINT;                            
+                            Condition condition = new Condition();
+                            condition.labelID = label.id;
+                            condition.programID = program.id;
+                            condition.type = Const.CONFIG_TYPE_RESTRAINT;
+                            condition.saveWithoutCheck();
+                            condition.id = Condition.GetLastConditionID();
+
+                            restraintConditionList.Add(condition);
                         }
                         else if (label.type == Const.LABEL_TYPE_STANDARD)
                         {
+                            Condition condition = new Condition();
+                            condition.labelID = label.id;
+                            condition.programID = program.id;
                             condition.type = Const.CONFIG_TYPE_STANDARD;
-                        }
-                        condition.saveWithoutCheck();
-                        condition.id = Condition.GetLastConditionID();
-                        if (label.type == Const.LABEL_TYPE_RESTRAINT)
-                            restraintConditionList.Add(condition);
-                        else
+                            condition.saveWithoutCheck();
+                            condition.id = Condition.GetLastConditionID();
+
                             standardConditionList.Add(condition);
+                        }
+                        else if(label.type == Const.LABEL_TYPE_BOTH)
+                        {
+                            Condition restraintCondition = new Condition();
+                            restraintCondition.labelID = label.id;
+                            restraintCondition.programID = program.id;
+                            restraintCondition.type = Const.CONFIG_TYPE_RESTRAINT;
+                            restraintCondition.saveWithoutCheck();
+                            restraintCondition.id = Condition.GetLastConditionID();
+
+                            restraintConditionList.Add(restraintCondition);
+
+
+                            Condition standardCondition = new Condition();
+                            standardCondition.labelID = label.id;
+                            standardCondition.programID = program.id;
+                            standardCondition.type = Const.CONFIG_TYPE_STANDARD;
+                            standardCondition.saveWithoutCheck();
+                            standardCondition.id = Condition.GetLastConditionID();
+
+                            standardConditionList.Add(standardCondition);
+                        }
                     }
                 }
             }
@@ -81,32 +105,19 @@ namespace Intersect
             {
                 foreach (Condition condition in tempList)
                 {
-                    int labelID = condition.labelID;
-                    Label label = new Label();
-                    label.id = labelID;
-                    label.select();
-                    if (label.isChoosed)
+                    if (condition.type == Const.CONFIG_TYPE_RESTRAINT)
                     {
-                        if (label.type == Const.LABEL_TYPE_RESTRAINT)
-                            restraintConditionList.Add(condition);
-                        else
-                            standardConditionList.Add(condition);
+                        restraintConditionList.Add(condition);
                     }
-                    else
+                    else if (condition.type == Const.CONFIG_TYPE_STANDARD)
                     {
-                        labelList = project.getAllRelatedLabel();
-                        foreach (Label l in labelList)
-                        {
-                            condition.labelList.Add(l);
-                        }
-                        extraConditionList.Add(condition);
+                        standardConditionList.Add(condition);
                     }
                 }
             }
 
             RestraintConditionListBox.ItemsSource = restraintConditionList;
             StandardConditionListBox.ItemsSource = standardConditionList;
-            ExtraConditionListBox.ItemsSource = extraConditionList;
         }
 
         public List<Condition> getTotalConditionList()
@@ -117,10 +128,6 @@ namespace Intersect
                 totalConditionList.Add(condition);
             }
             foreach (Condition condition in standardConditionList)
-            {
-                totalConditionList.Add(condition);
-            }
-            foreach (Condition condition in extraConditionList)
             {
                 totalConditionList.Add(condition);
             }
@@ -153,23 +160,6 @@ namespace Intersect
             }
         }
 
-        private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            ComboBox comboBox = sender as ComboBox;
-            Grid grid = comboBox.Parent as Grid;
-            TextBlock conditionIDTextBlock = grid.FindName("ConditionIDTextBlock") as TextBlock;
-            int conditionID = Int32.Parse(conditionIDTextBlock.Text);
-            foreach (Condition condition in extraConditionList)
-            {
-                if (condition.id == conditionID)
-                {
-                    condition.delete();
-                    extraConditionList.Remove(condition);
-                    return;
-                }
-            }
-        }
-
         public bool isValid()
         {
             BindingGroup bindingGroup = ConditionStepStackPanel.BindingGroup;
@@ -183,7 +173,7 @@ namespace Intersect
         public bool isDirty()
         {
             ObservableCollection<Condition> tempConditionList = program.getAllRelatedCondition();
-            if (restraintConditionList.Count + extraConditionList.Count != tempConditionList.Count)
+            if (restraintConditionList.Count != tempConditionList.Count)
                 return true;
 
             foreach (Condition condition in restraintConditionList)
@@ -206,15 +196,6 @@ namespace Intersect
                     return true;
             }
 
-            foreach (Condition condition in extraConditionList)
-            {
-                int conditionID = condition.id;
-                Condition conditionCopy = new Condition();
-                conditionCopy.id = conditionID;
-                conditionCopy.select();
-                if (!condition.compare(conditionCopy))
-                    return true;
-            }
             return false;
         }
 
@@ -226,12 +207,6 @@ namespace Intersect
             }
             foreach (Condition condition in standardConditionList)
             {
-                condition.update();
-            }
-            foreach (Condition condition in extraConditionList)
-            {
-                Label label = condition.labelList[condition.labelIndex];
-                condition.labelID = label.id;
                 condition.update();
             }
         }

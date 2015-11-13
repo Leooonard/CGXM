@@ -17,14 +17,12 @@
                 <ColumnDefinition Width="3*"></ColumnDefinition>
                 <ColumnDefinition Width="2*"></ColumnDefinition>
                 <ColumnDefinition Width="3*"></ColumnDefinition>
-                <ColumnDefinition Width="3*"></ColumnDefinition>
-                <ColumnDefinition Width="2*"></ColumnDefinition>
+                <ColumnDefinition Width="1*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
             <TextBlock Grid.Column="0" TextAlignment="Center" Margin="0,0,0,5">图层名</TextBlock>
             <TextBlock Grid.Column="1" TextAlignment="Center" Margin="0,0,0,5">条件名</TextBlock>
             <TextBlock Grid.Column="2" TextAlignment="Center" Margin="0,0,0,5">条件种类</TextBlock>
-            <TextBlock Grid.Column="3" TextAlignment="Center" Margin="0,0,0,5">值</TextBlock>
-            <TextBlock Grid.Column="4" TextAlignment="Center" Margin="0,0,0,5">操作</TextBlock>
+            <TextBlock Grid.Column="3" TextAlignment="Center" Margin="0,0,0,5">条件值</TextBlock>
         </Grid>
         <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="250">
             <StackPanel Name="ConditionStackPanel" Margin="0,0,0,5">
@@ -36,8 +34,7 @@
                                     <ColumnDefinition Width="3*"></ColumnDefinition>
                                     <ColumnDefinition Width="2*"></ColumnDefinition>
                                     <ColumnDefinition Width="3*"></ColumnDefinition>
-                                    <ColumnDefinition Width="3*"></ColumnDefinition>
-                                    <ColumnDefinition Width="2*"></ColumnDefinition>
+                                    <ColumnDefinition Width="1*"></ColumnDefinition>
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Name="ConditionLabelTextBlock" Grid.Column="0">
                                     <TextBlock.Text>
@@ -73,39 +70,123 @@
                                         </Binding>
                                     </ComboBox.SelectedIndex>
                                     <ComboBoxItem>
+                                        <ComboBoxItem.Visibility>
+                                            <Binding Path="labelID" Mode="OneWay">
+                                                <Binding.Converter>
+                                                    <cls:LabelIDToComboBoxItemVisbilityConverter></cls:LabelIDToComboBoxItemVisbilityConverter>
+                                                </Binding.Converter>
+                                            </Binding>
+                                        </ComboBoxItem.Visibility>
                                         <TextBlock>相交大于</TextBlock>
                                     </ComboBoxItem>
                                     <ComboBoxItem>
+                                        <ComboBoxItem.Visibility>
+                                            <Binding Path="labelID" Mode="OneWay">
+                                                <Binding.Converter>
+                                                    <cls:LabelIDToComboBoxItemVisbilityConverter></cls:LabelIDToComboBoxItemVisbilityConverter>
+                                                </Binding.Converter>
+                                            </Binding>
+                                        </ComboBoxItem.Visibility>
                                         <TextBlock>相交小于</TextBlock>
                                     </ComboBoxItem>
                                     <ComboBoxItem>
+                                        <ComboBoxItem.Visibility>
+                                            <Binding Path="labelID" Mode="OneWay">
+                                                <Binding.Converter>
+                                                    <cls:LabelIDToComboBoxItemVisbilityConverter></cls:LabelIDToComboBoxItemVisbilityConverter>
+                                                </Binding.Converter>
+                                            </Binding>
+                                        </ComboBoxItem.Visibility>
                                         <TextBlock>相交大于等于</TextBlock>
                                     </ComboBoxItem>
                                     <ComboBoxItem>
+                                        <ComboBoxItem.Visibility>
+                                            <Binding Path="labelID" Mode="OneWay">
+                                                <Binding.Converter>
+                                                    <cls:LabelIDToComboBoxItemVisbilityConverter></cls:LabelIDToComboBoxItemVisbilityConverter>
+                                                </Binding.Converter>
+                                            </Binding>
+                                        </ComboBoxItem.Visibility>
                                         <TextBlock>相交小于等于</TextBlock>
                                     </ComboBoxItem>
                                     <ComboBoxItem>
+                                        <ComboBoxItem.Visibility>
+                                            <Binding Path="labelID" Mode="OneWay">
+                                                <Binding.Converter>
+                                                    <cls:LabelIDToComboBoxItemVisbilityConverter></cls:LabelIDToComboBoxItemVisbilityConverter>
+                                                </Binding.Converter>
+                                            </Binding>
+                                        </ComboBoxItem.Visibility>
                                         <TextBlock>距离大于</TextBlock>
                                     </ComboBoxItem>
                                     <ComboBoxItem>
+                                        <ComboBoxItem.Visibility>
+                                            <Binding Path="labelID" Mode="OneWay">
+                                                <Binding.Converter>
+                                                    <cls:LabelIDToComboBoxItemVisbilityConverter></cls:LabelIDToComboBoxItemVisbilityConverter>
+                                                </Binding.Converter>
+                                            </Binding>
+                                        </ComboBoxItem.Visibility>
                                         <TextBlock>距离小于</TextBlock>
                                     </ComboBoxItem>
                                     <ComboBoxItem>
+                                        <ComboBoxItem.Visibility>
+                                            <Binding Path="labelID" Mode="OneWay">
+                                                <Binding.Converter>
+                                                    <cls:LabelIDToComboBoxItemVisbilityConverter></cls:LabelIDToComboBoxItemVisbilityConverter>
+                                                </Binding.Converter>
+                                            </Binding>
+                                        </ComboBoxItem.Visibility>
                                         <TextBlock>距离大于等于</TextBlock>
                                     </ComboBoxItem>
                                     <ComboBoxItem>
+                                        <ComboBoxItem.Visibility>
+                                            <Binding Path="labelID" Mode="OneWay">
+                                                <Binding.Converter>
+                                                    <cls:LabelIDToComboBoxItemVisbilityConverter></cls:LabelIDToComboBoxItemVisbilityConverter>
+                                                </Binding.Converter>
+                                            </Binding>
+                                        </ComboBoxItem.Visibility>
                                         <TextBlock>距离小于等于</TextBlock>
                                     </ComboBoxItem>
                                     <ComboBoxItem>
+                                        <ComboBoxItem.Visibility>
+                                            <Binding Path="labelID" Mode="OneWay">
+                                                <Binding.Converter>
+                                                    <cls:LabelIDToComboBoxItemNotVisbilityConverter></cls:LabelIDToComboBoxItemNotVisbilityConverter>
+                                                </Binding.Converter>
+                                            </Binding>
+                                        </ComboBoxItem.Visibility>
                                         <TextBlock>坡度或高程大于</TextBlock>
                                     </ComboBoxItem>
                                     <ComboBoxItem>
+                                        <ComboBoxItem.Visibility>
+                                            <Binding Path="labelID" Mode="OneWay">
+                                                <Binding.Converter>
+                                                    <cls:LabelIDToComboBoxItemNotVisbilityConverter></cls:LabelIDToComboBoxItemNotVisbilityConverter>
+                                                </Binding.Converter>
+                                            </Binding>
+                                        </ComboBoxItem.Visibility>
                                         <TextBlock>坡度或高程小于</TextBlock>
                                     </ComboBoxItem>
                                     <ComboBoxItem>
+                                        <ComboBoxItem.Visibility>
+                                            <Binding Path="labelID" Mode="OneWay">
+                                                <Binding.Converter>
+                                                    <cls:LabelIDToComboBoxItemNotVisbilityConverter></cls:LabelIDToComboBoxItemNotVisbilityConverter>
+                                                </Binding.Converter>
+                                            </Binding>
+                                        </ComboBoxItem.Visibility>
                                         <TextBlock>坡度或高程大于等于</TextBlock>
                                     </ComboBoxItem>
                                     <ComboBoxItem>
+                                        <ComboBoxItem.Visibility>
+                                            <Binding Path="labelID" Mode="OneWay">
+                                                <Binding.Converter>
+                                                    <cls:LabelIDToComboBoxItemNotVisbilityConverter></cls:LabelIDToComboBoxItemNotVisbilityConverter>
+                                                </Binding.Converter>
+                                            </Binding>
+                                        </ComboBoxItem.Visibility>
                                         <TextBlock>坡度或高程小于等于</TextBlock>
                                     </ComboBoxItem>
                                 </ComboBox>
@@ -118,7 +199,6 @@
                                         </Binding>
                                     </TextBox.Text>
                                 </TextBox>
-                                <Button Name="ConditionDeletebutton" Grid.Column="4" Click="ConditionDeleteButton_Click">删除</Button>
                                 <TextBlock Text="{Binding Path=id,Mode=TwoWay}" Visibility="Collapsed" Name="ID"></TextBlock>
                                 <TextBlock Text="{Binding Path=mapLayerIndex, Mode=TwoWay}" Visibility="Collapsed" Name="MapLayerIndex"></TextBlock>
                             </Grid>
@@ -132,14 +212,12 @@
                         <ColumnDefinition Width="3*"></ColumnDefinition>
                         <ColumnDefinition Width="2*"></ColumnDefinition>
                         <ColumnDefinition Width="3*"></ColumnDefinition>
-                        <ColumnDefinition Width="3*"></ColumnDefinition>
-                        <ColumnDefinition Width="2*"></ColumnDefinition>
+                        <ColumnDefinition Width="1*"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Column="0" TextAlignment="Center" Margin="0,0,0,5">图层名</TextBlock>
                     <TextBlock Grid.Column="1" TextAlignment="Center" Margin="0,0,0,5">准则名</TextBlock>
                     <TextBlock Grid.Column="2" TextAlignment="Center" Margin="0,0,0,5">准则种类</TextBlock>
-                    <TextBlock Grid.Column="3" TextAlignment="Center" Margin="0,0,0,5">权值</TextBlock>
-                    <TextBlock Grid.Column="4" TextAlignment="Center" Margin="0,0,0,5">操作</TextBlock>
+                    <TextBlock Grid.Column="3" TextAlignment="Center" Margin="0,0,0,5">评价值</TextBlock>
                 </Grid>
                 <ListBox Name="StandardConditionListBox" Style="{StaticResource ListBox}" Width="400" BorderThickness="0,1,0,0" MaxHeight="200">
                     <ListBox.ItemTemplate>
@@ -149,8 +227,7 @@
                                     <ColumnDefinition Width="3*"></ColumnDefinition>
                                     <ColumnDefinition Width="2*"></ColumnDefinition>
                                     <ColumnDefinition Width="3*"></ColumnDefinition>
-                                    <ColumnDefinition Width="3*"></ColumnDefinition>
-                                    <ColumnDefinition Width="2*"></ColumnDefinition>
+                                    <ColumnDefinition Width="1*"></ColumnDefinition>
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Name="ConditionLabelTextBlock" Grid.Column="0">
                                     <TextBlock.Text>
@@ -186,15 +263,45 @@
                                         </Binding>
                                     </ComboBox.SelectedIndex>
                                     <ComboBoxItem>
+                                        <ComboBoxItem.Visibility>
+                                            <Binding Path="labelID" Mode="OneWay">
+                                                <Binding.Converter>
+                                                    <cls:LabelIDToComboBoxItemVisbilityConverter>
+                                                    </cls:LabelIDToComboBoxItemVisbilityConverter>
+                                                </Binding.Converter>
+                                            </Binding>
+                                        </ComboBoxItem.Visibility>
                                         <TextBlock>距离正向</TextBlock>
                                     </ComboBoxItem>
                                     <ComboBoxItem>
+                                        <ComboBoxItem.Visibility>
+                                            <Binding Path="labelID" Mode="OneWay">
+                                                <Binding.Converter>
+                                                    <cls:LabelIDToComboBoxItemVisbilityConverter>
+                                                    </cls:LabelIDToComboBoxItemVisbilityConverter>
+                                                </Binding.Converter>
+                                            </Binding>
+                                        </ComboBoxItem.Visibility>
                                         <TextBlock>距离负向</TextBlock>
                                     </ComboBoxItem>
                                     <ComboBoxItem>
+                                        <ComboBoxItem.Visibility>
+                                            <Binding Path="labelID" Mode="OneWay">
+                                                <Binding.Converter>
+                                                    <cls:LabelIDToComboBoxItemNotVisbilityConverter></cls:LabelIDToComboBoxItemNotVisbilityConverter>
+                                                </Binding.Converter>
+                                            </Binding>
+                                        </ComboBoxItem.Visibility>
                                         <TextBlock>坡度或高程正向</TextBlock>
                                     </ComboBoxItem>
                                     <ComboBoxItem>
+                                        <ComboBoxItem.Visibility>
+                                            <Binding Path="labelID" Mode="OneWay">
+                                                <Binding.Converter>
+                                                    <cls:LabelIDToComboBoxItemNotVisbilityConverter></cls:LabelIDToComboBoxItemNotVisbilityConverter>
+                                                </Binding.Converter>
+                                            </Binding>
+                                        </ComboBoxItem.Visibility>
                                         <TextBlock>坡度或高程负向</TextBlock>
                                     </ComboBoxItem>
                                 </ComboBox>
@@ -207,94 +314,6 @@
                                         </Binding>
                                     </TextBox.Text>
                                 </TextBox>
-                                <Button Name="ConditionDeletebutton" Grid.Column="4" Click="ConditionDeleteButton_Click">删除</Button>
-                                <TextBlock Text="{Binding Path=id,Mode=TwoWay}" Visibility="Collapsed" Name="ID"></TextBlock>
-                                <TextBlock Text="{Binding Path=mapLayerIndex, Mode=TwoWay}" Visibility="Collapsed" Name="MapLayerIndex"></TextBlock>
-                            </Grid>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
-                <Rectangle Height="1" Fill="Gray"></Rectangle>
-                <ListBox Name="ExtraConditionListBox" Style="{StaticResource ListBox}" Width="400" BorderThickness="0, 1, 0, 0" MaxHeight="200">
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <Grid Width="390" Margin="0,5,0,5">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="3*"></ColumnDefinition>
-                                    <ColumnDefinition Width="2*"></ColumnDefinition>
-                                    <ColumnDefinition Width="3*"></ColumnDefinition>
-                                    <ColumnDefinition Width="3*"></ColumnDefinition>
-                                    <ColumnDefinition Width="2*"></ColumnDefinition>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Name="ConditionIDTextBlock" Text="{Binding Path=id, Mode=TwoWay}" Visibility="Collapsed"></TextBlock>
-                                <ComboBox Name="ConditionLabelComboBox" Grid.Column="0" Style="{StaticResource FlatComboBox}">
-                                    <ComboBox.ItemsSource>
-                                        <Binding Path="labelList" Mode="TwoWay"></Binding>
-                                    </ComboBox.ItemsSource>
-                                    <ComboBox.SelectedIndex>
-                                        <Binding Path="labelIndex" Mode="TwoWay"></Binding>
-                                    </ComboBox.SelectedIndex>
-                                    <ComboBox.ItemTemplate>
-                                        <DataTemplate>
-                                            <TextBlock Text="{Binding Path=content, Mode=OneWay}"></TextBlock>
-                                        </DataTemplate>
-                                    </ComboBox.ItemTemplate>
-                                </ComboBox>
-                                <TextBox Name="ConditionNameTextBox" Grid.Column="1" HorizontalAlignment="Stretch" Style="{StaticResource ErrorTip}">
-                                    <TextBox.Text>
-                                        <Binding Path="name" Mode="TwoWay" UpdateSourceTrigger="LostFocus" BindingGroupName="ConditionStepBindingGroup">
-                                            <Binding.ValidationRules>
-                                                <cls:StringValidationRule maxLength="20"></cls:StringValidationRule>
-                                            </Binding.ValidationRules>
-                                        </Binding>
-                                    </TextBox.Text>
-                                </TextBox>
-                                <ComboBox Name="ConditionTypeComboBox" Grid.Column="2" Style="{StaticResource FlatComboBox}" HorizontalAlignment="Stretch">
-                                    <ComboBox.SelectedIndex>
-                                        <Binding Path="type" Mode="TwoWay" BindingGroupName="ConditionStepBindingGroup">
-                                            <Binding.ValidationRules>
-                                                <cls:NotNegativeDoubleValidationRule></cls:NotNegativeDoubleValidationRule>
-                                            </Binding.ValidationRules>
-                                        </Binding>
-                                    </ComboBox.SelectedIndex>
-                                    <ComboBoxItem>
-                                        <TextBlock>约束条件</TextBlock>
-                                    </ComboBoxItem>
-                                    <ComboBoxItem>
-                                        <TextBlock>评价准则</TextBlock>
-                                    </ComboBoxItem>
-                                </ComboBox>
-                                <ComboBox Name="ConditionCategoryComboBox" Grid.Column="3" Text="条件类型" Style="{StaticResource FlatComboBox}">
-                                    <ComboBox.SelectedIndex>
-                                        <Binding Path="category" Mode="TwoWay" BindingGroupName="ConditionStepBindingGroup">
-                                            <Binding.ValidationRules>
-                                                <cls:NotNegativeDoubleValidationRule></cls:NotNegativeDoubleValidationRule>
-                                            </Binding.ValidationRules>
-                                        </Binding>
-                                    </ComboBox.SelectedIndex>
-                                    <ComboBoxItem>
-                                        <TextBlock>距离正相关类</TextBlock>
-                                    </ComboBoxItem>
-                                    <ComboBoxItem>
-                                        <TextBlock>距离负相关类</TextBlock>
-                                    </ComboBoxItem>
-                                    <ComboBoxItem>
-                                        <TextBlock>覆盖栅格正相关类</TextBlock>
-                                    </ComboBoxItem>
-                                    <ComboBoxItem>
-                                        <TextBlock>覆盖栅格负相关类</TextBlock>
-                                    </ComboBoxItem>
-                                </ComboBox>
-                                <TextBox Name="ConditionValueTextBox" Grid.Column="4">
-                                    <TextBox.Text>
-                                        <Binding Path="value" Mode="TwoWay" BindingGroupName="ConditionStepBindingGroup">
-                                            <Binding.ValidationRules>
-                                                <cls:NotNegativeDoubleValidationRule></cls:NotNegativeDoubleValidationRule>
-                                            </Binding.ValidationRules>
-                                        </Binding>
-                                    </TextBox.Text>
-                                </TextBox>
-                                <!--<Button Style="{StaticResource ResourceKey=warningButton_small}" Grid.Column="5" Name="ConditionDeleteButton" Click="ConditionDeleteButton_Click">删除</Button>-->
                                 <TextBlock Text="{Binding Path=id,Mode=TwoWay}" Visibility="Collapsed" Name="ID"></TextBlock>
                                 <TextBlock Text="{Binding Path=mapLayerIndex, Mode=TwoWay}" Visibility="Collapsed" Name="MapLayerIndex"></TextBlock>
                             </Grid>
