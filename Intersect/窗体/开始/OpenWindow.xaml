@@ -46,7 +46,8 @@
             <ColumnDefinition Width="9*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
         <StackPanel Grid.Column="0" Name="ProjectStackPanel" Height="400">
-            <ScrollViewer Height="400" VerticalScrollBarVisibility="Auto">
+            <TextBlock Height="30" Background="#faffff" FontSize="17" Padding="15,5,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Center">项目列表</TextBlock>
+            <ScrollViewer Height="370" VerticalScrollBarVisibility="Auto">
                 <ListBox Name="ProjectListBox" BorderThickness="0">
                     <ListBox.ItemContainerStyle>
                         <Style TargetType="ListBoxItem">
