@@ -52,6 +52,20 @@ namespace Intersect
             }
         }
 
+        private string prPath;
+        public string path
+        {
+            get
+            {
+                return prPath;
+            }
+            set
+            {
+                prPath = value;
+                onPropertyChanged("prPath");
+            }
+        }
+
         private bool _visible;
         public bool visible
         {
@@ -66,6 +80,22 @@ namespace Intersect
             }
         }
         public int step;
+
+        private List<string> convertArgName(List<string> list)
+        {
+            Dictionary<string, string> convertMap = new Dictionary<string, string>() { 
+                {"id", "prID"},
+                {"name", "prName"},
+                {"projectID", "pID"},
+                {"path", "prPath"}
+            };
+            List<string> convertedList = new List<string>();
+            foreach (string arg in list)
+            {
+                convertedList.Add(convertMap[arg]);
+            }
+            return convertedList;
+        }
 
         public Program()
         {
@@ -82,6 +112,7 @@ namespace Intersect
             id = Int32.Parse(reader[0].ToString());
             name = reader[1].ToString();
             projectID = Int32.Parse(reader[2].ToString());
+            path = reader[3].ToString();
         }
 
         public static int GetLastProgramID()
@@ -101,6 +132,8 @@ namespace Intersect
                 return String.Format("方案名长度须在0-{0}之间", PRNAME_MAX_LENGTH);
             if (!shieldVariableList.Contains("projectID") && pID == Const.ERROR_INT)
                 return Const.INNER_ERROR_TIP;
+            if (!shieldVariableList.Contains("path") && prPath == Const.ERROR_STRING)
+                return Const.INNER_ERROR_TIP;
             return "";
         }
 
@@ -114,15 +147,27 @@ namespace Intersect
                 return false;
             if (!shieldVariableList.Contains("pID") && pID == Const.ERROR_INT)
                 return false;
+            if (!shieldVariableList.Contains("path") && prPath == Const.ERROR_STRING)
+                return false;
             return true;
         }
 
         public override bool save()
         {
-            if (!isValid(new List<string>() { "prID"}))
+            if (!isValid(new List<string>() { "prID" }))
                 return false;
-            string sqlCommand = String.Format("insert into Program (prName,pID) values('{0}',{1})"
-                , prName, pID);
+            string sqlCommand = String.Format("insert into Program (prName,pID,prPath) values('{0}',{1},'{2}')"
+                , prName, pID, prPath);
+            Sql sql = new Sql();
+            return sql.insertProgram(sqlCommand);
+        }
+
+        public bool save(List<string> notCheckList)
+        {
+            if (!isValid(new List<string>(convertArgName(notCheckList).Concat<string>(new List<string>() { "prID" }))))
+                return false;
+            string sqlCommand = String.Format("insert into Program (prName,pID,prPath) values('{0}',{1},'{2}')"
+                , prName, pID, prPath);
             Sql sql = new Sql();
             return sql.insertProgram(sqlCommand);
         }
@@ -131,15 +176,15 @@ namespace Intersect
         {
             if (!isValid())
                 return false;
-            string sqlCommand = String.Format("update Program set prName='{0}',pID={1} where prID={2}"
-                , prName, pID, prID);
+            string sqlCommand = String.Format("update Program set prName='{0}',pID={1},prPath='{2}' where prID={3}"
+                , prName, pID, prPath, prID);
             Sql sql = new Sql();
             return sql.updateProgram(sqlCommand);
         }
 
         public override bool delete()
         {
-            if (!isValid(new List<string>() { "prName", "pID"}))
+            if (!isValid(new List<string>() { "prName", "pID", "prPath"}))
                 return false;
             string sqlCommand = String.Format("delete from Program where prID={0}", prID);
             Sql sql = new Sql();
@@ -148,7 +193,7 @@ namespace Intersect
 
         public override bool select()
         {
-            if (!isValid(new List<string>() { "prName", "pID" }))
+            if (!isValid(new List<string>() { "prName", "pID", "prPath" }))
                 return false;
             string sqlCommand = String.Format("select * from Program where prID={0}", prID);
             Sql sql = new Sql();
@@ -161,7 +206,7 @@ namespace Intersect
 
         public ObservableCollection<Config> selectAllRelatedConfig()
         {
-            if (!isValid(new List<string>() { "prName", "pID" }))
+            if (!isValid(new List<string>() { "prName", "pID", "prPath" }))
                 return null;
             ObservableCollection<Config> configList = new ObservableCollection<Config>();
             string sqlCommand = String.Format("select cfID from Config where prID={0}", prID);
@@ -181,7 +226,7 @@ namespace Intersect
 
         public ObservableCollection<Condition> getAllRelatedCondition()
         {
-            if (!isValid(new List<string>() { "prName", "pID" }))
+            if (!isValid(new List<string>() { "prName", "pID", "prPath" }))
                 return null;
             ObservableCollection<Condition> conditionList = new ObservableCollection<Condition>();
             string sqlCommand = String.Format("select cdID from Condition where prID={0}", prID);
@@ -201,7 +246,7 @@ namespace Intersect
 
         public NetSize getRelatedNetSize()
         {
-            if (!isValid(new List<string>() { "prName", "pID" }))
+            if (!isValid(new List<string>() { "prName", "pID", "prPath" }))
                 return null;
             string sqlCommand = String.Format(@"select nsID from NetSize where prID={0}", prID);
             Sql sql = new Sql();
@@ -217,7 +262,7 @@ namespace Intersect
 
         public CommonHouse selectRelatedCommonHouse()
         {
-            if (!isValid(new List<string>() { "prName", "pID" }))
+            if (!isValid(new List<string>() { "prName", "pID", "prPath" }))
                 return null;
             CommonHouse commonHouse = new CommonHouse();
             string sqlCommand = String.Format("select chID from CommonHouse where prID={0}", prID);
@@ -232,7 +277,7 @@ namespace Intersect
 
         public ObservableCollection<House> selectAllRelatedHouse()
         {
-            if (!isValid(new List<string>() { "prName", "pID" }))
+            if (!isValid(new List<string>() { "prName", "pID", "prPath" }))
                 return null;
             ObservableCollection<House> houseList = new ObservableCollection<House>();
             string sqlCommand = String.Format("select hID from House where prID={0}", prID);
@@ -257,7 +302,7 @@ namespace Intersect
 
         public ObservableCollection<MainRoad> getAllRelatedMainRoad()
         {
-            if (!isValid(new List<string>() { "prName", "pID" }))
+            if (!isValid(new List<string>() { "prName", "pID", "prPath" }))
                 return null;
 
             ObservableCollection<MainRoad> mainRoadList = new ObservableCollection<MainRoad>();
@@ -286,7 +331,7 @@ namespace Intersect
 
         public ObservableCollection<Village> getAllRelatedVillage()
         {
-            if (!isValid(new List<string>() { "prName", "pID" }))
+            if (!isValid(new List<string>() { "prName", "pID", "prPath" }))
                 return null;
 
             ObservableCollection<Village> villageList = new ObservableCollection<Village>();
@@ -315,7 +360,7 @@ namespace Intersect
 
         public ObservableCollection<InnerRoad> getAllRelatedInnerRoad()
         {
-            if (!isValid(new List<string>() { "prName", "pID" }))
+            if (!isValid(new List<string>() { "prName", "pID", "prPath" }))
                 return null;
 
             ObservableCollection<InnerRoad> innerRoadList = new ObservableCollection<InnerRoad>();
