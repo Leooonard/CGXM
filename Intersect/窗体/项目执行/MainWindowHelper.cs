@@ -14,6 +14,7 @@ using System.Threading;
 using ESRI.ArcGIS.Geodatabase;
 using System.Text.RegularExpressions;
 using Intersect.Lib;
+using System.IO;
 
 namespace Intersect
 {
@@ -79,9 +80,38 @@ namespace Intersect
         {
             Program program = new Program();
             program.projectID = project.id;
-            program.name = Program.PROGRAM_DEFAULT_NAME;
-            program.save();
+            program.save(new List<string>() { "name", "path"});
             program.id = Program.GetLastProgramID();
+            program.name = "项目#" + program.id.ToString();
+
+            //再创建工作目录.
+            int randomCount = 0;
+            string folderName = String.Format("{0}_{1}", program.name, Tool.random(10));
+            while (Directory.Exists(System.IO.Path.Combine(
+                project.path,
+                Const.PROGRAMS_FOLDER_NAME,
+                folderName
+            )))
+            {
+                if (++randomCount > 20)
+                {
+                    Tool.M("工作目录创建失败。");
+                    program.delete();
+                    return;
+                }
+                folderName = String.Format("{0}_{1}", program.name, Tool.random(10));
+            }
+            string programPath = System.IO.Path.Combine(
+                project.path,
+                Const.PROGRAMS_FOLDER_NAME,
+                folderName
+            );
+            Directory.CreateDirectory(programPath);
+
+            //再写入path属性
+            program.path = programPath;
+
+            program.update();
             programList.Add(program);
         }
 
@@ -96,6 +126,9 @@ namespace Intersect
 
                     string mapPath = FileHelper.FindExtension(System.IO.Path.Combine(project.path, Const.SOURCE_FOLDER_NAME), ".mxd");
                     mainWindow.LoadMap(mapPath); //每次打开时, 重新读一下地图.
+                    IFeature baseFeature = GisTool.GetBaseFeature(mainWindow.mapControl, project.baseMapIndex);
+                    GisTool.ExpandToMapView(baseFeature, mainWindow.mapControl);
+
                     ProgramStepUserControl programStepUserControl = parentStackPanel.FindName("ProgramStepUserControl") as ProgramStepUserControl;
                     if (programStepUserControl.Visibility == System.Windows.Visibility.Visible)
                     {
@@ -211,11 +244,7 @@ namespace Intersect
             {
                 mainWindow.LoadMap(mxdPath);
                 IFeature baseFeature = GisTool.GetBaseFeature(mainWindow.mapControl, project.baseMapIndex);
-                //移动地图视角.
-                IEnvelope extent = baseFeature.Shape.Envelope;
-                extent.Expand(1, 1, true);
-                mainWindow.mapControl.Extent = extent;
-                mainWindow.mapControl.ActiveView.Refresh();
+                GisTool.ExpandToMapView(baseFeature, mainWindow.mapControl);
 
                 mainWindow.ProgramListTitle.Text = String.Format("{0}-{1}", project.name, "方案列表");
                 ObservableCollection<Program> tempProgramList = project.getAllRelatedProgram();
