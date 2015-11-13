@@ -1070,6 +1070,15 @@ namespace Intersect
             return null;
         }
 
+        public static void ExpandToMapView(IFeature feature, AxMapControl mapControl)
+        {
+            //移动地图视角.
+            IEnvelope extent = feature.Shape.Envelope;
+            extent.Expand(1, 1, true);
+            mapControl.Extent = extent;
+            mapControl.ActiveView.Refresh();
+        }
+
         public static void ExpandToMapView(string layerName, AxMapControl mapControl)
         {
             ILayer layer = GisTool.getLayerByName(layerName, mapControl);

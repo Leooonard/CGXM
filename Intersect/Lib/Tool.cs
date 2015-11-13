@@ -30,6 +30,30 @@ namespace Intersect
             Console.WriteLine(content);
         }
 
+        public static string random(int length)
+        {
+            string[] randomList = new string[] { 
+                "a", "b", "c", "d", "e", "f", "g", "h",
+                "i", "j", "k", "l", "m", "n", "o", "p",
+                "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
+                 "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"
+            };
+
+            string randomString = "";
+            Random randomer = new Random();
+            if (length <= 0)
+            {
+                return "";
+            }
+
+            for (int i = 0; i < length; i++)
+            {
+                randomString += randomList[randomer.Next(0, 36)];
+            }
+
+            return randomString;
+        }
+
         public static void bind(object source, string path, BindingMode mode, FrameworkElement element
             , DependencyProperty property, List<ValidationRule> validationRuleList, string bindingGroupName = null)
         {
