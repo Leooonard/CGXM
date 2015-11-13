@@ -47,5 +47,6 @@ namespace Intersect
         public const string DEFAULT_FILE_DIALOG_FOLDER = @"C:\Users\Mavericks\Desktop\适宜性分析数据\landuseLayers";
 
         public const string SOURCE_FOLDER_NAME = @"source";
+        public const string PROGRAMS_FOLDER_NAME = @"programs";
     }
 }

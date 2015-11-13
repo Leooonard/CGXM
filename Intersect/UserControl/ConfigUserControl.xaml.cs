@@ -72,16 +72,9 @@ namespace Intersect
                     {
                         valid = true;
                         onFinish(true);
-                        IFeatureClass resultFeatureClass;
-                        if ((resultFeatureClass = GisTool.getFeatureClass(System.IO.Path.GetDirectoryName(project.path), "评价结果.shp")) != null)
+                        SiteSelector siteSelector = new SiteSelector(mapControl, program.id);
+                        if (siteSelector.addShapeFile("评价结果.shp", "评价结果") == false)
                         {
-                            IFeatureLayer resultFeatureLayer = new FeatureLayerClass();
-                            resultFeatureLayer.FeatureClass = resultFeatureClass;
-                            mapControl.AddLayer(resultFeatureLayer);
-                        }
-                        else
-                        {
-                            SiteSelector siteSelector = new SiteSelector(mapControl, program.id);
                             siteSelector.startSelectSite();
                         }
                     }

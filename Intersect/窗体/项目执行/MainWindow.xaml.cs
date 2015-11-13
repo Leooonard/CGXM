@@ -164,20 +164,6 @@ namespace Intersect
                     }
                     GisTool.DrawPolyline(placeManager.innerRoadLine, mapControl);
 
-                    /*string path = @"C:\work\tID10\outerground.shp";
-                    placeManager.saveOuterGround(path);
-
-                    path = @"C:\work\tID10\centerground.shp";
-                    placeManager.saveCenterGround(path);
-
-                    path = @"C:\work\tID10\result.shp";
-                    placeManager.saveHouse(path);
-
-                    path = @"C:\work\tID10\innerroad.shp";
-                    placeManager.saveInnerRoad(path);
-
-                    path = @"C:\work\tID10\road.shp";
-                    placeManager.saveRoad(path);*/
 
                     MessageBox.Show("保存成功.");
                     ////最后把路径写入文件.
@@ -472,9 +458,6 @@ namespace Intersect
         private void CreateProgramButtonClick(object sender, RoutedEventArgs e)
         {
             createProgramButtonClickEventHandler(sender, e);
-            return;
-            createProgramNameWindow.show(projectAndMapID);
-            HideMapControl();
         }
 
         private void ModifyProgramNameButton_Click(object sender, RoutedEventArgs e)

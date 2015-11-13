@@ -211,7 +211,7 @@ namespace Intersect
         {
             if (!isValid())
                 return false;
-            string sqlCommand = String.Format(@"update Label set pID={0},lContent='{1}',lMapLayerName='{2}',lIsChoosed={3}, lType='{5}', lisRaster={6}, lMapLayerPath='{7}' where lID={8}"
+            string sqlCommand = String.Format(@"update Label set pID={0},lContent='{1}',lMapLayerName='{2}',lIsChoosed={3}, lType='{4}', lisRaster={5}, lMapLayerPath='{6}' where lID={7}"
                 , pID, lContent, lMapLayerName, lIsChoosed ? 1 : 0, lType, lisRaster ? 1 : 0, lMapLayerPath, lID);
             Sql sql = new Sql();
             return sql.updateLabel(sqlCommand);

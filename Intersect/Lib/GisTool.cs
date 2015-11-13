@@ -882,6 +882,29 @@ namespace Intersect
             workspaceEdit.StopEditing(true);
         }
 
+        public static void AddFeaturesToFeatureClass(List<Feature> featureList, IFeatureClass featureClass, string fieldName)
+        {
+            IFeatureLayer featureLayer = new FeatureLayerClass();
+            featureLayer.FeatureClass = featureClass;
+            IWorkspaceEdit workspaceEdit = (featureClass as IDataset).Workspace as IWorkspaceEdit;
+            workspaceEdit.StartEditing(true);
+            workspaceEdit.StartEditOperation();
+
+            foreach (Feature feature in featureList)
+            {
+                IFeature fea = featureClass.CreateFeature();
+                fea.Shape = feature.relativeFeature.Shape;
+                fea.Store();
+                ITable pTable = (ITable)featureLayer;
+                IRow pRow = pTable.GetRow(featureClass.FeatureCount(null) - 1);
+                pRow.set_Value(pTable.FindField(fieldName), feature.score.ToString());
+                pRow.Store();
+            }
+
+            workspaceEdit.StopEditOperation();
+            workspaceEdit.StopEditing(true);
+        }
+
         public static void CreateShapefile(string strShapeFolder, string strShapeName, ISpatialReference spatialRef, string geometryType = "polygon")
         {
             //如果该文件已经存在, 删除该文件名开头的所有不同后缀的文件.
@@ -1034,6 +1057,40 @@ namespace Intersect
                 }
             }
             return "";
+        }
+
+        public static int getLayerIndexByName(string name, AxMapControl mapControl)
+        {
+            if (mapControl == null)
+            {
+                return -1;
+            }
+
+            for (int i = 0; i < mapControl.LayerCount; i++)
+            {
+                ILayer layer = mapControl.get_Layer(i);
+                ICompositeLayer compositeLayer = layer as ICompositeLayer;
+                if (compositeLayer == null)
+                {
+                    //说明不是一个组合图层, 直接获取图层名.
+                    if (layer.Name == name)
+                    {
+                        return i;
+                    }
+                }
+                else
+                {
+                    for (int j = 0; j < compositeLayer.Count; j++)
+                    {
+                        ILayer ly = compositeLayer.get_Layer(j);
+                        if (ly.Name == name)
+                        {
+                            return i;
+                        }
+                    }
+                }
+            }
+            return -1;
         }
 
         public static ILayer getLayerByName(string name, AxMapControl mapControl)
