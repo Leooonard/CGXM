@@ -145,17 +145,14 @@ namespace Intersect
 
         protected override int confirm()
         {
-            projectWindow.ConfirmButton.IsEnabled = false;
-            projectWindow.CloseButton.IsEnabled = false;
+            projectWindow.mask();
             if (check() == Const.ERROR_INT)
             {
-                projectWindow.ConfirmButton.IsEnabled = true;
-                projectWindow.CloseButton.IsEnabled = true;
                 return Const.ERROR_INT;
             }
-            projectWindow.ConfirmButton.IsEnabled = true;
-            projectWindow.CloseButton.IsEnabled = true;
-            return update();
+            int result = update();
+            projectWindow.unmask();
+            return result;
         }
     }
 }

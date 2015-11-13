@@ -145,20 +145,17 @@ namespace Intersect
          */
         protected override int confirm()
         {
-            projectWindow.ConfirmButton.IsEnabled = false;
-            projectWindow.CloseButton.IsEnabled = false;
+            projectWindow.mask();
             if (check() == Const.ERROR_INT)
             {
-                projectWindow.ConfirmButton.IsEnabled = true;
-                projectWindow.CloseButton.IsEnabled = true;
                 return Const.ERROR_INT;
             }
             Tool.M("系统将创建工作目录，请保证当前地图文件目录不移动。");
             fileSave();
             Tool.M("完成。");
-            projectWindow.ConfirmButton.IsEnabled = true;
-            projectWindow.CloseButton.IsEnabled = true;
-            return save();
+            int result = save();
+            projectWindow.unmask();
+            return result;
         }
     }
 }
