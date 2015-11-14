@@ -22,21 +22,17 @@ namespace Intersect
     {
         private Geoprocessor gp;
         private AxMapControl mapControl;
-        private string mapFolder; //mxd所在目录.
-        private string targetFolder; //我生成文件存放的目标目录.
-        private string fishnetPolygonName;
-        private string fishnetName;
-        private double fishnetWidth;
-        private double fishnetHeight;
+        private const string fishnetPolygonName = "polygon.shp";
+        private const string fishnetName = "fishnet.shp";
         private List<Feature> featureList;
         private ObservableCollection<Condition> conditionList;
+        private List<Condition> restraintConditionList;
+        private List<Condition> standardConditionList;
         private NetSize netSize;
         private Program program;
         private Project project;
-        private List<string> mapLayerNameList;
         private double totalStandardValue;
         private IFeature baseFeature;
-        private static List<IElement> drawnElementList = new List<IElement>();
         private IGeometry rootGeometry;
 
         public SiteSelector(AxMapControl mc, int programID)
@@ -50,304 +46,253 @@ namespace Intersect
             featureList = feaList;
         }
 
-        private string generateFolder(string basePath)
-        {
-            TimeSpan ts = DateTime.Now - DateTime.Parse("1970-1-1");
-            targetFolder = basePath + "/" + ts.TotalMilliseconds.ToString();
-            //生成文件夹.
-            if (!Directory.Exists(targetFolder))
-            {
-                Directory.CreateDirectory(targetFolder);
-            }
-            return targetFolder;
-        }
-
         private void Init(AxMapControl mc, int programID)
         {
             //这里是window.show()的一个坑. show其实等同于设置窗口的visibility:visible.
-            drawnElementList = new List<IElement>();
-
             gp = new Geoprocessor();
             mapControl = mc;
-            UpdateMapLayerNameList(mapLayerNameList, mapControl);
+
             program = new Program();
             program.id = programID;
             program.select();
+
             project = new Project();
             project.id = program.projectID;
             project.select();
+
             netSize = program.getRelatedNetSize();
+
             conditionList = program.getAllRelatedCondition();
-            baseFeature = GisTool.GetBaseFeature(mapControl, project.baseMapIndex);
-            mapFolder = System.IO.Path.GetDirectoryName(project.path);
-            targetFolder = generateFolder(mapFolder);
-            foreach (Condition condition in conditionList)
+            restraintConditionList = new List<Condition>();
+            standardConditionList = new List<Condition>();
+            for (int i = 0; i < conditionList.Count; i++)
             {
-                if (condition.type == Const.CONFIG_TYPE_STANDARD)
+                Condition condition = conditionList[i];
+                if (condition.type == Const.CONFIG_TYPE_RESTRAINT)
+                {
+                    restraintConditionList.Add(condition);
+                }
+                else
                 {
                     totalStandardValue += condition.value;
+                    standardConditionList.Add(condition);
                 }
             }
-            fishnetPolygonName = "polygon.shp";
-            fishnetName = "fishnet.shp";
-            fishnetWidth = netSize.width;
-            fishnetHeight = netSize.height;
+
+            baseFeature = GisTool.GetBaseFeature(mapControl, project.baseMapIndex);
 
             featureList = new List<Feature>();
         }
 
-        private string getFullPath(string folder, string name)
+        private IFeatureClass createFishnetFeatureClass(IGeometry baseGeometry)
         {
-            return folder + "/" + name;
+            Dictionary<string, double> dict = GisTool.GetExternalRectDimension(baseGeometry);
+            GisTool.CreateEnvelopFishnet(netSize.width, netSize.height, System.IO.Path.Combine(program.path, fishnetName), dict);
+
+            GisTool.FeatureToPolygon(System.IO.Path.Combine(program.path, fishnetName), System.IO.Path.Combine(program.path, fishnetPolygonName));
+            GisTool.DeleteShapeFile(System.IO.Path.Combine(program.path, fishnetName)); //删除中间文件.
+
+            IFeatureClass featureClass = GisTool.getFeatureClass(program.path, fishnetPolygonName); //获得网格类, 其中的网格已成面.
+            return featureClass;
+        }
+
+        private void deleteFishnetFeatureClass()
+        {
+            GisTool.DeleteShapeFile(System.IO.Path.Combine(program.path, fishnetPolygonName));
         }
 
         public List<Feature> startSelectSite()
         {
             deleteShapeFile("评价结果");
-            EraseDrawnGeometryList(mapControl);
-            IGeometry allGeom = baseFeature.Shape;
+
             rootGeometry = baseFeature.Shape;
 
-            Dictionary<string, double> dict = GisTool.GetExternalRectDimension(allGeom);
-            GisTool.CreateEnvelopFishnet(fishnetWidth, fishnetHeight, getFullPath(targetFolder, fishnetName), dict);
-            GisTool.FeatureToPolygon(getFullPath(targetFolder, fishnetName), getFullPath(targetFolder, fishnetPolygonName));
-
-            IFeatureClass featureClass = GisTool.getFeatureClass(targetFolder, fishnetPolygonName); //获得网格类, 其中的网格已成面.
+            IFeatureClass fishnetFeatureClass = createFishnetFeatureClass(rootGeometry);
             ISpatialFilter filter = new SpatialFilterClass();
             filter.Geometry = rootGeometry;
             filter.GeometryField = "SHAPE";
             filter.SpatialRel = esriSpatialRelEnum.esriSpatialRelIntersects;
-            IFeatureCursor cursor = featureClass.Search(filter, false);
+            IFeatureCursor cursor = fishnetFeatureClass.Search(filter, false);
             IFeature feature;
             while ((feature = cursor.NextFeature()) != null)
             {
                 Feature fea = new Feature();
                 fea.inUse = 1;
-                fea.score = -1;
+                fea.score = 0;
                 fea.relativeFeature = feature;
                 featureList.Add(fea);
             }
-            
-            for (int i = 0; i < conditionList.Count; i++)
+
+            for (int i = 0; i < restraintConditionList.Count; i++)
             {
-                Condition condition = conditionList[i];
+                Condition condition = restraintConditionList[i];
                 Label label = new Label();
                 label.id = condition.labelID;
                 label.select();
                 string targetLayerName = label.mapLayerName;
                 string targetLayerPath = label.mapLayerPath;
-                if (condition.type == Const.CONFIG_TYPE_RESTRAINT)
+                if (condition.category == Const.CONFIG_CATEGORY_RESTRAINT_DISTANCE_BIGGER)
                 {
-                    if (condition.category == Const.CONFIG_CATEGORY_RESTRAINT_DISTANCE_BIGGER)
-                    {
-                        distanceRestraint(targetLayerName, condition.value, featureList,
-                            new DistanceFilterResultHandler(delegate(IGeometry filteredGeometry, List<Feature> feaList)
-                            {
-                                if (filteredGeometry == null)
-                                {
-                                    return false;
-                                }
-                                return true;
-                            }),
-                            new DistanceRestraintHandler(delegate(double distance, double restraint, Feature fea, List<Feature> feaList)
-                            {
-                                if (distance <= restraint)
-                                {
-                                    feaList.Remove(fea);
-                                    return true;
-                                }
-                                return false;
-                            }));
-                    }
-                    else if (condition.category == Const.CONFIG_CATEGORY_RESTRAINT_DISTANCE_BIGGEREQUAL)
-                    {
-                        distanceRestraint(targetLayerName, condition.value, featureList,
-                            new DistanceFilterResultHandler(delegate(IGeometry filteredGeometry, List<Feature> feaList)
-                            {
-                                if (filteredGeometry == null)
-                                {
-                                    return false;
-                                }
-                                return true;
-                            }),
-                            new DistanceRestraintHandler(delegate(double distance, double restraint, Feature fea, List<Feature> feaList)
-                            {
-                                if (distance < restraint)
-                                {
-                                    feaList.Remove(fea);
-                                    return true;
-                                }
-                                return false;
-                            }));
-                    }
-                    else if (condition.category == Const.CONFIG_CATEGORY_RESTRAINT_DISTANCE_SMALLER)
-                    {
-                        distanceRestraint(targetLayerName, condition.value, featureList,
-                            new DistanceFilterResultHandler(delegate(IGeometry filteredGeometry, List<Feature> feaList)
-                            {
-                                if (filteredGeometry == null)
-                                {
-                                    feaList.Clear();
-                                    return false;
-                                }
-                                return true;
-                            }),
-                            new DistanceRestraintHandler(delegate(double distance, double restraint, Feature fea, List<Feature> feaList)
-                            {
-                                if (distance >= restraint)
-                                {
-                                    feaList.Remove(fea);
-                                    return true;
-                                }
-                                return false;
-                            }));
-                    }
-                    else if (condition.category == Const.CONFIG_CATEGORY_RESTRAINT_DISTANCE_SMALLEREQUAL)
-                    {
-                        distanceRestraint(targetLayerName, condition.value, featureList,
-                            new DistanceFilterResultHandler(delegate(IGeometry filteredGeometry, List<Feature> feaList)
-                            {
-                                if (filteredGeometry == null)
-                                {
-                                    feaList.Clear();
-                                    return false;
-                                }
-                                return true;
-                            }),
-                            new DistanceRestraintHandler(delegate(double distance, double restraint, Feature fea, List<Feature> feaList)
-                            {
-                                if (distance > restraint)
-                                {
-                                    feaList.Remove(fea);
-                                    return true;
-                                }
-                                return false;
-                            }));
-                    }
-                    else if (condition.category == Const.CONFIG_CATEGORY_RESTRAINT_INTERSECT_BIGGER)
-                    {
-                        IntersectRestraint(targetLayerName, condition.value, featureList,
-                            new IntersectFilterResultHandler(delegate(IGeometry filteredGeometry, List<Feature> feaList)
-                            {
-                                if (filteredGeometry == null)
-                                {
-                                    feaList.Clear();
-                                    return false;
-                                }
-                                return true;
-                            }),
-                            new IntersectRestraintHandler(delegate(double ratio, double restraint, Feature fea, List<Feature> feaList)
-                            {
-                                if (ratio <= restraint)
-                                {
-                                    feaList.Remove(fea);
-                                    return true;
-                                }
-                                return false;
-                            }));
-                    }
-                    else if (condition.category == Const.CONFIG_CATEGORY_RESTRAINT_INTERSECT_BIGGEREQUAL)
-                    {
-                        IntersectRestraint(targetLayerName, condition.value, featureList,
-                            new IntersectFilterResultHandler(delegate(IGeometry filteredGeometry, List<Feature> feaList)
-                            {
-                                if (filteredGeometry == null)
-                                {
-                                    feaList.Clear();
-                                    return false;
-                                }
-                                return true;
-                            }),
-                            new IntersectRestraintHandler(delegate(double ratio, double restraint, Feature fea, List<Feature> feaList)
-                            {
-                                if (ratio < restraint)
-                                {
-                                    feaList.Remove(fea);
-                                    return true;
-                                }
-                                return false;
-                            }));
-                    }
-                    else if (condition.category == Const.CONFIG_CATEGORY_RESTRAINT_INTERSECT_SMALLER)
-                    {
-                        IntersectRestraint(targetLayerName, condition.value, featureList,
-                            new IntersectFilterResultHandler(delegate(IGeometry filteredGeometry, List<Feature> feaList)
-                            {
-                                if (filteredGeometry == null)
-                                {
-                                    return false;
-                                }
-                                return true;
-                            }),
-                            new IntersectRestraintHandler(delegate(double ratio, double restraint, Feature fea, List<Feature> feaList)
-                            {
-                                if (ratio >= restraint)
-                                {
-                                    feaList.Remove(fea);
-                                    return true;
-                                }
-                                return false;
-                            }));
-                    }
-                    else if (condition.category == Const.CONFIG_CATEGORY_RESTRAINT_INTERSECT_SMALLEREQUAL)
-                    {
-                        IntersectRestraint(targetLayerName, condition.value, featureList,
-                            new IntersectFilterResultHandler(delegate(IGeometry filteredGeometry, List<Feature> feaList)
-                            {
-                                if (filteredGeometry == null)
-                                {
-                                    return false;
-                                }
-                                return true;
-                            }),
-                            new IntersectRestraintHandler(delegate(double ratio, double restraint, Feature fea, List<Feature> feaList)
-                            {
-                                if (ratio > restraint)
-                                {
-                                    feaList.Remove(fea);
-                                    return true;
-                                }
-                                return false;
-                            }));                            
-                    }
-                    else if (condition.category == Const.CONFIG_CATEGORY_RESTRAINT_OVERLAP_BIGGER)
-                    {
-                        biggerOverlapRestraint(targetLayerPath, condition.value, featureList);                                                    
-                    }
-                    else if (condition.category == Const.CONFIG_CATEGORY_RESTRAINT_OVERLAP_BIGGEREQUAL)
-                    {
-                        biggerEqualOverlapRestraint(targetLayerPath, condition.value, featureList);                                                                            
-                    }
-                    else if (condition.category == Const.CONFIG_CATEGORY_RESTRAINT_OVERLAP_SMALLER)
-                    {
-                        smallerOverlapRestraint(targetLayerPath, condition.value, featureList);
-                    }
-                    else if (condition.category == Const.CONFIG_CATEGORY_RESTRAINT_OVERLAP_SMALLEREQUAL)
-                    {
-                        smallerEqualOverlapRestraint(targetLayerPath, condition.value, featureList);                                                                           
-                    }
+                    distanceRestraint(targetLayerName, condition.value, featureList,
+                        new DistanceFilterResultHandler(delegate(IGeometry filteredGeometry, List<Feature> feaList)
+                        {
+                            return filteredGeometry != null;
+                        }),
+                        new DistanceRestraintHandler(delegate(double distance, double restraint)
+                        {
+                            return distance <= restraint;
+                        }));
                 }
-                else if(condition.type == Const.CONFIG_TYPE_STANDARD)
+                else if (condition.category == Const.CONFIG_CATEGORY_RESTRAINT_DISTANCE_BIGGEREQUAL)
                 {
-                    if (condition.category == Const.CONFIG_CATEGORY_STANDARD_DISTANCE_NEGATIVE)
-                    {
-                        negativeDistanceStandard(targetLayerName, condition.value / totalStandardValue, featureList);
-                    }
-                    else if (condition.category == Const.CONFIG_CATEGORY_STANDARD_DISTANCE_POSITIVE)
-                    {
-                        positiveDistanceStandard(targetLayerName, condition.value / totalStandardValue, featureList);
-                    }
-                    else if (condition.category == Const.CONFIG_CATEGORY_STANDARD_OVERLAP_NEGATIVE)
-                    {
-                        negativeOverlapStandard(targetLayerPath, condition.value / totalStandardValue, featureList);
-                    }
-                    else if (condition.category == Const.CONFIG_CATEGORY_STANDARD_OVERLAP_POSITIVE)
-                    {
-                        positiveOverlapStandard(targetLayerPath, condition.value / totalStandardValue, featureList);
-                    }
+                    distanceRestraint(targetLayerName, condition.value, featureList,
+                        new DistanceFilterResultHandler(delegate(IGeometry filteredGeometry, List<Feature> feaList)
+                        {
+                            return filteredGeometry != null;
+                        }),
+                        new DistanceRestraintHandler(delegate(double distance, double restraint)
+                        {
+                            return distance < restraint;
+                        }));
+                }
+                else if (condition.category == Const.CONFIG_CATEGORY_RESTRAINT_DISTANCE_SMALLER)
+                {
+                    distanceRestraint(targetLayerName, condition.value, featureList,
+                        new DistanceFilterResultHandler(delegate(IGeometry filteredGeometry, List<Feature> feaList)
+                        {
+                            if (filteredGeometry == null)
+                            {
+                                feaList.Clear();
+                                return false;
+                            }
+                            return true;
+                        }),
+                        new DistanceRestraintHandler(delegate(double distance, double restraint)
+                        {
+                            return distance >= restraint;
+                        }));
+                }
+                else if (condition.category == Const.CONFIG_CATEGORY_RESTRAINT_DISTANCE_SMALLEREQUAL)
+                {
+                    distanceRestraint(targetLayerName, condition.value, featureList,
+                        new DistanceFilterResultHandler(delegate(IGeometry filteredGeometry, List<Feature> feaList)
+                        {
+                            if (filteredGeometry == null)
+                            {
+                                feaList.Clear();
+                                return false;
+                            }
+                            return true;
+                        }),
+                        new DistanceRestraintHandler(delegate(double distance, double restraint)
+                        {
+                            return distance > restraint;
+                        }));
+                }
+                else if (condition.category == Const.CONFIG_CATEGORY_RESTRAINT_INTERSECT_BIGGER)
+                {
+                    IntersectRestraint(targetLayerName, condition.value, featureList,
+                        new IntersectFilterResultHandler(delegate(IGeometry filteredGeometry, List<Feature> feaList)
+                        {
+                            if (filteredGeometry == null)
+                            {
+                                feaList.Clear();
+                                return false;
+                            }
+                            return true;
+                        }),
+                        new IntersectRestraintHandler(delegate(double ratio, double restraint)
+                        {
+                            return ratio <= restraint;
+                        }));
+                }
+                else if (condition.category == Const.CONFIG_CATEGORY_RESTRAINT_INTERSECT_BIGGEREQUAL)
+                {
+                    IntersectRestraint(targetLayerName, condition.value, featureList,
+                        new IntersectFilterResultHandler(delegate(IGeometry filteredGeometry, List<Feature> feaList)
+                        {
+                            if (filteredGeometry == null)
+                            {
+                                feaList.Clear();
+                                return false;
+                            }
+                            return true;
+                        }),
+                        new IntersectRestraintHandler(delegate(double ratio, double restraint)
+                        {
+                            return ratio < restraint;
+                        }));
+                }
+                else if (condition.category == Const.CONFIG_CATEGORY_RESTRAINT_INTERSECT_SMALLER)
+                {
+                    IntersectRestraint(targetLayerName, condition.value, featureList,
+                        new IntersectFilterResultHandler(delegate(IGeometry filteredGeometry, List<Feature> feaList)
+                        {
+                            return filteredGeometry != null;
+                        }),
+                        new IntersectRestraintHandler(delegate(double ratio, double restraint)
+                        {
+                            return ratio >= restraint;
+                        }));
+                }
+                else if (condition.category == Const.CONFIG_CATEGORY_RESTRAINT_INTERSECT_SMALLEREQUAL)
+                {
+                    IntersectRestraint(targetLayerName, condition.value, featureList,
+                        new IntersectFilterResultHandler(delegate(IGeometry filteredGeometry, List<Feature> feaList)
+                        {
+                            return filteredGeometry != null;
+                        }),
+                        new IntersectRestraintHandler(delegate(double ratio, double restraint)
+                        {
+                            return ratio > restraint;
+                        }));
+                }
+                else if (condition.category == Const.CONFIG_CATEGORY_RESTRAINT_OVERLAP_BIGGER)
+                {
+                    biggerOverlapRestraint(targetLayerPath, condition.value / totalStandardValue, featureList);
+                }
+                else if (condition.category == Const.CONFIG_CATEGORY_RESTRAINT_OVERLAP_BIGGEREQUAL)
+                {
+                    biggerEqualOverlapRestraint(targetLayerPath, condition.value / totalStandardValue, featureList);
+                }
+                else if (condition.category == Const.CONFIG_CATEGORY_RESTRAINT_OVERLAP_SMALLER)
+                {
+                    smallerOverlapRestraint(targetLayerPath, condition.value / totalStandardValue, featureList);
+                }
+                else if (condition.category == Const.CONFIG_CATEGORY_RESTRAINT_OVERLAP_SMALLEREQUAL)
+                {
+                    smallerEqualOverlapRestraint(targetLayerPath, condition.value / totalStandardValue, featureList);
                 }
             }
 
+            for (int i = 0; i < standardConditionList.Count; i++)
+            {
+                Condition condition = standardConditionList[i];
+                Label label = new Label();
+                label.id = condition.labelID;
+                label.select();
+                string targetLayerName = label.mapLayerName;
+                string targetLayerPath = label.mapLayerPath;
+
+                if (condition.category == Const.CONFIG_CATEGORY_STANDARD_DISTANCE_NEGATIVE)
+                {
+                    negativeDistanceStandard(targetLayerName, condition.value / totalStandardValue, featureList);
+                }
+                else if (condition.category == Const.CONFIG_CATEGORY_STANDARD_DISTANCE_POSITIVE)
+                {
+                    positiveDistanceStandard(targetLayerName, condition.value / totalStandardValue, featureList);
+                }
+                else if (condition.category == Const.CONFIG_CATEGORY_STANDARD_OVERLAP_NEGATIVE)
+                {
+                    negativeOverlapStandard(targetLayerPath, condition.value / totalStandardValue, featureList);
+                }
+                else if (condition.category == Const.CONFIG_CATEGORY_STANDARD_OVERLAP_POSITIVE)
+                {
+                    positiveOverlapStandard(targetLayerPath, condition.value / totalStandardValue, featureList);
+                }
+            }
+
+            deleteFishnetFeatureClass();
             saveShapeFile("评价结果.shp");
             addShapeFile("评价结果.shp", "评价结果");
             
@@ -394,33 +339,8 @@ namespace Intersect
             return false;
         }
 
-        public List<string> UpdateMapLayerNameList(List<string> mapLayerNameList, AxMapControl mapControl)
-        {
-            mapLayerNameList = new List<string>();
-            //每次读取地图, 都要更新图层列表中的图层名.
-            for (int i = 0; i < mapControl.LayerCount; i++)
-            {
-                ILayer layer = mapControl.get_Layer(i);
-                ICompositeLayer compositeLayer = layer as ICompositeLayer;
-                if (compositeLayer == null)
-                {
-                    //说明不是一个组合图层, 直接获取图层名.
-                    mapLayerNameList.Add(layer.Name);
-                }
-                else
-                {
-                    for (int j = 0; j < compositeLayer.Count; j++)
-                    {
-                        ILayer ly = compositeLayer.get_Layer(j);
-                        mapLayerNameList.Add(ly.Name);
-                    }
-                }
-            }
-            return mapLayerNameList;
-        }
-
         private delegate bool IntersectFilterResultHandler(IGeometry filteredGeometry, List<Feature> featureList);
-        private delegate bool IntersectRestraintHandler(double ratio, double restraint, Feature feature, List<Feature> featureList);
+        private delegate bool IntersectRestraintHandler(double ratio, double restraint);
 
         private IGeometry IntersectRestraintFilter(IFeatureClass targetFeatureClass, IGeometry baseGeometry = null)
         {
@@ -468,9 +388,10 @@ namespace Intersect
             {
                 Feature feature = featureList[i];
                 double ratio = IntersectRatio(feature.relativeFeature.Shape, filteredGeometry);
-                bool isRemove = restraintHandler(ratio, restraint, feature, featureList);
+                bool isRemove = restraintHandler(ratio, restraint);
                 if (isRemove == true)
                 {
+                    featureList.Remove(feature);
                     i--;
                 }
             }
@@ -490,7 +411,7 @@ namespace Intersect
         }
 
         private delegate bool DistanceFilterResultHandler(IGeometry filteredGeometry, List<Feature> featureList);
-        private delegate bool DistanceRestraintHandler(double distance, double restraint, Feature feature, List<Feature> featureList);
+        private delegate bool DistanceRestraintHandler(double distance, double restraint);
              
         private IGeometry distanceRestraintFilter(IFeatureClass targetFeatureClass, double distance)
         {
@@ -515,9 +436,10 @@ namespace Intersect
             {
                 Feature feature = featureList[i];
                 double distance = DistanceValue(feature.relativeFeature.Shape, filteredGeometry);
-                bool isRemove = restraintHandler(distance, restraint, feature, featureList);
+                bool isRemove = restraintHandler(distance, restraint);
                 if (isRemove == true)
                 {
+                    featureList.Remove(feature);
                     i--;
                 }
             }
@@ -786,26 +708,6 @@ namespace Intersect
             }
         }
 
-        private void DrawSelectResult(List<Feature> featureList)
-        {
-            //第八, 按不同的成绩用不同的颜色画方块.
-            for (int i = 0; i < featureList.Count; i++)
-            {
-                IElement element;
-                element = GisTool.drawPolygonByScore(featureList[i].relativeFeature.ShapeCopy, featureList[i].score, mapControl);
-                drawnElementList.Add(element);
-            }
-        }
-
-        private static void EraseDrawnGeometryList(AxMapControl mapControl)
-        {
-            foreach (IElement element in drawnElementList)
-            {
-                GisTool.EraseElement(element, mapControl);
-            }
-            drawnElementList.Clear();
-        }
-
         private double getMax(List<double> list)
         {
             double max = 0;
@@ -866,6 +768,15 @@ namespace Intersect
             double min = getMin(list);
             double score = 0;
 
+            if (max == min)
+            {
+                for (int i = 0; i < list.Count; i++)
+                {
+                    list[i] = 1;
+                }
+                return list;
+            }
+
             for (int i = 0; i < list.Count; i++)
             {
                 if (list[i] == null)
@@ -875,12 +786,12 @@ namespace Intersect
                 if (mmax)
                 {
                     //采用公式1, 目标最大化.
-                    score = ((double)list[i] - min) / (max - min);
+                    score = (list[i] - min) / (max - min);
                 }
                 else
                 {
                     //采用公式2, 目标最小化.
-                    score = (max - (double)list[i]) / (max - min);
+                    score = (max - list[i]) / (max - min);
                 }
                 list[i] = score;
             }

@@ -115,7 +115,6 @@ namespace Intersect
             fishnetTool.cell_height = height;
             fishnetTool.cell_width = width;
 
-            //"C://work//城规项目//基础数据201401//data2//test1//test.shp"
             fishnetTool.out_feature_class = outputPath;
             fishnetTool.origin_coord = (dim["xMin"]).ToString() + " " + (dim["yMin"]).ToString();
             fishnetTool.y_axis_coord = (dim["xMin"]).ToString() + " " + (dim["yMin"] + 1).ToString();
@@ -188,9 +187,7 @@ namespace Intersect
         {
             Geoprocessor gp = new Geoprocessor();
             ESRI.ArcGIS.DataManagementTools.FeatureToPolygon feaToPoly = new ESRI.ArcGIS.DataManagementTools.FeatureToPolygon();
-            //"C://work//城规项目//基础数据201401//data2//test1//test.shp"
             feaToPoly.in_features = inputPath;
-            //"C://work//城规项目//基础数据201401//data2//test1//feature.shp"
             feaToPoly.out_feature_class = outputPath;
             gp.Execute(feaToPoly, null);
         }
