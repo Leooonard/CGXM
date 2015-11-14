@@ -1,0 +1,13 @@
+﻿<UserControl x:Class="Intersect.SiteSelectorUserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:cls="clr-namespace:Intersect"
+             mc:Ignorable="d" >
+    <StackPanel MaxHeight="500" Name="SiteSelectorStackPanel" Style="{StaticResource NotErrorTip}">
+        <cls:Pager x:Name="Pager"></cls:Pager>
+        <cls:SelectMainRoadUserControl x:Name="SelectMainRoadUserControl"></cls:SelectMainRoadUserControl>
+        <cls:SelectVillageUserControl x:Name="SelectVillageUserControl" Visibility="Collapsed"></cls:SelectVillageUserControl>
+    </StackPanel>
+</UserControl>

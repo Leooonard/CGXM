@@ -1,0 +1,17 @@
+﻿<UserControl x:Class="Intersect.ConfigUserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:cls="clr-namespace:Intersect"
+             mc:Ignorable="d" >
+
+    <StackPanel Name="ConfigStackPanel" Height="400" Style="{StaticResource NotErrorTip}">
+        <StackPanel.BindingGroup>
+            <BindingGroup Name="ConfigBindingGroup"></BindingGroup>
+        </StackPanel.BindingGroup>
+        <cls:NetSizeUserControl x:Name="NetSizeUserControl"></cls:NetSizeUserControl>
+        <cls:ConditionUserControl x:Name="ConditionUserControl" Margin="0, 0, 0, 20"></cls:ConditionUserControl>
+        <Button Style="{StaticResource OperationButton}" Name="StartCaculateButton" Click="StartCaculateButtonClick" Width="200" HorizontalAlignment="Center">开始计算</Button>
+    </StackPanel>
+</UserControl>
