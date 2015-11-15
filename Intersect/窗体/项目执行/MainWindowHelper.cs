@@ -133,7 +133,8 @@ namespace Intersect
                     if (programStepUserControl.Visibility == System.Windows.Visibility.Visible)
                     {
                         hideProgramDetailMode(parentStackPanel);
-                        this.programStepUserControl = null;
+                        programStepUserControl.unInit();
+                        programStepUserControl = null;
                     }
                     else
                     {
@@ -141,6 +142,11 @@ namespace Intersect
                         this.programStepUserControl = programStepUserControl;
                         TextBlock programIDTextBlock = parentStackPanel.FindName("ProgramIDTextBlock") as TextBlock;
                         int programID = Int32.Parse(programIDTextBlock.Text);
+
+                        IFeatureClass baseFeatureClass = GisTool.getFeatureClass(mainWindow.mapControl, Const.BASE_LAYER_NAME);
+                        string villageName = GisTool.getValueFromFeatureClass(baseFeatureClass, project.baseMapIndex, Const.BASE_FIELD_NAME);
+                        ILayer layer = GisTool.getLayerByName(Const.BASE_LAYER_NAME, mainWindow.mapControl);
+                        GisTool.HighlightFeature(layer, String.Format("Name='{0}'", villageName), mainWindow.mapControl);
                         initProgramDetailMode(programStepUserControl, programID);
                     }
 
@@ -152,7 +158,7 @@ namespace Intersect
 
         private void initProgramDetailMode(ProgramStepUserControl programStepUserControl, int programID)
         {
-            programStepUserControl.init(programID, mainWindow.mapControl, mainWindow.toolbarControl, mainWindow);
+            programStepUserControl.init(programID, mainWindow.mapControl, mainWindow.toolbarControl);
         }
 
         private void showProgramDetailMode(StackPanel programStackPanel)
@@ -259,5 +265,9 @@ namespace Intersect
                 mainWindow.Close();
             }
         }
+
+        
+
+
     }
 }
