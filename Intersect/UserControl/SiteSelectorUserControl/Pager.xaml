@@ -54,6 +54,23 @@
                         </Setter.Value>
                     </Setter>
                 </Trigger>
+                <Trigger Property="Button.IsEnabled" Value="False">
+                    <Setter Property="Button.Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="Button">
+                                <Border BorderThickness="1" CornerRadius="2" Name="PART_Background">
+                                    <Border.Background>
+                                        <SolidColorBrush>Gray</SolidColorBrush>
+                                    </Border.Background>
+                                    <Border.BorderBrush>
+                                        <SolidColorBrush>LightGray</SolidColorBrush>
+                                    </Border.BorderBrush>
+                                    <ContentPresenter Content="{TemplateBinding ContentControl.Content}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Trigger>
             </Style.Triggers>
         </Style>
     </UserControl.Resources>
