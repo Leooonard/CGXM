@@ -33,7 +33,7 @@ namespace Intersect
         private VillageColorRandomer villageColorRandomer;
 
         public Intersect.ProgramStepUserControl.OnMapControlMouseDown mapControlMouseDown;
-        public bool valid = false;
+        private bool finish;
 
         public SelectVillageUserControl()
         {
@@ -70,8 +70,12 @@ namespace Intersect
                     , VillageColorRandomer.GetRedFromColorString(village.polygonElementColorString)
                     , VillageColorRandomer.GetGreenFromColorString(village.polygonElementColorString)
                     , VillageColorRandomer.GetBlueFromColorString(village.polygonElementColorString));
+
                 if (village.innerRoad != null && village.innerRoad.lineElement != null)
+                {
                     GisTool.DrawPolylineElement(village.innerRoad.lineElement, mapControl);
+                }
+
                 if (village.inUse)
                 {
                     string reverseColorString = VillageColorRandomer.GetReverseVillageColorString(village.polygonElementColorString);
@@ -82,10 +86,15 @@ namespace Intersect
                 }
             }
 
-            valid = isValid();
+            finish = isValid();
 
             mapControlMouseDown = null;
             VillageListBox.ItemsSource = villageList;
+        }
+
+        public bool isFinish()
+        {
+            return finish;
         }
 
         public void unInit()
@@ -108,62 +117,37 @@ namespace Intersect
             villageList = new ObservableCollection<Village>();
         }
 
-        public void mergeTempVillage(ObservableCollection<Village> tempVillageList)
-        { 
-            //把用户新弄得village合进来, 这些village还没有进到数据库中.
-            foreach (Village village in tempVillageList)
-            {
-                village.saveWithoutCheck();
-                int villageID = Village.GetLastVillageID();
-                village.id = villageID;
-                village.innerRoad.villageID = villageID;
-                village.innerRoad.saveWithoutCheck();
-                village.innerRoad.id = InnerRoad.GetLastInnerRoadID();
-                village.polygonElementColorString = villageColorRandomer.randomColor();
-                GisTool.drawPolygonElement(village.polygonElement, mapControl);
-                GisTool.UpdatePolygonElementColor(village.polygonElement, mapControl
-                    , VillageColorRandomer.GetRedFromColorString(village.polygonElementColorString)
-                    , VillageColorRandomer.GetGreenFromColorString(village.polygonElementColorString)
-                    , VillageColorRandomer.GetBlueFromColorString(village.polygonElementColorString));
-                if (village.innerRoad.lineElement != null)
-                    GisTool.DrawPolylineElement(village.innerRoad.lineElement, mapControl);
-                if (village.inUse)
-                {
-                    string reverseColorString = VillageColorRandomer.GetReverseVillageColorString(village.polygonElementColorString);
-                    GisTool.UpdatePolygonElementOutline(village.polygonElement, mapControl
-                        , VillageColorRandomer.GetRedFromColorString(reverseColorString)
-                        , VillageColorRandomer.GetGreenFromColorString(reverseColorString)
-                        , VillageColorRandomer.GetBlueFromColorString(reverseColorString));
-                }
-                villageList.Add(village);
-            }
-        }
-
         public bool isValid()
         {
             if (villageList.Count < MIN_VILLAGE_COUNT)
             {
                 return false;
             }
+
             int usedVillageCount = 0;
             foreach (Village village in villageList)
             {
                 if (village.inUse)
+                {
                     usedVillageCount++;
+                }
             }
             if (usedVillageCount == 0)
+            {
                 return false;
+            }
 
             BindingGroup bindingGroup = SelectVillageStackPanel.BindingGroup;
             if (!Tool.checkBindingGroup(bindingGroup))
             {
                 return false;
             }
+
             foreach (Village village in villageList)
             {
                 if (village.inUse)
                 {
-                    if (village.innerRoad.checkValid() != "")
+                    if (village.innerRoad == null || village.innerRoad.checkValid() != "")
                     {
                         return false;
                     }
@@ -172,45 +156,24 @@ namespace Intersect
             return true;
         }
 
-        private void VillageGridMouseDown(object sender, MouseButtonEventArgs e)
-        {
-            Grid grid = sender as Grid;
-            TextBlock villageIDTextBlock = grid.FindName("VillageIDTextBlock") as TextBlock;
-            int villageID = Int32.Parse(villageIDTextBlock.Text);
-            foreach (Village village in villageList)
-            {
-                if (village.id == villageID)
-                {
-                    GisTool.UpdatePolygonElementOutline(village.polygonElement, mapControl, 255, 255, 0);
-                }
-                else
-                {
-                    GisTool.RestorePolygonElementOutline(village.polygonElement, mapControl);
-                }
-            }
-            return;
-        }
-
         private void FinishButtonClick(object sender, RoutedEventArgs e)
         {
             if (isValid())
             {
-                if (Tool.C("将改变之后的数据. 是否继续?"))
-                {
-                    valid = true;
-
-                    foreach (Village village in villageList)
-                    {
-                        village.saveOrUpdate();
-                        village.innerRoad.saveOrUpdate();
-                    }
-
-                    NotificationHelper.Trigger("SiteSelectorUserControlFinish");
-                }
-                else
+                if (!Tool.C("将改变之后的数据. 是否继续?"))
                 {
                     return;
                 }
+
+                finish = true;
+
+                foreach (Village village in villageList)
+                {
+                    village.saveOrUpdate();
+                    village.innerRoad.saveOrUpdate();
+                }
+
+                NotificationHelper.Trigger("SiteSelectorUserControlFinish");
             }
             else
             {
@@ -225,31 +188,33 @@ namespace Intersect
             //这里是不是要对画好的线做一下检查, 比如保证内部路穿过了小区区域.
             IPolygonElement villagePolygonElement = village.polygonElement;
             IPolygon villagePolygon = (villagePolygonElement as IElement).Geometry as IPolygon;
-            IRelationalOperator innerRoadPolylineRelationalOperator = innerRoadPolyline as IRelationalOperator;
-            IRelationalOperator villagePolygonRelationOperator = villagePolygon as IRelationalOperator;
             ITopologicalOperator villagePolygonTopologicalOperator = villagePolygon as ITopologicalOperator;
+
             IPolyline villageBoundaryPolyline = villagePolygonTopologicalOperator.Boundary as IPolyline;
             ITopologicalOperator villageBoundaryPolylineTopologicalOperator = villageBoundaryPolyline as ITopologicalOperator;
             IPointCollection pointCollection = villageBoundaryPolylineTopologicalOperator.Intersect(innerRoadPolyline, esriGeometryDimension.esriGeometry0Dimension) as IPointCollection;
+            
             if (pointCollection.PointCount < 2)
             {
                 Tool.M("内部路必须穿过小区");
-
                 NotificationHelper.Trigger("unmask");
                 return;
             }
+
             innerRoadPolyline = villagePolygonTopologicalOperator.Intersect(innerRoadPolyline, esriGeometryDimension.esriGeometry1Dimension) as IPolyline;
 
             if (village.innerRoad != null && village.innerRoad.lineElement != null)
             {
                 GisTool.ErasePolylineElement(village.innerRoad.lineElement, mapControl);
             }
+
             ILineElement innerRoadLineElement = new LineElementClass();
             IElement element = innerRoadLineElement as IElement;
             element.Geometry = innerRoadPolyline;
             village.innerRoad.lineElement = innerRoadLineElement;
             village.innerRoad.updatePath();
             GisTool.DrawPolylineElement(innerRoadLineElement, mapControl);
+
             NotificationHelper.Trigger("unmask");
         }
 
