@@ -15,6 +15,7 @@ using ESRI.ArcGIS.Display;
 using System.Data.SqlClient;
 using System.Collections.ObjectModel;
 using Intersect.Lib;
+using ESRI.ArcGIS.esriSystem;
 
 namespace Intersect
 {
@@ -101,7 +102,7 @@ namespace Intersect
             GisTool.DeleteShapeFile(System.IO.Path.Combine(program.path, fishnetPolygonName));
         }
 
-        public List<Feature> startSelectSite()
+        public bool startSelectSite()
         {
             deleteShapeFile("评价结果");
 
@@ -292,11 +293,16 @@ namespace Intersect
                 }
             }
 
+            if (featureList.Count == 0)
+            {
+                return false;
+            }
+
             deleteFishnetFeatureClass();
             saveShapeFile("评价结果.shp");
             addShapeFile("评价结果.shp", "评价结果");
-            
-            return featureList;
+
+            return true;
         }
 
         private void saveShapeFile(string shpName)
@@ -331,12 +337,73 @@ namespace Intersect
                 ILayerEffects layerEffects = resultFeatureLayer as ILayerEffects;
                 layerEffects.Transparency = 60;
                 mapControl.AddLayer(resultFeatureLayer);
+                classBreakRender(layerName, "rslt");
                 mapControl.ActiveView.Refresh();
 
                 return true;
             }
 
             return false;
+        }
+
+        private void classBreakRender(string layerName, string fieldName)
+        {
+            IGeoFeatureLayer pGeoFeatureLayer;
+            ITable pTable;
+            ITableHistogram pTableHistogram;
+            IBasicHistogram pBasicHistogram = new BasicTableHistogramClass();
+            object dataFrequency;
+            object dataValues;
+
+            pGeoFeatureLayer = (IGeoFeatureLayer)GisTool.getLayerByName(layerName, mapControl);
+            pTable = (ITable)pGeoFeatureLayer;
+
+            pTableHistogram = (ITableHistogram)pBasicHistogram;
+            pTableHistogram.Field = fieldName;
+            pTableHistogram.Table = pTable;
+            pBasicHistogram.GetHistogram(out dataValues, out dataFrequency);
+
+            IClassifyGEN pClassifyGen = new EqualIntervalClass();
+            double[] Classes = new double[10000];
+            int ClassesCount;
+            int i = 10;
+            pClassifyGen.Classify(dataValues, dataFrequency, ref i);
+            Classes = (double[])pClassifyGen.ClassBreaks;
+            ClassesCount = int.Parse(Classes.GetUpperBound(0).ToString());
+
+            IClassBreaksRenderer pClassBreaksRender = new ClassBreaksRendererClass();
+            pClassBreaksRender.Field = fieldName;
+            pClassBreaksRender.BreakCount = ClassesCount;
+            pClassBreaksRender.SortClassesAscending = true;
+
+            IRgbColor pFromColor = new RgbColorClass();
+            pFromColor = GisTool.getColor(255, 255, 255);
+            IRgbColor pToColor = new RgbColorClass();
+            pToColor = GisTool.getColor(255, 0, 0);
+            IAlgorithmicColorRamp pColorRamp = new AlgorithmicColorRampClass();
+            pColorRamp.FromColor = pFromColor;
+            pColorRamp.ToColor = pToColor;
+            pColorRamp.Size = ClassesCount;
+            bool o = true;
+            pColorRamp.CreateRamp(out o);
+
+            IEnumColors pEnumColors;
+            pEnumColors = pColorRamp.Colors;
+            pEnumColors.Reset();
+            IColor pColor;
+            ISimpleFillSymbol pFillSymbol;
+            int breakIndex;
+            for (breakIndex = 0; breakIndex < ClassesCount - 1; breakIndex++)
+            {
+                pColor = pEnumColors.Next();
+                pFillSymbol = new SimpleFillSymbolClass();
+                pFillSymbol.Color = pColor;
+                pFillSymbol.Style = esriSimpleFillStyle.esriSFSSolid;
+                pClassBreaksRender.set_Symbol(breakIndex, (ISymbol)pFillSymbol);
+                pClassBreaksRender.set_Break(breakIndex, Classes[breakIndex + 1]);
+            }
+            pGeoFeatureLayer.Renderer = (IFeatureRenderer)pClassBreaksRender;
+            mapControl.ActiveView.Refresh();
         }
 
         private delegate bool IntersectFilterResultHandler(IGeometry filteredGeometry, List<Feature> featureList);
@@ -715,18 +782,9 @@ namespace Intersect
             {
                 return 0;
             }
-            int start = 0;
-            while (list[start] == null)
-            {
-                start = start + 1;
-            }
-            max = (double)list[start];
+            max = list[0];
             for (int i = 0; i < list.Count; i++)
             {
-                if (list[i] == null)
-                {
-                    continue;
-                }
                 if ((double)list[i] > max)
                 {
                     max = (double)list[i];
@@ -742,18 +800,9 @@ namespace Intersect
             {
                 return 0;
             }
-            int start = 0;
-            while (list[start] == null)
-            {
-                start = start + 1;
-            }
-            min = (double)list[start];
+            min = list[0];
             for (int i = 0; i < list.Count; i++)
             {
-                if (list[i] == null)
-                {
-                    continue;
-                }
                 if ((double)list[i] < min)
                 {
                     min = (double)list[i];
@@ -779,10 +828,6 @@ namespace Intersect
 
             for (int i = 0; i < list.Count; i++)
             {
-                if (list[i] == null)
-                {
-                    continue;
-                }
                 if (mmax)
                 {
                     //采用公式1, 目标最大化.
