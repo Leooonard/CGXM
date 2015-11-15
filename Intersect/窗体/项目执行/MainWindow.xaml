@@ -208,15 +208,6 @@
                 <i:WindowsFormsHost Name="toolbarHost" Height="30" Visibility="Visible"/>
                 <i:WindowsFormsHost Name="tocHost" Height="720" Width="200" Margin="-520,0,0,0"  Visibility="Visible"/>
                 <i:WindowsFormsHost Name="mapHost" Height="720" Margin="200,-720,0,0" Visibility="Visible"/>
-                <Popup PopupAnimation="Fade" Width="100" Height="100" Placement="Right"  AllowsTransparency="True"
-                       StaysOpen="True" IsOpen="True" VerticalOffset="600" HorizontalOffset="300">
-                    <StackPanel Height="100" Background="White">
-                        <TextBlock Height="25" Width="100" Text="0.6~1" Background="Red" FontSize="18" TextAlignment="Center"></TextBlock>
-                        <TextBlock Height="25" Width="100" Text="0.3~0.6" Background="Green" FontSize="18" TextAlignment="Center"></TextBlock>
-                        <TextBlock Height="25" Width="100" Text="0~0.3" Background="Blue" FontSize="18" TextAlignment="Center"></TextBlock>
-                        <TextBlock Height="25" Width="100" Text="0" Background="White" FontSize="18" TextAlignment="Center"></TextBlock>
-                    </StackPanel>
-                </Popup>
             </StackPanel>
         </Grid>
     </Grid>
