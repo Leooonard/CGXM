@@ -48,5 +48,8 @@ namespace Intersect
 
         public const string SOURCE_FOLDER_NAME = @"source";
         public const string PROGRAMS_FOLDER_NAME = @"programs";
+
+        public const string BASE_LAYER_NAME = @"行政村界";
+        public const string BASE_FIELD_NAME = @"Name";
     }
 }
