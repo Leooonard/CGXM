@@ -39,7 +39,7 @@ namespace Intersect
 
         public bool isFinish()
         {
-            return SelectMainRoadUserControl.valid && SelectVillageUserControl.valid;
+            return SelectMainRoadUserControl.isFinish() && SelectVillageUserControl.isFinish();
         }
 
         public void delete()
@@ -169,9 +169,9 @@ namespace Intersect
             switch (Pager.nowStep)
             { 
                 case 1:
-                    if (!SelectMainRoadUserControl.valid)
+                    if (!SelectMainRoadUserControl.isFinish())
                     {
-                        Tool.M("请正确规划主路。");
+                        Tool.M("请先规划主路。");
                         return false;
                     }
                     break;
