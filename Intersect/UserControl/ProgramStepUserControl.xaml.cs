@@ -14,6 +14,7 @@ using System.Windows.Shapes;
 using ESRI.ArcGIS.Controls;
 using System.Threading;
 using System.Text.RegularExpressions;
+using Intersect.Lib;
 
 namespace Intersect
 {
@@ -23,10 +24,8 @@ namespace Intersect
     public partial class ProgramStepUserControl : UserControl
     {
         private Program program;
-        private bool inited = false;
         private AxMapControl mapControl;
         private AxToolbarControl toolbarControl;
-        private MainWindow mainWindow;
 
         private Dictionary<string, int> TabNameToNumberDict = new Dictionary<string, int>() 
         { 
@@ -34,8 +33,6 @@ namespace Intersect
             { "SiteSelectorTabItem" , 1 },
             { "HousePlacerTabItem" , 2 } 
         };
-        public delegate void OnFinish(bool finish); //子控件使用这个函数通知父控件, 自身已经填写完毕, 父控件帮助子控件改变tab header的样式.
-        public static string PROGRAM_FOLDER_NAME; //点开方案后，方案文件夹名也就确定了，需要暴露出去。
 
         public ProgramStepUserControl()
         {
@@ -44,74 +41,116 @@ namespace Intersect
 
         public bool isValid()
         {
-            return ConfigUserControl.isValid() && SiteSelectorUserControl.isValid();
+            return ConfigUserControl.isFinish() && SiteSelectorUserControl.isFinish();
         }
 
-        public bool isDirty()
-        {
-            return ConfigUserControl.isDirty() || SiteSelectorUserControl.isDirty();
+        private bool initOnced = false;
+        private void initOnce()
+        { 
+            //消息注册等只能执行一次的代码放在这里.
+            if (initOnced)
+            {
+                return;
+            }
+            else
+            {
+                initOnced = true;
+            }
+
+            NotificationHelper.Register("ConfigUserControlFinish", new NotificationHelper.NotificationEvent(delegate()
+            {
+                TabItem configTabItem = ProgramTabControl.FindName("ConfigTabItem") as TabItem;
+                Grid grid = configTabItem.Header as Grid;
+                TextBlock textBlock = grid.Children[0] as TextBlock;
+
+                textBlock.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#7CFC00"));
+            }));
+            NotificationHelper.Register("ConfigUserControlUnFinish", new NotificationHelper.NotificationEvent(delegate()
+            {
+                TabItem configTabItem = ProgramTabControl.FindName("ConfigTabItem") as TabItem;
+                Grid grid = configTabItem.Header as Grid;
+                TextBlock textBlock = grid.Children[0] as TextBlock;
+
+                textBlock.Foreground = new SolidColorBrush(Colors.Black);
+            }));
+
+            NotificationHelper.Register("SiteSelectorUserControlFinish", new NotificationHelper.NotificationEvent(delegate()
+            {
+                TabItem configTabItem = ProgramTabControl.FindName("SiteSelectorTabItem") as TabItem;
+                Grid grid = configTabItem.Header as Grid;
+                TextBlock textBlock = grid.Children[0] as TextBlock;
+
+                textBlock.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#7CFC00"));
+            }));
+            NotificationHelper.Register("SiteSelectorUserControlUnFinish", new NotificationHelper.NotificationEvent(delegate()
+            {
+                TabItem configTabItem = ProgramTabControl.FindName("SiteSelectorTabItem") as TabItem;
+                Grid grid = configTabItem.Header as Grid;
+                TextBlock textBlock = grid.Children[0] as TextBlock;
+
+                textBlock.Foreground = new SolidColorBrush(Colors.Black);
+            }));
+
+            NotificationHelper.Register("HousePlacerUserControlFinish", new NotificationHelper.NotificationEvent(delegate()
+            {
+                TabItem housePlacerTabItem = ProgramTabControl.FindName("HousePlacerTabItem") as TabItem;
+                Grid grid = housePlacerTabItem.Header as Grid;
+                TextBlock textBlock = grid.Children[0] as TextBlock;
+
+                textBlock.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#7CFC00"));
+            }));
+            NotificationHelper.Register("HousePlacerUserControlUnFinish", new NotificationHelper.NotificationEvent(delegate()
+            {
+                TabItem housePlacerTabItem = ProgramTabControl.FindName("HousePlacerTabItem") as TabItem;
+                Grid grid = housePlacerTabItem.Header as Grid;
+                TextBlock textBlock = grid.Children[0] as TextBlock;
+
+                textBlock.Foreground = new SolidColorBrush(Colors.Black);
+            }));
+
+            NotificationHelper.Register("ConfigUserControlRefresh", new NotificationHelper.NotificationEvent(delegate()
+            {
+                SiteSelectorUserControl.delete();
+                SiteSelectorUserControl.unInit();
+                SiteSelectorUserControl.init(program.id, mapControl, toolbarControl);
+
+                HousePlacerUserControl.delete();
+                HousePlacerUserControl.unInit();
+                HousePlacerUserControl.init(program.id, mapControl);
+            }));
+
+            NotificationHelper.Register("SiteSelectorUserControlRefresh", new NotificationHelper.NotificationEvent(delegate()
+            {
+                HousePlacerUserControl.delete();
+                HousePlacerUserControl.unInit();
+                HousePlacerUserControl.init(program.id, mapControl);
+            }));
+
+            NotificationHelper.Register("HousePlacerUserControlRefresh", new NotificationHelper.NotificationEvent(delegate()
+            { 
+                  
+            }));
         }
 
-        public void init(int programID, AxMapControl mc, AxToolbarControl tc, MainWindow mw)
+        public void unInit()
+        { 
+            
+        }
+
+        public void init(int programID, AxMapControl mc, AxToolbarControl tc)
         {
-            inited = true;
+            initOnce();
 
             program = new Program();
             program.id = programID;
             program.select();
 
-            PROGRAM_FOLDER_NAME = Regex.Replace(program.name, @"\s+", "_");
-
             mapControl = mc;
             toolbarControl = tc;
-            mainWindow = mw;
 
-            OnFinish configUserControlOnFinish = delegate(bool finish)
-            {
-                TabItem configTabItem = ProgramTabControl.FindName("ConfigTabItem") as TabItem;
-                Grid grid = configTabItem.Header as Grid;
-                TextBlock textBlock = grid.Children[0] as TextBlock;
-                if(finish)
-                {
-                    textBlock.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#7CFC00"));                    
-                }
-                else
-                {
-                    textBlock.Foreground = new SolidColorBrush(Colors.Black);                                        
-                }
-            };
-            ConfigUserControl.init(programID, mapControl, configUserControlOnFinish, mainWindow);
-
-            OnFinish siteSelectorUserControlOnFinish = delegate(bool finish)
-            {
-                TabItem configTabItem = ProgramTabControl.FindName("SiteSelectorTabItem") as TabItem;
-                Grid grid = configTabItem.Header as Grid;
-                TextBlock textBlock = grid.Children[0] as TextBlock;
-                if (finish)
-                {
-                    textBlock.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#7CFC00"));
-                }
-                else
-                {
-                    textBlock.Foreground = new SolidColorBrush(Colors.Black);
-                }
-            };
-            SiteSelectorUserControl.init(programID, siteSelectorUserControlOnFinish, mapControl, toolbarControl, mainWindow);
-            OnFinish housePlacerUserControl = delegate(bool finish)
-            {
-                TabItem housePlacerTabItem = ProgramTabControl.FindName("HousePlacerTabItem") as TabItem;
-                Grid grid = housePlacerTabItem.Header as Grid;
-                TextBlock textBlock = grid.Children[0] as TextBlock;
-                if (finish)
-                {
-                    textBlock.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#7CFC00"));
-                }
-                else
-                {
-                    textBlock.Foreground = new SolidColorBrush(Colors.Black);
-                }
-            };
-            HousePlacerUserControl.init(programID, mapControl, housePlacerUserControl, mainWindow);
+            ConfigUserControl.init(programID, mapControl);
+            SiteSelectorUserControl.init(programID, mapControl, toolbarControl);
+            HousePlacerUserControl.init(programID, mapControl);
         }
 
         private void ConfigGridMouseDown(object sender, MouseButtonEventArgs e)
@@ -151,7 +190,7 @@ namespace Intersect
             int result = TabChange(tabControl, tabItem.Name);
             if (result == Const.ERROR_INT)
             {
-                Tool.M("有错误");
+                Tool.M("当前配置中包含错误，请检查。");
                 e.Handled = true;
                 return false;
             }
@@ -184,44 +223,33 @@ namespace Intersect
                 if (tabItem.IsSelected)
                 {
                     if (TabNameToNumberDict[tabName] - TabNameToNumberDict[tabItem.Name] <= 0)
+                    {
                         return 0;
+                    }
                     if (TabNameToNumberDict[tabName] - TabNameToNumberDict[tabItem.Name] > 1)
-                        return Const.ERROR_INT;
+                    {
+                        if (!ConfigUserControl.isFinish() || !SiteSelectorUserControl.isFinish())
+                        {
+                            return Const.ERROR_INT;
+                        }
+                        else
+                        {
+                            return 0;
+                        }
+                    }
                     switch (tabItem.Name)
                     {
                         case "ConfigTabItem":
-                            if (ConfigUserControl.valid)
+                            if (!ConfigUserControl.isFinish())
                             {
-                                if (ConfigUserControl.dirty)
-                                {
-                                    //删除其他两个tab下的数据.
-                                    SiteSelectorUserControl.delete();
-                                    SiteSelectorUserControl.reInit();
-                                    //这里不用为houseplacerUsercontrol做删除, 因为数据已经被级联删除了. 只做reinit即可.
-                                    HousePlacerUserControl.reInit();
-                                    ConfigUserControl.dirty = false;
-                                }
-                            }
-                            else
                                 return Const.ERROR_INT;
+                            }
                             break;
                         case "SiteSelectorTabItem":
-                            if (SiteSelectorUserControl.valid)
+                            if (!SiteSelectorUserControl.isFinish())
                             {
-                                if (SiteSelectorUserControl.dirty)
-                                {
-                                    //删除最后一个tab下的数据.
-                                    HousePlacerUserControl.delete();
-                                    HousePlacerUserControl.reInit();
-                                    SiteSelectorUserControl.dirty = false;
-                                }
-                                else
-                                {
-                                    HousePlacerUserControl.prePlace();
-                                }
-                            }
-                            else
                                 return Const.ERROR_INT;
+                            }
                             break;
                         case "HousePlacerTabItem":
                             break;
