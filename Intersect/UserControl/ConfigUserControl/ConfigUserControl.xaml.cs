@@ -105,13 +105,22 @@ namespace Intersect
                     NotificationHelper.Trigger("unmask");
                     return;
                 }
+
                 finish = true;
                 NotificationHelper.Trigger("ConfigUserControlFinish");
                 NotificationHelper.Trigger("ConfigUserControlRefresh");
                 save();
+
                 //开始计算.
                 SiteSelector siteSelector = new SiteSelector(mapControl, program.id);
-                siteSelector.startSelectSite();
+                bool success = siteSelector.startSelectSite();
+                if (!success)
+                {
+                    //计算结果失败.
+                    Tool.M("评价失败, 该地区没有符合条件的结果。");
+                    finish = false;
+                    NotificationHelper.Trigger("ConfigUserControlUnFinish");
+                }
                 NotificationHelper.Trigger("unmask");
             }
             else
