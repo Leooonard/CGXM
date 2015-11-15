@@ -86,6 +86,11 @@ namespace Intersect
             get;
             set;
         }
+        public string boundaryArea
+        {
+            get;
+            set;
+        }
         public InnerRoad innerRoad
         {
             get;
@@ -110,6 +115,7 @@ namespace Intersect
             vBoundary = Const.ERROR_STRING;
             vInUse = Const.ERROR_BOOL;
             polygonElementColorString = Const.ERROR_STRING;
+            boundaryArea = Const.ERROR_STRING;
         }
         
         public override string checkValid(List<string> shieldVariableList = null)
@@ -152,6 +158,7 @@ namespace Intersect
             vInUse = Boolean.Parse(reader[4].ToString());
             List<Point> pointList = Village.ConvertStringToPointList(vBoundary);
             polygonElement = GisTool.getIPolygonElementFromPointList(pointList);
+            boundaryArea = ((polygonElement as IElement).Geometry as IArea).Area.ToString("F2");
         }
 
         public override bool save()
@@ -188,6 +195,7 @@ namespace Intersect
         {
             List<Point> pointList = GisTool.getPointListFromIPolygonElement(polygonElement);
             vBoundary = Village.ConvertPointListToString(pointList);
+            boundaryArea = ((polygonElement as IElement).Geometry as IArea).Area.ToString("F2");
         }
 
         public override bool update()
