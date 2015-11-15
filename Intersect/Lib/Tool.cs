@@ -71,21 +71,15 @@ namespace Intersect
             element.SetBinding(property, binding);
         }
 
-        public static childItem FindVisualChild<childItem>(DependencyObject obj) where childItem : DependencyObject
+        public static bool checkBindingGroup(BindingGroup bindingGroup)
         {
-            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(obj); i++)
+            foreach (BindingExpression expression in bindingGroup.BindingExpressions)
             {
-                DependencyObject child = VisualTreeHelper.GetChild(obj, i);
-                if (child != null && child is childItem)
-                    return (childItem)child;
-                else
-                {
-                    childItem childOfChild = FindVisualChild<childItem>(child);
-                    if (childOfChild != null)
-                        return childOfChild;
-                }
+                expression.UpdateSource();
+                if (expression.HasError)
+                    return false;
             }
-            return null;
+            return true;
         }
 
         public static bool CheckInt(int value)
@@ -102,17 +96,6 @@ namespace Intersect
                 return true;
             else
                 return false;
-        }
-
-        public static bool checkBindingGroup(BindingGroup bindingGroup)
-        {
-            foreach (BindingExpression expression in bindingGroup.BindingExpressions)
-            {
-                expression.UpdateSource();
-                if (expression.HasError)
-                    return false;
-            }
-            return true;
         }
     }
 }
