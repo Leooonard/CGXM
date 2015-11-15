@@ -17,6 +17,7 @@ using System.Collections;
 using ESRI.ArcGIS.Geometry;
 using System.Threading;
 using Intersect.Lib;
+using ESRI.ArcGIS.Carto;
 
 namespace Intersect
 {
@@ -250,8 +251,8 @@ namespace Intersect
             foreach (Village village in villageList)
             {
                 PlaceManager placeManager = new PlaceManager(village.commonHouse, new List<House>(village.houseList), mapControl);
-                placeManager.makeArea(GisTool.ConvertIPolygonElementToIPolygon(village.polygonElement));
-                if (placeManager.splitArea(GisTool.ConvertILineElementToIPolyline(village.innerRoad.lineElement)))
+                placeManager.makeArea((village.polygonElement as IElement).Geometry);
+                if (placeManager.splitArea((village.innerRoad.lineElement as IElement).Geometry))
                 {
                     placeManager.place();
                     for (int i = 0; i < placeManager.drawnHouseList.Count; i++)

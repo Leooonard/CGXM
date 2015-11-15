@@ -122,12 +122,7 @@ namespace Intersect
             }
             string villageName = baseMapLayerComboBox.SelectedValue.ToString();
             ILayer layer = GisTool.getLayerByName(BASE_LAYER_NAME, projectWindow.mapControl);
-            IQueryFilter filter = new QueryFilterClass();
-            filter.WhereClause = String.Format("Name='{0}'", villageName);
-            IFeatureLayer featureLayer = layer as IFeatureLayer;
-            IFeatureSelection featureSelection = featureLayer as IFeatureSelection;
-            featureSelection.SelectFeatures(filter, esriSelectionResultEnum.esriSelectionResultNew, false);
-            projectWindow.mapControl.Refresh();
+            GisTool.HighlightFeature(layer, String.Format("Name='{0}'", villageName), projectWindow.mapControl);
         }
 
         private void uncompleteLabelContentComboBoxTextChanged(object sender, EventArgs e)

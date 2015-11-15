@@ -32,6 +32,7 @@ using System.Xml;
 using System.Windows.Markup;
 using System.Collections.ObjectModel;
 using System.Text.RegularExpressions;
+using Intersect.Lib;
 
 namespace Intersect
 {
@@ -63,11 +64,6 @@ namespace Intersect
         private ObservableCollection<House> houseList;
         private CommonHouse commonHouse;
 
-        private CreateProgramWindow createProgramNameWindow;
-        private ModifyProgramWindow modifyProgramNameWindow;
-
-        private LoadingWindow loadingWindow;
-
         private int configId;
         private Exception exp;
 
@@ -89,14 +85,18 @@ namespace Intersect
             chosenAreaFlag = false;
             conditionList = new List<Condition>();
 
-
-            loadingWindow = new LoadingWindow();
-            loadingWindow.parent = this;
-            LoadingWindowUC loadingWindowUC = new LoadingWindowUC();
-            loadingWindow.content = loadingWindowUC;
-
             projectAndMapListItemList = new List<ListBoxItem>();
             //configIns = new config(this);
+
+            //注册mask，unmask事件。
+            NotificationHelper.Register("mask", new NotificationHelper.NotificationEvent(delegate()
+                {
+                    mask();
+                }));
+            NotificationHelper.Register("unmask", new NotificationHelper.NotificationEvent(delegate() 
+                {
+                    unmask();
+                }));
         }
 
         public void mask()
@@ -209,7 +209,6 @@ namespace Intersect
                 //双击时的逻辑.
                 //通过pmID查询相关的所有config, 放入列表.
                 chosenProjectAndMapID = projectAndMapID;
-                loadingWindow.show();
                 Thread t = new Thread(delegate()
                 {
                     System.Threading.Thread.Sleep(500);
@@ -223,7 +222,6 @@ namespace Intersect
 
                         ProgramListTitle.Text = projectAndMap.name + "-方案列表";
 
-                        loadingWindow.close();
                         CreateProgramButton.IsEnabled = true;
                     });
                 });
@@ -243,36 +241,6 @@ namespace Intersect
             mapHost.Visibility = System.Windows.Visibility.Visible;
             toolbarHost.Visibility = System.Windows.Visibility.Visible;
             tocHost.Visibility = System.Windows.Visibility.Visible;
-        }
-
-        private void DeleteProjectAndMapButton_Click(object sender, RoutedEventArgs e)
-        {
-            //在projectAndMapList内删除该对象.
-            for (int i = 0; i < projectAndMapList.Count; i++)
-            {
-                if (projectAndMapList[i].id == projectAndMapID)
-                {
-                    Project pam = projectAndMapList[i];
-                    projectAndMapList.RemoveAt(i);
-                    pam.delete();
-                    Tool.M("删除成功");
-                    return;
-                }
-            }
-            Tool.M("删除失败");
-        }
-
-        private void ResetProgramList()
-        {
-            ProgramList.ItemsSource = null;
-            ProgramListTitle.Text = "方案列表";
-        }
-
-        private UIElement DeepCopy(UIElement element)
-        {
-            string shapestring = XamlWriter.Save(element);
-            UIElement DeepCopyobject = (UIElement)XamlReader.Parse(shapestring);
-            return DeepCopyobject;
         }
 
         private List<string> getMaplayerNameList(AxMapControl mapControl)
@@ -321,149 +289,9 @@ namespace Intersect
             mapControl.ActiveView.Refresh();
         }
 
-        private bool SaveProgram()
-        {
-            for (int i = 0; i < ProgramList.Items.Count; i++)
-            {
-                ListBoxItem item = ProgramList.ItemContainerGenerator.ContainerFromIndex(i) as ListBoxItem;
-                ContentPresenter myContentPresenter = Tool.FindVisualChild<ContentPresenter>(item);
-                DataTemplate myDataTemplate = myContentPresenter.ContentTemplate;
-                StackPanel stackPanel = myDataTemplate.FindName("ProgramDetailStackPanel", myContentPresenter) as StackPanel;
-                if (stackPanel.Visibility == System.Windows.Visibility.Visible)
-                {
-                    StackPanel configStackPanel = stackPanel.FindName("ConfigStackPanel") as StackPanel;
-                    BindingGroup configBindingGroup = configStackPanel.BindingGroup;
-                    foreach (BindingExpression expression in configBindingGroup.BindingExpressions)
-                    {
-                        if (expression.HasError)
-                        {
-                            Tool.M(String.Format("配置信息错误, 错误信息: {0}", expression.ValidationError.ErrorContent));
-                            return false;
-                        }
-                    }
-
-                    //ListBox standardConfigListBox = stackPanel.FindName("StandardConfigListBox") as ListBox;
-                    //for (int j = 0; j < standardConfigListBox.Items.Count; j++)
-                    //{
-                    //    item = standardConfigListBox.ItemContainerGenerator.ContainerFromIndex(j) as ListBoxItem;
-                    //    myContentPresenter = Ut.FindVisualChild<ContentPresenter>(item);
-                    //    myDataTemplate = myContentPresenter.ContentTemplate;
-                    //    TextBox configValueTextBox = myDataTemplate.FindName("ConfigValueTextBox", myContentPresenter) as TextBox;
-                    //    NotNegativeDoubleValidationRule rule = new NotNegativeDoubleValidationRule();
-                    //    ValidationResult result = rule.Validate(configValueTextBox.Text, null);
-                    //    if (!result.IsValid)
-                    //    {
-                    //        Ut.M(result.ErrorContent);
-                    //        return false;
-                    //    }
-                    //}
-                }
-            }
-            string validMsg;
-            foreach (Config config in configList)
-            {
-                validMsg = config.checkValid(new List<string>() { "id" });
-                if (validMsg != "")
-                {
-                    Tool.M(validMsg);
-                    return false;
-                }
-            }
-            for (int i = 0; i < ProgramList.Items.Count; i++)
-            {
-                ListBoxItem item = ProgramList.ItemContainerGenerator.ContainerFromIndex(i) as ListBoxItem;
-                ContentPresenter myContentPresenter = Tool.FindVisualChild<ContentPresenter>(item);
-                DataTemplate myDataTemplate = myContentPresenter.ContentTemplate;
-                StackPanel stackPanel = myDataTemplate.FindName("ProgramDetailStackPanel", myContentPresenter) as StackPanel;
-                if (stackPanel.Visibility == System.Windows.Visibility.Visible)
-                {
-                    StackPanel houseStackPanel = stackPanel.FindName("HouseStackPanel") as StackPanel;
-                    BindingGroup bindingGroup = houseStackPanel.BindingGroup;
-                    foreach (BindingExpression expression in bindingGroup.BindingExpressions)
-                    {
-                        if (expression.HasError)
-                        {
-                            Tool.M(String.Format("户型信息错误, 错误信息: {0}", expression.ValidationError.ErrorContent));
-                            return false;
-                        }
-                    }
-                }
-            }
-            validMsg = commonHouse.checkValid(new List<string>() { "id" });
-            if (validMsg != "")
-            {
-                Tool.M(validMsg);
-                return false;
-            }
-            foreach (House house in houseList)
-            {
-                validMsg = house.checkValid(new List<string>() { "id" });
-                if (validMsg != "")
-                {
-                    Tool.M(validMsg);
-                    return false;
-                }
-            }
-
-            foreach (Config config in configList)
-            {
-                if (config.id == Const.ERROR_INT)
-                {
-                    config.save();
-                    config.id = Config.GetLastConfigID();
-                }
-                else
-                {
-                    config.update();
-                }
-            }
-            //这里再补充house保存.
-            if (commonHouse.id == Const.ERROR_INT)
-            {
-                commonHouse.save();
-                commonHouse.id = CommonHouse.GetLastCommonHouseID();
-            }
-            else
-            {
-                commonHouse.update();
-            }
-            foreach (House house in houseList)
-            {
-                if (house.id == Const.ERROR_INT)
-                {
-                    house.save();
-                    house.id = House.GetLastHouseID();
-                }
-                else
-                {
-                    house.update();
-                }
-            }
-            return true;
-        }
-
-        private void HideAllProgramListItem()
-        {
-            for (int i = 0; i < ProgramList.Items.Count; i++)
-            {
-                ListBoxItem item = ProgramList.ItemContainerGenerator.ContainerFromIndex(i) as ListBoxItem;
-                ContentPresenter myContentPresenter = Tool.FindVisualChild<ContentPresenter>(item);
-                DataTemplate myDataTemplate = myContentPresenter.ContentTemplate;
-                StackPanel stackPanel = myDataTemplate.FindName("ProgramStackPanel", myContentPresenter) as StackPanel;
-                StackPanel detailStackPanel = stackPanel.FindName("ProgramDetailStackPanel") as StackPanel;
-                detailStackPanel.Visibility = System.Windows.Visibility.Collapsed;
-            }
-        }
-
         private void CreateProgramButtonClick(object sender, RoutedEventArgs e)
         {
             createProgramButtonClickEventHandler(sender, e);
-        }
-
-        private void ModifyProgramNameButton_Click(object sender, RoutedEventArgs e)
-        {
-            modifyProgramNameWindow.show(programID, projectAndMapID);
-            HideAllProgramListItem();
         }
 
         private void DeleteProgramButton_Click(object sender, RoutedEventArgs e)
@@ -500,16 +328,6 @@ namespace Intersect
             }
         }
 
-        private void PrintHouseListItemTextBlack(ListBox listBox)
-        {
-            List<TextBlock> textBlockList = GetChildObjects<TextBlock>(listBox, typeof(TextBlock));
-            foreach (TextBlock textBlock in textBlockList)
-            {
-                textBlock.Foreground = new SolidColorBrush(Colors.Black);
-                textBlock.FontWeight = FontWeights.Normal;
-            }
-        }
-
         private void HouseListItem_MouseDown(object sender, MouseButtonEventArgs e)
         {
             Grid grid = sender as Grid;
@@ -524,53 +342,6 @@ namespace Intersect
                     house = h;
                 }
             }
-        }
-
-        public List<T> GetChildObjects<T>(DependencyObject obj, Type typename) where T : FrameworkElement
-        {
-            DependencyObject child = null;
-            List<T> childList = new List<T>();
-
-            for (int i = 0; i <= VisualTreeHelper.GetChildrenCount(obj) - 1; i++)
-            {
-                child = VisualTreeHelper.GetChild(obj, i);
-
-                if (child is T && (((T)child).GetType() == typename))
-                {
-                    childList.Add((T)child);
-                }
-                childList.AddRange(GetChildObjects<T>(child, typename));
-            }
-            return childList;
-        }
-
-        private void SaveProgramButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (SaveProgram())
-            {
-                Tool.M("保存成功");
-            }
-            else
-            {
-                Tool.M("保存失败");
-            }
-        }
-
-        private void StartCaculateButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (!SaveProgram())
-                return;
-
-            //开始选址.
-            Project pam = new Project();
-            pam.id = projectAndMapID;
-            pam.select();
-            string baseMapName = mapLayerNameList[pam.baseMapIndex];
-            //SiteSelector siteSelector = new SiteSelector(mapControl, pam.path, baseMapName, configList);
-            //siteSelector.startSelectSite();
-
-            //保存结果.
-            //sqlIns.SaveSiteSelectResult(siteSelectResultArray, programID);
         }
 
         private void CaculateRealStandard()
