@@ -203,11 +203,6 @@ namespace Intersect
             gp.Execute(intTool, null);
         }
 
-        public static void RasterToFeature(string rasterPath, string featurePath, string rasterFolder)
-        {
-            
-        }
-
         public static Dictionary<string, double> GetExternalRectDimension(IGeometry geom)
         {
             IEnvelope envelop = geom.Envelope;
@@ -221,55 +216,6 @@ namespace Intersect
             dim.Add("yMin", yMin);
             dim.Add("yMax", yMax);
             return dim;
-        }
-
-        public static IElement drawPolygonByScore(IGeometry geom, double score, AxMapControl mapControl)
-        {
-            ISimpleFillSymbol fSym = new SimpleFillSymbolClass();
-            ILineSymbol lSym = new SimpleLineSymbolClass();
-            IRgbColor color = new RgbColorClass();
-            if (score == 0)
-            {
-                color.Red = 255;
-                color.Green = 255;
-                color.Blue = 255;
-            }
-            else if (score > 0 && score <= 0.3)
-            {
-                color.Blue = 255;
-                color.Red = 0;
-                color.Green = 0;
-            }
-            else if (score > 0.3 && score <= 0.6)
-            {
-                color.Green = 255;
-                color.Red = 0;
-                color.Blue = 0;
-            }
-            else
-            {
-                color.Red = 255;
-                color.Green = 0;
-                color.Blue = 0;
-            }
-            fSym.Color = color;
-            color.Red = 255;
-            color.Green = 255;
-            color.Blue = 255;
-            lSym.Color = color;
-            fSym.Outline = lSym;
-            fSym.Style = esriSimpleFillStyle.esriSFSSolid;
-            PolygonElement pFillElement = new PolygonElement();
-            pFillElement.Symbol = fSym;
-            pFillElement.Opacity = 50;
-         
-            IElement pEle = pFillElement as IElement;
-            pEle.Geometry = geom;
-            IGraphicsContainer pGraphics = mapControl.Map as IGraphicsContainer;
-            IActiveView pActiveView = mapControl.ActiveView;
-            pGraphics.AddElement(pEle, 0);
-            pActiveView.Refresh();
-            return pEle;
         }
 
         public static IGeometry unionAllFeature(List<IGeometry> geometryList)
@@ -310,18 +256,6 @@ namespace Intersect
             Thread.Sleep(15);
 
             return color;
-        }
-
-        public static IGeometry ConvertIPolygonElementToIPolygon(IPolygonElement polygonElement)
-        {
-            IElement element = polygonElement as IElement;
-            return element.Geometry;
-        }
-
-        public static IGeometry ConvertILineElementToIPolyline(ILineElement lineElement)
-        {
-            IElement element = lineElement as IElement;
-            return element.Geometry;
         }
 
         public static void drawText(string text, IPoint pt, IRgbColor color, AxMapControl mapControl)
@@ -646,6 +580,16 @@ namespace Intersect
             pActiveView.Refresh();
         }
 
+        public static void HighlightFeature(ILayer targetLayer, string whereClause, AxMapControl mapControl)
+        {
+            IQueryFilter filter = new QueryFilterClass();
+            filter.WhereClause = whereClause;
+            IFeatureLayer featureLayer = targetLayer as IFeatureLayer;
+            IFeatureSelection featureSelection = featureLayer as IFeatureSelection;
+            featureSelection.SelectFeatures(filter, esriSelectionResultEnum.esriSelectionResultNew, false);
+            mapControl.Refresh();
+        }
+
         public static double GetAngle(IPolyline pPolyline)
         {
             //IPolycurve pPolycurve;  
@@ -723,7 +667,7 @@ namespace Intersect
             return resultPt;
         }
 
-        public static string getValueFromFeatureClass(IFeatureClass feaCls, int fid)
+        public static string getValueFromFeatureClass(IFeatureClass feaCls, int fid, string fieldName)
         {
             IFeatureLayer feaLy = new FeatureLayerClass();
             feaLy.FeatureClass = feaCls;
@@ -732,7 +676,7 @@ namespace Intersect
             wEdit.StartEditOperation();
 
             ITable pTable = (ITable)feaLy;
-            int fieldNumber = pTable.FindField("TYPE_TEXT");
+            int fieldNumber = pTable.FindField(fieldName);
             IRow pRow = pTable.GetRow(fid);
             string type = pRow.get_Value(fieldNumber).ToString();
 
@@ -740,6 +684,15 @@ namespace Intersect
             wEdit.StopEditing(true);
 
             return type;
+        }
+
+        public static IRgbColor getColor(int r, int g, int b)
+        {
+            IRgbColor rgbColor = new RgbColorClass();
+            rgbColor.Red = r;
+            rgbColor.Green = g;
+            rgbColor.Blue = b;
+            return rgbColor;
         }
 
         public static List<string> GetValueListFromFeatureClass(IFeatureClass featureClass, string fieldName)
