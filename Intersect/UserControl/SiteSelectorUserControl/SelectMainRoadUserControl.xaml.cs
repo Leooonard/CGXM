@@ -31,9 +31,9 @@ namespace Intersect
         private ObservableCollection<MainRoad> mainRoadList;
         private AxMapControl mapControl;
         private AxToolbarControl toolbarControl;
-        public bool valid = false;
         private List<IPolygon> cachedVillageAreaPolygonList;
         public Intersect.ProgramStepUserControl.OnMapControlMouseDown mapControlMouseDown;
+        public bool finish;
 
         public ObservableCollection<Village> villageList = null;
 
@@ -62,7 +62,7 @@ namespace Intersect
                 GisTool.DrawPolylineElement(mainRoad.lineElement, mapControl);   
             }
 
-            valid = isValid();
+            finish = isValid();
 
             mapControlMouseDown = null;
             MainRoadListBox.ItemsSource = mainRoadList;
@@ -73,7 +73,12 @@ namespace Intersect
             
         }
 
-        public bool isValid()
+        public bool isFinish()
+        {
+            return finish;
+        }
+
+        private bool isValid()
         {
             if (mainRoadList.Count < MIN_MAINROAD_COUNT)
             {
@@ -203,7 +208,7 @@ namespace Intersect
                 return;
             }
 
-            valid = true;
+            finish = true;
 
             foreach (MainRoad mainRoad in mainRoadList)
             {
@@ -222,6 +227,17 @@ namespace Intersect
             cachedVillageAreaPolygonList = GisTool.GetPolygonListFromPolylineList(
                 System.IO.Path.Combine(program.path, SiteSelectorUserControl.MAINROAD_LIST_SHP_NAME),
                 System.IO.Path.Combine(program.path, SiteSelectorUserControl.VILLAGE_AREA_SHP_NAME));
+            if (cachedVillageAreaPolygonList == null)
+            {
+                Tool.M("生成区域失败，请重试。");
+                finish = false;
+
+                GisTool.DeleteShapeFile(System.IO.Path.Combine(program.path, SiteSelectorUserControl.MAINROAD_LIST_SHP_NAME));
+                GisTool.DeleteShapeFile(System.IO.Path.Combine(program.path, SiteSelectorUserControl.VILLAGE_AREA_SHP_NAME));
+
+                return;
+            }
+
             foreach (IPolygon polygon in cachedVillageAreaPolygonList)
             {
                 IArea area = polygon as IArea;
@@ -233,25 +249,18 @@ namespace Intersect
                 textColor.Red = 0;
                 textColor.Green = 0;
                 textColor.Blue = 0;
-                GisTool.drawText(area.Area.ToString("F2"), point, textColor, mapControl);
+                //GisTool.drawText(area.Area.ToString("F2"), point, textColor, mapControl);
                 GisTool.drawPolygon(polygon, mapControl);
             }
 
             //2. 检查生成的区域是否符合标准.
-            if (cachedVillageAreaPolygonList.Count == 0)
+            foreach (IPolygon polygon in cachedVillageAreaPolygonList)
             {
-                Tool.M("未生成区域。");                        
-            }
-            else
-            {
-                foreach (IPolygon polygon in cachedVillageAreaPolygonList)
+                IArea area = polygon as IArea;
+                if (area.Area > Village.VILLAGE_MAX_SIZE)
                 {
-                    IArea area = polygon as IArea;
-                    if (area.Area > Village.VILLAGE_MAX_SIZE)
-                    {
-                        Tool.M("生成了过大的区域。");                        
-                        break;
-                    }
+                    Tool.M("生成的区域中包含过大区域。");
+                    break;
                 }
             }
 
@@ -268,6 +277,7 @@ namespace Intersect
                 village.updateBoundary();
                 village.inUse = false;
                 village.saveWithoutCheck();
+                village.id = Village.GetLastVillageID();
                 village.name = "区域#" + Village.GetLastVillageID().ToString();
                 village.update();
 
