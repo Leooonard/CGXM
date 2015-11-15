@@ -160,7 +160,7 @@ namespace Intersect
         {
             if (isValid())
             {
-                if (!Tool.C("将改变之后的数据. 是否继续?"))
+                if (!Tool.C("继续操作会清空之后的数据, 是否继续?"))
                 {
                     return;
                 }
@@ -174,6 +174,10 @@ namespace Intersect
                 }
 
                 NotificationHelper.Trigger("SiteSelectorUserControlFinish");
+
+                ModifyButton.Visibility = System.Windows.Visibility.Visible;
+                FinishButton.Visibility = System.Windows.Visibility.Collapsed;
+                VillageListBox.IsEnabled = false;
             }
             else
             {
@@ -283,6 +287,13 @@ namespace Intersect
                     return;
                 }
             }
+        }
+
+        private void ModifyButtonClick(object sender, RoutedEventArgs e)
+        {
+            ModifyButton.Visibility = System.Windows.Visibility.Collapsed;
+            FinishButton.Visibility = System.Windows.Visibility.Visible;
+            VillageListBox.IsEnabled = true;
         }
     }
 }
