@@ -117,6 +117,23 @@ namespace Intersect
             villageList = new ObservableCollection<Village>();
         }
 
+        //临时添加
+        public void transparentVillage()
+        {
+            try
+            {
+                foreach (Village village in villageList)
+                {
+                    GisTool.UpdatePolygonElementTransparentColor(village.polygonElement, mapControl, 255, 0, 0);
+                }
+            }
+            catch (Exception e)
+            {
+                Tool.M(e.Message);
+            }
+            
+        }
+
         public bool isValid()
         {
             if (villageList.Count < MIN_VILLAGE_COUNT)
@@ -173,7 +190,7 @@ namespace Intersect
                     village.innerRoad.saveOrUpdate();
                 }
 
-                NotificationHelper.Trigger("SiteSelectorUserControlFinish");
+                NotificationHelper.Trigger("SelectVillageUserControlRefresh");
 
                 ModifyButton.Visibility = System.Windows.Visibility.Visible;
                 FinishButton.Visibility = System.Windows.Visibility.Collapsed;

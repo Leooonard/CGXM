@@ -204,26 +204,6 @@ namespace Intersect
             return true;
         }
 
-        public ObservableCollection<Config> selectAllRelatedConfig()
-        {
-            if (!isValid(new List<string>() { "prName", "pID", "prPath" }))
-                return null;
-            ObservableCollection<Config> configList = new ObservableCollection<Config>();
-            string sqlCommand = String.Format("select cfID from Config where prID={0}", prID);
-            Sql sql = new Sql();
-            SqlDataReader reader = sql.selectConfigIDByPrID(sqlCommand);
-            while (reader.Read())
-            {
-                int cfID = Int32.Parse(reader[0].ToString());
-                Config config = new Config();
-                config.id = cfID;
-                config.select();
-                configList.Add(config);
-            }
-            sql.closeConnection();
-            return configList;
-        }
-
         public ObservableCollection<Condition> getAllRelatedCondition()
         {
             if (!isValid(new List<string>() { "prName", "pID", "prPath" }))

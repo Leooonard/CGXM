@@ -19,78 +19,6 @@ namespace Intersect
 {
     public class GisTool
     {
-        public static IPolygon PreProcessArea(IGeometry geom)
-        {
-            /*
-                预处理地区, 从地区中心挖出一块土地.
-             *  返回被挖出的地块. 
-             */
-            object missing = Type.Missing;
-            IPoint envelopLeftTopPt = geom.Envelope.UpperLeft;
-            IPoint envelopRightTopPt = geom.Envelope.UpperRight;
-            IPoint envelopLeftBottomPt = geom.Envelope.LowerLeft;
-            IPoint envelopRightBottomPt = geom.Envelope.LowerRight;
-            double initialDist = 5; //第一次各边向内移动5M;
-            double dist = 1; //之后每次尝试向内移动1M;
-
-            envelopLeftTopPt.X += initialDist;
-            envelopLeftTopPt.Y -= initialDist;
-            envelopRightTopPt.X -= initialDist;
-            envelopRightTopPt.Y -= initialDist;
-            envelopLeftBottomPt.X += initialDist;
-            envelopLeftBottomPt.Y += initialDist;
-            envelopRightBottomPt.X -= initialDist;
-            envelopRightBottomPt.Y += initialDist;
-
-            Ring ring = new RingClass();
-            ring.AddPoint(envelopLeftTopPt);
-            ring.AddPoint(envelopRightTopPt);
-            ring.AddPoint(envelopRightBottomPt);
-            ring.AddPoint(envelopLeftBottomPt);
-
-            IPolygon areaPolygon = MakePolygonFromRing(ring);
-            IRelationalOperator reOp = geom as IRelationalOperator;
-
-            while (!reOp.Contains(areaPolygon))
-            {
-                envelopLeftTopPt.X += dist;
-                envelopLeftTopPt.Y -= dist;
-                envelopRightTopPt.X -= dist;
-                envelopRightTopPt.Y -= dist;
-                envelopLeftBottomPt.X += dist;
-                envelopLeftBottomPt.Y += dist;
-                envelopRightBottomPt.X -= dist;
-                envelopRightBottomPt.Y += dist;
-
-                ring = new RingClass();
-                ring.AddPoint(envelopLeftTopPt);
-                ring.AddPoint(envelopRightTopPt);
-                ring.AddPoint(envelopRightBottomPt);
-                ring.AddPoint(envelopLeftBottomPt);
-
-                areaPolygon = MakePolygonFromRing(ring);
-            }
-
-            envelopLeftTopPt.X += initialDist;
-            envelopLeftTopPt.Y -= initialDist;
-            envelopRightTopPt.X -= initialDist;
-            envelopRightTopPt.Y -= initialDist;
-            envelopLeftBottomPt.X += initialDist;
-            envelopLeftBottomPt.Y += initialDist;
-            envelopRightBottomPt.X -= initialDist;
-            envelopRightBottomPt.Y += initialDist;
-
-            ring = new RingClass();
-            ring.AddPoint(envelopLeftTopPt);
-            ring.AddPoint(envelopRightTopPt);
-            ring.AddPoint(envelopRightBottomPt);
-            ring.AddPoint(envelopLeftBottomPt);
-
-            areaPolygon = MakePolygonFromRing(ring);
-
-            return areaPolygon;
-        }
-
         public static void ResetToolbarControl(AxToolbarControl toolbarControl)
         {
             toolbarControl.CurrentTool = null;
@@ -246,6 +174,30 @@ namespace Intersect
             }
         }
 
+        public static IPolygon MakePolygon(double upperLeftX, double upperLeftY, double width, double height)
+        {
+            IPoint upperLeftPt = new PointClass();
+            upperLeftPt.X = upperLeftX;
+            upperLeftPt.Y = upperLeftY;
+            IPoint upperRightPt = new PointClass();
+            upperRightPt.X = upperLeftPt.X + width;
+            upperRightPt.Y = upperLeftPt.Y;
+            IPoint lowerLeftPt = new PointClass();
+            lowerLeftPt.X = upperLeftPt.X;
+            lowerLeftPt.Y = upperLeftPt.Y - height;
+            IPoint lowerRightPt = new PointClass();
+            lowerRightPt.X = lowerLeftPt.X + width;
+            lowerRightPt.Y = lowerLeftPt.Y;
+            Ring ring = new RingClass();
+            ring.AddPoint(upperLeftPt);
+            ring.AddPoint(upperRightPt);
+            ring.AddPoint(lowerRightPt);
+            ring.AddPoint(lowerLeftPt);
+            IPolygon polygon = GisTool.MakePolygonFromRing(ring);
+            return polygon;
+        }
+
+
         public static IRgbColor RandomRgbColor()
         {
             IRgbColor color = new RgbColor();
@@ -256,6 +208,29 @@ namespace Intersect
             Thread.Sleep(15);
 
             return color;
+        }
+
+        public static void DrawLineWithText(IPoint startPt, IPoint endPt, string text, AxMapControl mapControl)
+        {
+            double textAdjustGap = 1;
+            IRgbColor textColor = new RgbColor();
+            textColor.Red = 255;
+            textColor.Green = 0;
+            textColor.Blue = 0;
+
+            IPolyline line = new PolylineClass();
+            IPointCollection ptCol = line as IPointCollection;
+            ptCol.AddPoint(startPt);
+            ptCol.AddPoint(endPt);
+            IPoint midPt = new PointClass();
+            midPt.X = (startPt.X + endPt.X) / 2;
+            midPt.Y = (startPt.Y + endPt.Y) / 2;
+            if (startPt.Y == endPt.Y)
+            {
+                midPt.Y = midPt.Y + textAdjustGap;
+            }
+            GisTool.DrawPolyline(line, mapControl);
+            GisTool.drawText(text, midPt, textColor, mapControl);
         }
 
         public static void drawText(string text, IPoint pt, IRgbColor color, AxMapControl mapControl)
@@ -289,7 +264,7 @@ namespace Intersect
         public static void drawPolygon(IGeometry geom, AxMapControl mapControl, IRgbColor color = null)
         {
             ISimpleFillSymbol simpleFillSymbol = new SimpleFillSymbolClass();
-            simpleFillSymbol.Style = esriSimpleFillStyle.esriSFSSolid;
+            simpleFillSymbol.Style = esriSimpleFillStyle.esriSFSHollow;
             if(color != null)
             {
                 simpleFillSymbol.Color = color;
@@ -318,7 +293,7 @@ namespace Intersect
         public static void drawPolygonElement(IPolygonElement polygonElement, AxMapControl mapControl)
         {
             ISimpleFillSymbol simpleFillSymbol = new SimpleFillSymbolClass();
-            simpleFillSymbol.Style = esriSimpleFillStyle.esriSFSSolid;
+            simpleFillSymbol.Style = esriSimpleFillStyle.esriSFSHollow;
             simpleFillSymbol.Color = GetDefaultRgbColor();
             IFillShapeElement fillShapeElement = polygonElement as IFillShapeElement;
             fillShapeElement.Symbol = simpleFillSymbol;
@@ -340,7 +315,28 @@ namespace Intersect
             rgbColor.Green = green;
             rgbColor.Blue = blue;
             simpleFillSymbol.Color = rgbColor;
-            simpleFillSymbol.Style = esriSimpleFillStyle.esriSFSSolid;
+            simpleFillSymbol.Style = esriSimpleFillStyle.esriSFSHollow;
+            simpleFillSymbol.Outline = oldLineSymbol;
+            fillShapeElement.Symbol = simpleFillSymbol;
+            IMap map = mapControl.Map;
+            IGraphicsContainer graphicsContainer = map as IGraphicsContainer;
+            IActiveView activeView = mapControl.ActiveView;
+            graphicsContainer.UpdateElement(fillShapeElement as IElement);
+            activeView.Refresh();
+        }
+
+        public static void UpdatePolygonElementTransparentColor(IPolygonElement polygonElement, AxMapControl mapControl, int red, int green, int blue)
+        {
+            IFillShapeElement fillShapeElement = polygonElement as IFillShapeElement;
+            ILineSymbol oldLineSymbol = fillShapeElement.Symbol.Outline;
+            ISimpleFillSymbol simpleFillSymbol = new SimpleFillSymbolClass();
+            IRgbColor rgbColor = new RgbColorClass();
+            rgbColor.Red = red;
+            rgbColor.Green = green;
+            rgbColor.Blue = blue;
+            rgbColor.Transparency = 0;
+            simpleFillSymbol.Color = rgbColor;
+            simpleFillSymbol.Style = esriSimpleFillStyle.esriSFSHollow;
             simpleFillSymbol.Outline = oldLineSymbol;
             fillShapeElement.Symbol = simpleFillSymbol;
             IMap map = mapControl.Map;
@@ -849,6 +845,25 @@ namespace Intersect
                 IRow pRow = pTable.GetRow(featureClass.FeatureCount(null) - 1);
                 pRow.set_Value(pTable.FindField(fieldName), feature.score.ToString());
                 pRow.Store();
+            }
+
+            workspaceEdit.StopEditOperation();
+            workspaceEdit.StopEditing(true);
+        }
+
+        public static void AddHouseToFeatureClass(List<IGeometry> drawnHouseList, IFeatureClass featureClass)
+        {
+            IFeatureLayer featureLayer = new FeatureLayerClass();
+            featureLayer.FeatureClass = featureClass;
+            IWorkspaceEdit workspaceEdit = (featureClass as IDataset).Workspace as IWorkspaceEdit;
+            workspaceEdit.StartEditing(true);
+            workspaceEdit.StartEditOperation();
+
+            foreach (IGeometry drawnHouse in drawnHouseList)
+            {
+                IFeature fea = featureClass.CreateFeature();
+                fea.Shape = drawnHouse;
+                fea.Store();
             }
 
             workspaceEdit.StopEditOperation();

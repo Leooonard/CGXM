@@ -23,9 +23,9 @@ namespace Intersect
         public double rotateAngle;
         public double totalHouseWidth
         {
-            get 
+            get
             {
-                return house.width + house.leftGap + house.rightGap;
+                return house.width;
             }
             set { }
         }
@@ -40,12 +40,12 @@ namespace Intersect
             commonHouse = ch;
 
             lowerRightPt = new PointClass();
-            lowerRightPt.X = lowerLeftPt.X + house.leftGap + house.width + house.rightGap;
+            lowerRightPt.X = lowerLeftPt.X + house.width;
             lowerRightPt.Y = lowerLeftPt.Y;
 
             upperLeftPt = new PointClass();
             upperLeftPt.X = lowerLeftPt.X;
-            upperLeftPt.Y = lowerLeftPt.Y + commonHouse.frontGap + commonHouse.height + commonHouse.backGap;
+            upperLeftPt.Y = lowerLeftPt.Y + commonHouse.height + commonHouse.backGap;
 
             upperRightPt = new PointClass();
             upperRightPt.X = lowerRightPt.X;
@@ -76,7 +76,7 @@ namespace Intersect
                 转向所用的两个点, 一个使用参数, 另一个使用mid的中心点.
                 要注意, 只有outer和inner需要旋转, inner需要旋转后再移动调整位置, 五个记录信息的点不用旋转, 只需要移动相应的位置即可. 
             */
-            List<IPoint> ptList = new List<IPoint>() { upperLeftPt, upperRightPt, lowerLeftPt, lowerRightPt, southDirctionPt};
+            List<IPoint> ptList = new List<IPoint>() { upperLeftPt, upperRightPt, lowerLeftPt, lowerRightPt, southDirctionPt };
             for (int i = 0; i < ptList.Count; i++)
             {
                 if (basePt.X != ptList[i].X || basePt.Y != ptList[i].Y)
@@ -234,7 +234,7 @@ namespace Intersect
                 lrPt = new PointClass();
                 lrPt.X = llPt.X + dx;
                 lrPt.Y = llPt.Y + dy;
-                geomList.Add(MakePolygonFromPointsList(new List<IPoint>() { ulPt, urPt, lrPt, llPt}));
+                geomList.Add(MakePolygonFromPointsList(new List<IPoint>() { ulPt, urPt, lrPt, llPt }));
                 ulPt = new PointClass();
                 ulPt.X = urPt.X;
                 ulPt.Y = urPt.Y;

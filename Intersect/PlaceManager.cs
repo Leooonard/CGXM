@@ -6,28 +6,58 @@ using ESRI.ArcGIS.Geometry;
 using ESRI.ArcGIS.Controls;
 using ESRI.ArcGIS.Geodatabase;
 using ESRI.ArcGIS.Display;
+using System.IO;
+using ESRI.ArcGIS.Carto;
 
 namespace Intersect
 {
     class PlaceManager
     {
-        private int MAX_AREA = 40000;
-
-        public List<HouseManager> drawnHouseList;
+        public List<IGeometry> drawnHouseList;
         public IPolyline innerRoadLine;
         private CommonHouse commonHouse;
-        private List<House> houseList;
+        private List<_House> _houseList;
         private AxMapControl mapControl;
         private Area area;
+        private double totalWeight;
+
+        private class _House
+        {
+            public House house;
+            public int count;
+
+            public _House(House h, int c)
+            {
+                house = h;
+                count = c;
+            }
+        }
 
         public PlaceManager(CommonHouse ch, List<House> hList, AxMapControl mc)
         {
+            foreach (House house in hList)
+            {
+                totalWeight += house.weight;
+            }
+
             commonHouse = ch;
-            houseList = hList;
+            _houseList = new List<_House>();
+            foreach (House house in hList)
+            {
+                _House _house = new _House(house, (int)(commonHouse.minNumber * house.weight / totalWeight));
+                _houseList.Add(_house);
+            }
+            //由小到大排序.
+            _houseList.Sort(delegate(_House _house1, _House _house2)
+            {
+                return Comparer<double>.Default.Compare(_house1.house.width * _house1.house.unit,
+                    _house2.house.width * _house2.house.unit);
+            });
             mapControl = mc;
+
         }
 
-        public void place()
+        public bool place()
         {
             double roadHeight = commonHouse.height + commonHouse.frontGap + commonHouse.backGap;
             IGeometry upperHouseArea;
@@ -121,13 +151,29 @@ namespace Intersect
             {
                 stripedRowList[i].formatRow();
             }
+            double maxHouseNumber = caculateMaxHouseNumber(stripedRowList);
+            if (maxHouseNumber < commonHouse.minNumber)
+            {
+                Tool.M("排放失败，放不下。");
+                return false;
+            }
 
             //往stripedrow里填坑.
-            drawnHouseList = new List<HouseManager>();
+            drawnHouseList = new List<IGeometry>();
             for (int i = 0; i < stripedRowList.Count; i++)
             {
                 PlaceHouse(stripedRowList[i], drawnHouseList);
             }
+            foreach (_House _house in _houseList)
+            {
+                if (_house.count > 0)
+                {
+                    Tool.M("排放失败，放不下。");
+                    return false;
+                }
+            }
+
+            return true;
             innerRoadLine = new PolylineClass();
             tpOp = innerRoadLine as ITopologicalOperator;
             for (int i = 0; i < stripedRowList.Count; i++)
@@ -140,30 +186,141 @@ namespace Intersect
             tpOp.Simplify();
             //沿路填坑.
 
-            PlaceHouseByRoad(new roadStripedRow(upperRoadHouseArea, roadHeight), drawnHouseList);
-            PlaceHouseByRoad(new roadStripedRow(lowerRoadHouseArea, roadHeight), drawnHouseList);
+            //PlaceHouseByRoad(new roadStripedRow(upperRoadHouseArea, roadHeight), drawnHouseList);
+            //PlaceHouseByRoad(new roadStripedRow(lowerRoadHouseArea, roadHeight), drawnHouseList);
+
+            return true;
         }
 
-        public bool makeArea(IGeometry geom)
+        private double caculateMaxHouseNumber(List<stripedRow> stripedRowList)
+        {
+            double maxNumber = 0;
+            foreach (stripedRow row in stripedRowList)
+            {
+                maxNumber += caculateMaxHouseNumberInRow(row.rowWidth);
+            }
+            return maxNumber;
+        }
+
+        private double caculateMaxHouseNumberInRow(double rowWidth)
+        {
+            List<double> houseWidthList = new List<double>();
+            foreach (_House _house in _houseList)
+            {
+                houseWidthList.Add(_house.house.width * _house.house.unit);
+            }
+            double horizontalGap = commonHouse.horizontalGap;
+
+            List<double> resultList = new List<double>();
+            for (int i = 0; i < houseWidthList.Count; i++)
+            {
+                resultList.Add(0);
+            }
+            for (int i = 0; i < houseWidthList.Count; i++)
+            {
+                double houseWidth = houseWidthList[i];
+                double result = 0;
+                if (houseWidth < rowWidth)
+                {
+                    //动态规划
+                    result++;
+                    result += caculateMaxHouseNumberInRow(rowWidth - houseWidth - horizontalGap);
+                    resultList[i] = result;
+                }
+                else
+                {
+                    resultList[i] = result;
+                }
+            }
+
+            return Tool.GetMax(resultList);
+        }
+
+        private IPolygon PreProcessArea(IGeometry geom)
+        {
+            /*
+             *  预处理地区, 从地区中心挖出一块土地.
+             *  返回被挖出的地块. 
+             */
+            object missing = Type.Missing;
+            IPoint envelopLeftTopPt = geom.Envelope.UpperLeft;
+            IPoint envelopRightTopPt = geom.Envelope.UpperRight;
+            IPoint envelopLeftBottomPt = geom.Envelope.LowerLeft;
+            IPoint envelopRightBottomPt = geom.Envelope.LowerRight;
+            double initialDist = 5; //第一次各边向内移动5M;
+            double dist = 1; //之后每次尝试向内移动1M;
+
+            envelopLeftTopPt.X += initialDist;
+            envelopLeftTopPt.Y -= initialDist;
+            envelopRightTopPt.X -= initialDist;
+            envelopRightTopPt.Y -= initialDist;
+            envelopLeftBottomPt.X += initialDist;
+            envelopLeftBottomPt.Y += initialDist;
+            envelopRightBottomPt.X -= initialDist;
+            envelopRightBottomPt.Y += initialDist;
+
+            Ring ring = new RingClass();
+            ring.AddPoint(envelopLeftTopPt);
+            ring.AddPoint(envelopRightTopPt);
+            ring.AddPoint(envelopRightBottomPt);
+            ring.AddPoint(envelopLeftBottomPt);
+
+            IPolygon areaPolygon = GisTool.MakePolygonFromRing(ring);
+            IRelationalOperator reOp = geom as IRelationalOperator;
+
+            while (!reOp.Contains(areaPolygon))
+            {
+                envelopLeftTopPt.X += dist;
+                envelopLeftTopPt.Y -= dist;
+                envelopRightTopPt.X -= dist;
+                envelopRightTopPt.Y -= dist;
+                envelopLeftBottomPt.X += dist;
+                envelopLeftBottomPt.Y += dist;
+                envelopRightBottomPt.X -= dist;
+                envelopRightBottomPt.Y += dist;
+
+                ring = new RingClass();
+                ring.AddPoint(envelopLeftTopPt);
+                ring.AddPoint(envelopRightTopPt);
+                ring.AddPoint(envelopRightBottomPt);
+                ring.AddPoint(envelopLeftBottomPt);
+
+                areaPolygon = GisTool.MakePolygonFromRing(ring);
+            }
+
+            envelopLeftTopPt.X += initialDist;
+            envelopLeftTopPt.Y -= initialDist;
+            envelopRightTopPt.X -= initialDist;
+            envelopRightTopPt.Y -= initialDist;
+            envelopLeftBottomPt.X += initialDist;
+            envelopLeftBottomPt.Y += initialDist;
+            envelopRightBottomPt.X -= initialDist;
+            envelopRightBottomPt.Y += initialDist;
+
+            ring = new RingClass();
+            ring.AddPoint(envelopLeftTopPt);
+            ring.AddPoint(envelopRightTopPt);
+            ring.AddPoint(envelopRightBottomPt);
+            ring.AddPoint(envelopLeftBottomPt);
+
+            areaPolygon = GisTool.MakePolygonFromRing(ring);
+
+            return areaPolygon;
+        }
+
+
+        public bool makeArea(IGeometry geom, IGeometry splitLine)
         {
             IArea iarea = geom as IArea;
-            if (Math.Abs(iarea.Area) > MAX_AREA)
-            {
-                Tool.M("所选择区域过大, 请重新选择");
-                return false;
-            }
-            IPolygon centerArea = GisTool.PreProcessArea(geom); //中间用来规划的地块.
-            ITopologicalOperator tpOp = geom as ITopologicalOperator;
-            tpOp.Simplify();
-            tpOp = centerArea as ITopologicalOperator;
+            IPolygon centerArea = PreProcessArea(geom); //中间用来规划的地块.
+            ITopologicalOperator tpOp = centerArea as ITopologicalOperator;
             tpOp.Simplify();
             tpOp = geom as ITopologicalOperator;
+            tpOp.Simplify();
             IPolygon aroundArea = tpOp.Difference(centerArea) as IPolygon; //周围那块地块.
 
             //将该图形添加到areaList中.
-            area = new Area(centerArea, aroundArea, geom, new PolylineClass());
-            GisTool.drawPolygon(centerArea, mapControl, GisTool.RandomRgbColor());
-            GisTool.drawPolygon(aroundArea, mapControl, GisTool.RandomRgbColor());
+            area = new Area(centerArea, aroundArea, geom, splitLine as IPolyline);
             return true;
         }
 
@@ -173,7 +330,7 @@ namespace Intersect
             double totalHouseArea = 0;
             foreach (HouseManager houseManager in drawnHouseList)
             {
-                totalHouseHold += houseManager.house.houseHold;
+                //totalHouseHold += houseManager.house.houseHold;
                 totalHouseArea += houseManager.house.width * houseManager.commonHouse.height;
             }
             string totalHouseHoldInfo = String.Format("总户数: {0}(户)", totalHouseHold);
@@ -182,45 +339,42 @@ namespace Intersect
             return totalHouseInfo;
         }
 
-        public bool splitArea(IGeometry line)
+        public void save(string folder, string shpName)
         {
-            IGeometry geom = area.areaGeom;
-            IRelationalOperator reOp = geom as IRelationalOperator;
-            if (!reOp.Crosses(line))
-            {
-                //没有相交关系. 
-                return false;
-            }
-            //再开始求交点. 交点通过boundary方法获取图形的边界线. 再使用线与线的交集. 
-            geom = area.areaGeom;
-            ITopologicalOperator tpOp = geom as ITopologicalOperator;
-            reOp = geom as IRelationalOperator;
-            IGeometry geomBoundary = tpOp.Boundary;
+            GisTool.CreateShapefile(folder, shpName, mapControl.SpatialReference);
+            IFeatureClass houseFeatureClass = GisTool.getFeatureClass(folder, shpName);
+            GisTool.AddHouseToFeatureClass(drawnHouseList, houseFeatureClass);
+        }
 
-            //将线与边界线转为点集.
-            IPointCollection boundaryPtCol = geomBoundary as IPointCollection;
-            IPointCollection linePtCol = line as IPointCollection;
-            tpOp = boundaryPtCol as ITopologicalOperator;
-            IGeometry intersectedGeom = tpOp.Intersect(linePtCol as IGeometry, esriGeometryDimension.esriGeometry0Dimension);
-            IPointCollection intersectedPtCol = intersectedGeom as IPointCollection;
-
-            //查看交集结果点的个数.
-            int intersectedPtCount = intersectedPtCol.PointCount;
-            //2个点说明是切割关系, 1个点说明是插入关系, 0个点说明没有关系.
-            if (intersectedPtCount != 2)
+        public void deleteShapeFile(string folder, string layerName)
+        {
+            int index = GisTool.getLayerIndexByName(layerName, mapControl);
+            if (index == -1)
             {
-                return false;
+                return;
             }
-            //2个点. 说明是切割关系, 直接将图形内的切割线放入数组.
-            GisTool.DrawPolyline(line, mapControl);
-            IPoint startPt = intersectedPtCol.get_Point(0);
-            IPoint endPt = intersectedPtCol.get_Point(1);
-            line = new PolylineClass();
-            IPointCollection ptCol = line as IPointCollection;
-            ptCol.AddPoint(startPt);
-            ptCol.AddPoint(endPt);
-            area.splitLine = line;
-            return true;
+
+            mapControl.DeleteLayer(index);
+            GisTool.DeleteShapeFile(System.IO.Path.Combine(folder, layerName + ".shp"));
+        }
+
+        public bool addShapeFile(string folder, string shpName, string layerName)
+        {
+            if (File.Exists(System.IO.Path.Combine(folder, shpName)))
+            {
+                IFeatureClass houseFeatureClass = GisTool.getFeatureClass(folder, shpName);
+                IFeatureLayer houseFeatureLayer = new FeatureLayerClass();
+                houseFeatureLayer.FeatureClass = houseFeatureClass;
+                houseFeatureLayer.Name = layerName;
+                ILayerEffects layerEffects = houseFeatureLayer as ILayerEffects;
+                layerEffects.Transparency = 60;
+                mapControl.AddLayer(houseFeatureLayer);
+                mapControl.ActiveView.Refresh();
+
+                return true;
+            }
+
+            return false;
         }
 
         private void saveShp(string folder, string name, IGeometry geom, string geometryType = "polygon")
@@ -257,28 +411,28 @@ namespace Intersect
 
         public void saveHouse(string path)
         {
-            string folder = System.IO.Path.GetDirectoryName(path);
-            string name = System.IO.Path.GetFileName(path);
-            GisTool.CreateShapefile(folder, name, mapControl.SpatialReference);
-            IFeatureClass feaCls = GisTool.getFeatureClass(folder, name);
-            for (int i = 0; i < drawnHouseList.Count; i++)
-            {
-                List<IGeometry> housePolygonList = drawnHouseList[i].makeHousePolygon()[1] as List<IGeometry>;
-                foreach (IGeometry geom in housePolygonList)
-                {
-                    IFeature fea = feaCls.CreateFeature();
+            //string folder = System.IO.Path.GetDirectoryName(path);
+            //string name = System.IO.Path.GetFileName(path);
+            //GisTool.CreateShapefile(folder, name, mapControl.SpatialReference);
+            //IFeatureClass feaCls = GisTool.getFeatureClass(folder, name);
+            //for (int i = 0; i < drawnHouseList.Count; i++)
+            //{
+            //    List<IGeometry> housePolygonList = drawnHouseList[i].makeHousePolygon()[1] as List<IGeometry>;
+            //    foreach (IGeometry geom in housePolygonList)
+            //    {
+            //        IFeature fea = feaCls.CreateFeature();
 
-                    IWorkspaceEdit wEdit = (feaCls as IDataset).Workspace as IWorkspaceEdit;
-                    wEdit.StartEditing(true);
-                    wEdit.StartEditOperation();
+            //        IWorkspaceEdit wEdit = (feaCls as IDataset).Workspace as IWorkspaceEdit;
+            //        wEdit.StartEditing(true);
+            //        wEdit.StartEditOperation();
 
-                    fea.Shape = geom;
-                    fea.Store();
+            //        fea.Shape = geom;
+            //        fea.Store();
 
-                    wEdit.StopEditOperation();
-                    wEdit.StopEditing(true);
-                }
-            }
+            //        wEdit.StopEditOperation();
+            //        wEdit.StopEditing(true);
+            //    }
+            //}
         }
 
         public void saveInnerRoad(string path)
@@ -347,69 +501,68 @@ namespace Intersect
             return stripedAreaList;
         }
 
-        private void PlaceHouse(stripedRow row, List<HouseManager>drawnHouseList)
+        private void PlaceHouse(stripedRow row, List<IGeometry> drawnHouseList)
         {
-            List<House> tempHouseList = new List<House>();
-            foreach (House house in houseList)
-            {
-                tempHouseList.Add(house);
-            }
-            tempHouseList.Sort(delegate(House house1, House house2)
-            {
-                return Comparer<double>.Default.Compare(house1.leftGap + house1.width + house1.rightGap
-                    , house2.leftGap + house2.width + house2.rightGap);
-            });
             //将房子放在格子中, 如果没有被chosenAreaFeaCls包含, 则不保留.
             double restRowWidth = row.rowWidth; //剩余的行宽.
-            IPoint currentPoint = row.stripedrow.Envelope.LowerLeft; //开始的左下角.
-            int round = 0;
-            while (restRowWidth > tempHouseList[tempHouseList.Count - 1].leftGap + tempHouseList[tempHouseList.Count - 1].width + tempHouseList[tempHouseList.Count - 1].rightGap)
+            IPoint currentPoint = row.stripedrow.Envelope.UpperLeft; //开始的左上角.
+
+            //由大到小往里放，放的下且有额度就往里放一个。
+            for (int i = _houseList.Count - 1; i >= 0; i--)
             {
-                while (true)
+                while (restRowWidth > _houseList[i].house.width * _houseList[i].house.unit)
                 {
-                    if (tempHouseList[0].leftGap + tempHouseList[0].width + tempHouseList[0].rightGap > restRowWidth)
+                    if (_houseList[i].count == 0)
                     {
-                        tempHouseList.RemoveAt(0);
-                        round = 0;
-                        continue;
-                    }
-                    else
-                    {
+                        //额度用完了。给下一个房型排。
                         break;
                     }
+
+                    for (int j = 0; j < _houseList[i].house.unit; j++)
+                    {
+                        IPolygon housePolygon = GisTool.MakePolygon(currentPoint.X + _houseList[i].house.width * j,
+                            currentPoint.Y, _houseList[i].house.width, commonHouse.height);
+                        drawnHouseList.Add(housePolygon);
+                    }
+
+                    restRowWidth -= _houseList[i].house.width * _houseList[i].house.unit;
+                    currentPoint.X += _houseList[i].house.width * _houseList[i].house.unit;
+                    _houseList[i].count--;
+
+                    if (restRowWidth >= commonHouse.horizontalGap)
+                    {
+                        restRowWidth -= commonHouse.horizontalGap;
+                        currentPoint.X += commonHouse.horizontalGap;
+                    }
+                    else
+                    { 
+                        //放不下一个间距了，这个stripedrow排放结束。
+                        return;
+                    }
                 }
-                HouseManager houseManager = new HouseManager(currentPoint, tempHouseList[round], commonHouse);
-                round++;
-                if (round == tempHouseList.Count)
-                    round = 0;
-                houseManager.move(currentPoint);
-                drawnHouseList.Add(houseManager);
-                restRowWidth -= houseManager.totalHouseWidth;
-                currentPoint.X += houseManager.totalHouseWidth;
             }
         }
 
         private void PlaceHouseByRoad(roadStripedRow row, List<HouseManager> drawnHouseList)
         {
             List<House> tempHouseList = new List<House>();
-            foreach (House house in houseList)
+            foreach (_House _house in _houseList)
             {
-                tempHouseList.Add(house);
+                tempHouseList.Add(_house.house);
             }
             tempHouseList.Sort(delegate(House house1, House house2)
             {
-                return Comparer<double>.Default.Compare(house1.leftGap + house1.width + house1.rightGap
-                    , house2.leftGap + house2.width + house2.rightGap);
+                return Comparer<double>.Default.Compare(house1.width ,  house2.width);
             });
             row.formatRow();
             double restRowWidth = row.rowWidth; //剩余的行宽.
             IPoint currentPoint = row.lowerLeftPt; //开始的左下角.
             int round = 0;
-            while (restRowWidth > tempHouseList[tempHouseList.Count - 1].leftGap + tempHouseList[tempHouseList.Count - 1].width + tempHouseList[tempHouseList.Count - 1].rightGap)
+            while (restRowWidth > commonHouse.horizontalGap + tempHouseList[tempHouseList.Count - 1].width)
             {
                 while (true)
                 {
-                    if (tempHouseList[0].leftGap + tempHouseList[0].width + tempHouseList[0].rightGap > restRowWidth)
+                    if (commonHouse.horizontalGap + tempHouseList[0].width > restRowWidth)
                     {
                         tempHouseList.RemoveAt(0);
                         round = 0;

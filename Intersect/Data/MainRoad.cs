@@ -208,19 +208,6 @@ namespace Intersect
             return pointList;
         }
 
-        public bool compare(MainRoad mainRoad)
-        {
-            if (mrID != mainRoad.id)
-                return false;
-            if (prID != mainRoad.programID)
-                return false;
-            if (mrName != mainRoad.name)
-                return false;
-            if (mrPath != mainRoad.path)
-                return false;
-            return true;
-        }
-
         public static int GetLastMainRoadID()
         {
             string sqlCommand = String.Format("select max(mrID) from MainRoad");

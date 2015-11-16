@@ -23,6 +23,7 @@ namespace Intersect
     {
         private Geoprocessor gp;
         private AxMapControl mapControl;
+        private AxTOCControl tocControl;
         private const string fishnetPolygonName = "polygon.shp";
         private const string fishnetName = "fishnet.shp";
         private List<Feature> featureList;
@@ -36,22 +37,23 @@ namespace Intersect
         private IFeature baseFeature;
         private IGeometry rootGeometry;
 
-        public SiteSelector(AxMapControl mc, int programID)
+        public SiteSelector(AxMapControl mc, AxTOCControl tc, int programID)
         {
-            Init(mc, programID);
+            Init(mc, tc, programID);
         }
 
-        public SiteSelector(AxMapControl mc, List<Feature> feaList, int programID)
-            :this(mc, programID)
+        public SiteSelector(AxMapControl mc, AxTOCControl tc, List<Feature> feaList, int programID)
+            :this(mc, tc, programID)
         {
             featureList = feaList;
         }
 
-        private void Init(AxMapControl mc, int programID)
+        private void Init(AxMapControl mc, AxTOCControl tc, int programID)
         {
             //这里是window.show()的一个坑. show其实等同于设置窗口的visibility:visible.
             gp = new Geoprocessor();
             mapControl = mc;
+            tocControl = tc;
 
             program = new Program();
             program.id = programID;
@@ -366,7 +368,7 @@ namespace Intersect
             IClassifyGEN pClassifyGen = new EqualIntervalClass();
             double[] Classes = new double[10000];
             int ClassesCount;
-            int i = 10;
+            int i = 6;
             pClassifyGen.Classify(dataValues, dataFrequency, ref i);
             Classes = (double[])pClassifyGen.ClassBreaks;
             ClassesCount = int.Parse(Classes.GetUpperBound(0).ToString());
@@ -404,6 +406,7 @@ namespace Intersect
             }
             pGeoFeatureLayer.Renderer = (IFeatureRenderer)pClassBreaksRender;
             mapControl.ActiveView.Refresh();
+            tocControl.Refresh();
         }
 
         private delegate bool IntersectFilterResultHandler(IGeometry filteredGeometry, List<Feature> featureList);
@@ -775,46 +778,12 @@ namespace Intersect
             }
         }
 
-        private double getMax(List<double> list)
-        {
-            double max = 0;
-            if (list.Count == 0)
-            {
-                return 0;
-            }
-            max = list[0];
-            for (int i = 0; i < list.Count; i++)
-            {
-                if ((double)list[i] > max)
-                {
-                    max = (double)list[i];
-                }
-            }
-            return max;
-        }
-
-        private double getMin(List<double> list)
-        {
-            double min = 0;
-            if (list.Count == 0)
-            {
-                return 0;
-            }
-            min = list[0];
-            for (int i = 0; i < list.Count; i++)
-            {
-                if ((double)list[i] < min)
-                {
-                    min = (double)list[i];
-                }
-            }
-            return min;
-        }
+        
 
         private List<double> normalize(List<double> list, bool mmax)
         {
-            double max = getMax(list);
-            double min = getMin(list);
+            double max = Tool.GetMax(list);
+            double min = Tool.GetMin(list);
             double score = 0;
 
             if (max == min)

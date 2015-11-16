@@ -54,13 +54,11 @@ namespace Intersect
         private List<Feature> siteSelectResultArray; //将记录每次选址之后的结果.
         private string lastFocusedFormName;
         private List<ListBoxItem> projectAndMapListItemList;
-        private PlaceManager placeManager;
         private bool divideAreaFlag = true;
         private List<Condition> conditionList;
         private List<string> mapLayerNameList;
         private ObservableCollection<Project> projectAndMapList;
         private ObservableCollection<Program> programList;
-        private ObservableCollection<Config> configList;
         private ObservableCollection<House> houseList;
         private CommonHouse commonHouse;
 
@@ -133,59 +131,6 @@ namespace Intersect
 
             mapControl.LoadMxFile(path, 0, "");
             mapControl.MoveLayerTo(0, mapControl.LayerCount - 1);
-        }
-
-        private void MapControl_MouseDown(object sender, IMapControlEvents2_OnMouseDownEvent e)
-        {
-            if (false)
-            {
-                placeManager = new PlaceManager(commonHouse, new List<House>(houseList), mapControl);
-                //chosenAreaFlag = false;
-                IGeometry geom = mapControl.TrackPolygon();
-                placeManager.makeArea(geom);
-            }
-            if (false)
-            {
-                IGeometry line = mapControl.TrackLine();
-
-                //检测是否产生了分割. 如果是完全不相关的线段, 不在屏幕上进行绘制.
-                if (placeManager.splitArea(line))
-                {
-                    placeManager.place();
-                    for (int i = 0; i < placeManager.drawnHouseList.Count; i++)
-                    {
-                        HouseManager houseManager = placeManager.drawnHouseList[i];
-                        ArrayList housePolygonArrayList = houseManager.makeHousePolygon();
-                        GisTool.drawPolygon(houseManager.makeHousePolygon()[0] as IPolygon, mapControl, GisTool.RandomRgbColor());
-                        foreach (IGeometry geom in housePolygonArrayList[1] as List<IGeometry>)
-                        {
-                            GisTool.drawPolygon(geom as IPolygon, mapControl, GisTool.RandomRgbColor());
-                        }
-                    }
-                    GisTool.DrawPolyline(placeManager.innerRoadLine, mapControl);
-
-
-                    MessageBox.Show("保存成功.");
-                    ////最后把路径写入文件.
-                    //System.IO.FileStream file = new System.IO.FileStream("C://work//route.txt", FileMode.OpenOrCreate);
-                    //StreamWriter sw = new StreamWriter(file);
-                    //if (area.splitLineEndPtArray.Count > 0)
-                    //{
-                    //    lineEndPt line = (lineEndPt)area.splitLineEndPtArray[0];
-                    //    IPoint startPt = line.startPt;
-                    //    IPoint endPt = line.endPt;
-                    //    sw.WriteLine(startPt.X.ToString() + " " + startPt.Y.ToString());
-                    //    sw.WriteLine(endPt.X.ToString() + " " + endPt.Y.ToString());
-                    //}
-                    //else
-                    //{
-                    //    IGeometry geom = area.areaGeom;
-                    //    sw.WriteLine(geom.Envelope.LowerLeft.X.ToString(), geom.Envelope.LowerLeft.Y.ToString());
-                    //    sw.WriteLine(geom.Envelope.UpperRight.X.ToString(), geom.Envelope.UpperRight.Y.ToString());
-                    //}
-                    //sw.Close();
-                }
-            }
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -344,97 +289,7 @@ namespace Intersect
             }
         }
 
-        private void CaculateRealStandard()
-        {
-            double totalValue = 0;
-            foreach (Config config in configList)
-            {
-                Condition condition = new Condition();
-                condition.id = config.conditionID;
-                condition.select();
-                if (condition.type == Const.CONFIG_TYPE_STANDARD)
-                {
-                    if (config.value == -1)
-                    {
-                        foreach (Config cf in configList)
-                        {
-                            cf.realStandard = "真实权重: 错误";
-                        }
-                        return;
-                    }
-                    else
-                    {
-                        totalValue += config.value;
-                    }
-                }
-            }
-            foreach (Config config in configList)
-            {
-                Condition condition = new Condition();
-                condition.id = config.conditionID;
-                condition.select();
-                if (condition.type == Const.CONFIG_TYPE_STANDARD)
-                {
-                    config.realStandard = String.Format("真实权重: {0:F}", (config.value / totalValue));
-                }
-            }
-        }
-
         private LinearGradientBrush defaultTextBoxBorderBrush = null;
-        private void ConfigValueTextBox_LostFocus(object sender, RoutedEventArgs e)
-        {
-            Config standardConfig = new Config();
-            TextBox textBox = sender as TextBox;
-            Grid grid = textBox.Parent as Grid;
-            TextBlock textBlock = grid.FindName("ConditionIDTextBlock") as TextBlock;
-            int conditionID = Int32.Parse(textBlock.Text);
-            foreach (Config config in configList)
-            {
-                if (conditionID == config.conditionID)
-                {
-                    Condition condition = new Condition();
-                    condition.id = conditionID;
-                    condition.select();
-                    if (condition.type == Const.CONFIG_TYPE_RESTRAINT)
-                    {
-                        return;
-                    }
-                    else
-                    {
-                        standardConfig = config;
-                    }
-                }
-            }
-            double value = 0;
-            try
-            {
-                value = Double.Parse(textBox.Text);
-                Regex reg = new Regex(@"^\d+|(\d+\.\d+)$");
-                if (reg.IsMatch(textBox.Text))
-                {
-                    standardConfig.value = value;
-                    CaculateRealStandard();
-                    if (defaultTextBoxBorderBrush != null)
-                        textBox.BorderBrush = defaultTextBoxBorderBrush;
-                }
-                else
-                {
-                    throw (new Exception());
-                }
-            }
-            catch (Exception)
-            {
-                if (defaultTextBoxBorderBrush == null)
-                    defaultTextBoxBorderBrush = textBox.BorderBrush as LinearGradientBrush;
-                textBox.BorderBrush = new SolidColorBrush(Colors.Red);
-                standardConfig.value = -1;
-                foreach (Config cf in configList)
-                {
-                    cf.realStandard = "真实权重: 错误";
-                }
-            }
-        }
-
         private void ProgramNameTextBlockMouseDown(object sender, MouseButtonEventArgs e)
         {
             if(programNameTextBlockMouseDownEventHandler != null)

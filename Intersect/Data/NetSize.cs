@@ -159,19 +159,6 @@ namespace Intersect
             return true;
         }
 
-        public bool compare(NetSize netSize)
-        {
-            if (id != netSize.id)
-                return false;
-            if (prID != netSize.programID)
-                return false;
-            if (nsWidth != netSize.width)
-                return false;
-            if (nsHeight != netSize.height)
-                return false;
-            return true;
-        }
-
         public static int GetLastNetSizeID()
         {
             string sqlCommand = String.Format("select max(nsID) from NetSize");

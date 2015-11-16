@@ -630,44 +630,6 @@ namespace Intersect
             return condition;
         }
 
-        public List<Config> SelectConfigByPmId(int id)
-        {
-            List<Config> configList = new List<Config>();
-
-            string comm= "select * from Config where pmID="+ id.ToString();
-            SqlConnection conn = openConn();
-            SqlCommand com = new SqlCommand(comm, conn);
-            SqlDataReader reader = com.ExecuteReader();
-
-            while (reader.Read())
-            {
-                Config config = new Config();
-                config.InitBySqlDataReader(reader);
-                configList.Add(config);
-            }
-
-            closeConnection(conn);
-            return configList;
-        }
-
-        public Config SelectConfigByPrID(int prID)
-        {
-            Config config = new Config();
-            string comm = "select * from Config where prID=" + prID.ToString();
-            SqlConnection conn = openConn();
-            SqlCommand com = new SqlCommand(comm, conn);
-            SqlDataReader reader = com.ExecuteReader();
-            if (reader.Read())
-            {
-                config.InitBySqlDataReader(reader);
-                return config;
-            }
-            else
-            {
-                return null;
-            }
-        }
-
         public List<Program> SelectAllProgramByPmID(int pmID)
         {
             List<Program> programList = new List<Program>();
@@ -749,27 +711,6 @@ namespace Intersect
             SqlConnection conn = openConn();
             SqlCommand com = new SqlCommand(comm, conn);
             com.ExecuteNonQuery();
-        }
-
-        public Config SelectConfigByCfID(int cfID)
-        {
-            string comm = "select * from Config where cfID=" + cfID.ToString();
-            SqlConnection conn = openConn();
-            SqlCommand com = new SqlCommand(comm, conn);
-            SqlDataReader reader = com.ExecuteReader();
-
-            if (reader.HasRows)
-            {
-                reader.Read();
-                Config config = new Config();
-                config.InitBySqlDataReader(reader);
-
-                closeConnection(conn);
-                return config;
-            }
-
-            closeConnection(conn);
-            return null;
         }
 
         public bool DeleteConfigByCfID(int cfID)

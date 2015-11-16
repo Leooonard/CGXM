@@ -258,25 +258,6 @@ namespace Intersect
             return true;
         }
 
-        public bool compare(Condition condition)
-        {
-            if (cdID != condition.id)
-                return false;
-            if (cdName != condition.name)
-                return false;
-            if (cdType != condition.type)
-                return false;
-            if (cdCategory != condition.category)
-                return false;
-            if (lID != condition.labelID)
-                return false;
-            if (prID != condition.programID)
-                return false;
-            if (cdValue != condition.value)
-                return false;
-            return true;
-        }
-
         public static int GetLastConditionID()
         {
             string sqlCommand = String.Format("select max(cdID) from Condition");

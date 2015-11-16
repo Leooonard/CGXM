@@ -27,6 +27,7 @@ namespace Intersect
         private Program program;
         private Project project;
         private AxMapControl mapControl;
+        private AxTOCControl tocControl;
         public Intersect.ProgramStepUserControl.OnMapControlMouseDown mapControlMouseDown;
 
         public bool finish;
@@ -42,7 +43,7 @@ namespace Intersect
             ConditionUserControl.unInit();
         }
 
-        public void init(int programID, AxMapControl mc)
+        public void init(int programID, AxMapControl mc, AxTOCControl tc)
         {
             program = new Program();                
             program.id = programID;
@@ -56,6 +57,7 @@ namespace Intersect
             ConditionUserControl.init(program.id);
 
             mapControl = mc;
+            tocControl = tc;
             mapControlMouseDown = null;
             finish = false;
 
@@ -69,7 +71,7 @@ namespace Intersect
                     {
                         finish = true;
                         NotificationHelper.Trigger("ConfigUserControlFinish");
-                        SiteSelector siteSelector = new SiteSelector(mapControl, program.id);
+                        SiteSelector siteSelector = new SiteSelector(mapControl, tocControl, program.id);
                         try
                         {
                             siteSelector.addShapeFile("评价结果.shp", "评价结果");
@@ -112,7 +114,7 @@ namespace Intersect
                 save();
 
                 //开始计算.
-                SiteSelector siteSelector = new SiteSelector(mapControl, program.id);
+                SiteSelector siteSelector = new SiteSelector(mapControl, tocControl, program.id);
                 bool success = siteSelector.startSelectSite();
                 if (!success)
                 {

@@ -26,6 +26,7 @@ namespace Intersect
         private Program program;
         private AxMapControl mapControl;
         private AxToolbarControl toolbarControl;
+        private AxTOCControl tocControl;
 
         private Dictionary<string, int> TabNameToNumberDict = new Dictionary<string, int>() 
         { 
@@ -137,7 +138,7 @@ namespace Intersect
             
         }
 
-        public void init(int programID, AxMapControl mc, AxToolbarControl tc)
+        public void init(int programID, AxMapControl mc, AxToolbarControl tc, AxTOCControl toc)
         {
             initOnce();
 
@@ -147,8 +148,9 @@ namespace Intersect
 
             mapControl = mc;
             toolbarControl = tc;
+            tocControl = toc;
 
-            ConfigUserControl.init(programID, mapControl);
+            ConfigUserControl.init(programID, mapControl, tocControl);
             SiteSelectorUserControl.init(programID, mapControl, toolbarControl);
             HousePlacerUserControl.init(programID, mapControl);
         }
@@ -174,9 +176,11 @@ namespace Intersect
                 Thread t = new Thread(delegate()
                 {
                     System.Threading.Thread.Sleep(1000);
-                    this.Dispatcher.BeginInvoke((ThreadStart)delegate()
+                    Dispatcher.BeginInvoke((ThreadStart)delegate()
                     {
+                        //好像是因为, 不延缓1S直接调用会报错, 才采用了这个这么蠢的方法.
                         HousePlacerUserControl.initAxComponents();
+                        SiteSelectorUserControl.SelectVillageUserControl.transparentVillage();
                     });
                 });
                 t.Start();

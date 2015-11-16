@@ -229,21 +229,6 @@ namespace Intersect
             return true;
         }
 
-        public bool compare(Village village)
-        {
-            if (id != village.id)
-                return false;
-            if (prID != village.programID)
-                return false;
-            if (vName != village.name)
-                return false;
-            if (vBoundary != village.boundary)
-                return false;
-            if (vInUse != village.inUse)
-                return false;
-            return true;
-        }
-
         public InnerRoad getRelatedInnerRoad()
         {
             if (!isValid(new List<string>() { "prID", "vName", "vBoundary", "vInUse" }))

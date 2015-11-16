@@ -71,6 +71,11 @@ namespace Intersect
                 SelectVillageUserControl.init(programID, mapControl, toolbarControl);
                 NotificationHelper.Trigger("SiteSelectorUserControlRefresh");
             }));
+
+            NotificationHelper.Register("SelectVillageUserControlRefresh", new NotificationHelper.NotificationEvent(delegate()
+            {
+                NotificationHelper.Trigger("SiteSelectorUserControlRefresh");     
+            }));
         }
 
         public void init(int programID, AxMapControl mc, AxToolbarControl tc)

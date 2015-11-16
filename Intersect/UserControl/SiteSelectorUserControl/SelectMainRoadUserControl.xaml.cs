@@ -238,20 +238,6 @@ namespace Intersect
                 return;
             }
 
-            foreach (IPolygon polygon in cachedVillageAreaPolygonList)
-            {
-                IArea area = polygon as IArea;
-                IEnvelope envelope = polygon.Envelope;
-                IPoint point = new PointClass();
-                point.X = (envelope.LowerLeft.X + envelope.LowerRight.X) / 2;
-                point.Y = envelope.YMin;
-                IRgbColor textColor = new RgbColor();
-                textColor.Red = 0;
-                textColor.Green = 0;
-                textColor.Blue = 0;
-                //GisTool.drawText(area.Area.ToString("F2"), point, textColor, mapControl);
-                GisTool.drawPolygon(polygon, mapControl);
-            }
 
             //2. 检查生成的区域是否符合标准.
             foreach (IPolygon polygon in cachedVillageAreaPolygonList)
@@ -284,6 +270,11 @@ namespace Intersect
                 InnerRoad innerRoad = new InnerRoad();
                 innerRoad.programID = program.id;
                 innerRoad.villageID = village.id;
+                innerRoad.saveWithoutCheck();
+                innerRoad.id = InnerRoad.GetLastInnerRoadID();
+                innerRoad.name = String.Format(@"内部路#{0}", innerRoad.id);
+                innerRoad.update();
+
                 village.innerRoad = innerRoad;
                 villageList.Add(village);
             }
@@ -292,7 +283,7 @@ namespace Intersect
             GisTool.DeleteShapeFile(System.IO.Path.Combine(program.path, SiteSelectorUserControl.MAINROAD_LIST_SHP_NAME));
             GisTool.DeleteShapeFile(System.IO.Path.Combine(program.path, SiteSelectorUserControl.VILLAGE_AREA_SHP_NAME));
 
-            //5. 删除后续数据.
+            //5. 更新后续数据.
             NotificationHelper.Trigger("SelectMainRoadUserControlRefresh");
         }
     }

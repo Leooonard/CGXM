@@ -82,7 +82,7 @@ namespace Intersect
             program.projectID = project.id;
             program.save(new List<string>() { "name", "path"});
             program.id = Program.GetLastProgramID();
-            program.name = "项目#" + program.id.ToString();
+            program.name = "方案#" + program.id.ToString();
 
             //再创建工作目录.
             int randomCount = 0;
@@ -158,7 +158,7 @@ namespace Intersect
 
         private void initProgramDetailMode(ProgramStepUserControl programStepUserControl, int programID)
         {
-            programStepUserControl.init(programID, mainWindow.mapControl, mainWindow.toolbarControl);
+            programStepUserControl.init(programID, mainWindow.mapControl, mainWindow.toolbarControl, mainWindow.tocControl);
         }
 
         private void showProgramDetailMode(StackPanel programStackPanel)

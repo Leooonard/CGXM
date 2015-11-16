@@ -39,34 +39,6 @@ namespace Intersect
             }
         }
 
-        private double hLeftGap;
-        public double leftGap
-        {
-            get
-            {
-                return hLeftGap;
-            }
-            set
-            {
-                hLeftGap = value;
-                onPropertyChanged("leftGap");
-            }
-        }
-
-        private double hRightGap;
-        public double rightGap
-        {
-            get
-            {
-                return hRightGap;
-            }
-            set
-            {
-                hRightGap = value;
-                onPropertyChanged("rightGap");
-            }
-        }
-
         private int vID;
         public int villageID
         {
@@ -95,107 +67,83 @@ namespace Intersect
             }
         }
 
-        private int hHouseHold;
-        public int houseHold
+        private double hWeight;
+        public double weight
         {
             get
             {
-                return hHouseHold;
+                return hWeight;
             }
             set
             {
-                hHouseHold = value;
-                onPropertyChanged("houseHold");
+                hWeight = value;
+                onPropertyChanged("houseWeight");
             }
-        }
-
-        private string hName;
-        public string name
-        {
-            get
-            {
-                return hName;
-            }
-            set
-            {
-                hName = value;
-                onPropertyChanged("name");
-            }
-        }
-
-        public int housePlacerListIndex
-        {
-            get;
-            set;
         }
 
         public House()
         {
             hID = Const.ERROR_INT;
             hWidth = Const.ERROR_DOUBLE;
-            hLeftGap = Const.ERROR_DOUBLE;
-            hRightGap = Const.ERROR_DOUBLE;
             vID = Const.ERROR_INT;
             hUnit = Const.ERROR_INT;
-            hHouseHold = Const.ERROR_INT;
-            hName = Const.ERROR_STRING;
         }
 
         public static House GetDefaultHouse()
         {
             House house = new House();
             house.width = Const.DEFAULT_NUMBER_VALUE;
-            house.leftGap = Const.DEFAULT_NUMBER_VALUE;
-            house.rightGap = Const.DEFAULT_NUMBER_VALUE;
             house.unit = Const.DEFAULT_NUMBER_VALUE;
-            house.houseHold = Const.DEFAULT_NUMBER_VALUE;
-            house.name = DEFAULT_HOUSE_NAME;
             return house;
         }
 
         public override string checkValid(List<string> shieldVariableList = null)
         {
             if (shieldVariableList == null)
+            {
                 shieldVariableList = new List<string>();
+            }
             if (!shieldVariableList.Contains("id") && hID == Const.ERROR_INT)
+            {
                 return Const.INNER_ERROR_TIP;
-            if (!shieldVariableList.Contains("width") && hWidth < 0)
+            }
+            if (!shieldVariableList.Contains("width") && hWidth <= 0)
+            {
                 return "户型面宽须大于0";
-            if (!shieldVariableList.Contains("leftGap") && hLeftGap < 0)
-                return "户型左间距须大于0";
-            if (!shieldVariableList.Contains("rightGap") && hRightGap < 0)
-                return "户型面右间距大于0";
+            }
             if (!shieldVariableList.Contains("villageID") && vID == Const.ERROR_INT)
+            {
                 return Const.INNER_ERROR_TIP;
-            if (!shieldVariableList.Contains("unit") && hUnit < 0)
-                return "户型户数须大于0";
-            if (!shieldVariableList.Contains("houseHold") && hHouseHold < 0)
-                return "户型人俗须大于0";
-            if (!shieldVariableList.Contains("name") && (hName.Length == 0 || hName.Length > HNAME_MAX_LENGTH))
-                return String.Format("户型名长度须在0-{0}之间.", HNAME_MAX_LENGTH);
+            }
+            if (!shieldVariableList.Contains("unit") && hUnit <= 0)
+            {
+                return "户型拼数须大于0";
+            }
             return "";
         }
 
         protected override bool isValid(System.Collections.Generic.List<string> shieldVariableList = null)
         {
             if (shieldVariableList == null)
+            {
                 shieldVariableList = new List<string>();
+            }
             if (!shieldVariableList.Contains("hID") && hID == Const.ERROR_INT)
+            {
                 return false;
-            if (!shieldVariableList.Contains("hWidth") && hWidth < 0)
+            }
+            if (!shieldVariableList.Contains("hWidth") && hWidth <= 0)
+            {
                 return false;
-            if (!shieldVariableList.Contains("hLeftGap") && hLeftGap < 0)
-                return false;
-            if (!shieldVariableList.Contains("hRightGap") && hRightGap < 0)
-                return false;
+            }
             if (!shieldVariableList.Contains("vID") && vID == Const.ERROR_INT)
+            {
                 return false;
-            if (!shieldVariableList.Contains("hUnit") && hUnit < 0)
+            }
+            if (!shieldVariableList.Contains("hUnit") && hUnit <= 0)
+            {
                 return false;
-            if (!shieldVariableList.Contains("hHouseHold") && hHouseHold < 0)
-                return false;
-            if (!shieldVariableList.Contains("hName") && (hName.Length == 0 || hName.Length > HNAME_MAX_LENGTH))
-                return false;
+            }
             return true;
         }
 
@@ -203,16 +151,16 @@ namespace Intersect
         {
             if (!isValid(new List<string>() { "hID"}))
                 return false;
-            string sqlCommand = String.Format(@"insert into House (hWidth,hLeftGap,hRightGap,vID,hUnit,hHouseHold,hName) values ({0},{1},{2},{3},{4},{5},'{6}')"
-                , hWidth, hLeftGap, hRightGap, vID, hUnit, hHouseHold, hName);
+            string sqlCommand = String.Format(@"insert into House (hWidth,vID,hUnit,hWeight) values ({0},{1},{2},{3})"
+                , hWidth, vID, hUnit, hWeight);
             Sql sql = new Sql();
             return sql.insertHouse(sqlCommand);
         }
 
         public bool saveWithoutCheck()
         {
-            string sqlCommand = String.Format(@"insert into House (hWidth,hLeftGap,hRightGap,vID,hUnit,hHouseHold,hName) values ({0},{1},{2},{3},{4},{5},'{6}')"
-                , hWidth, hLeftGap, hRightGap, vID, hUnit, hHouseHold, hName);
+            string sqlCommand = String.Format(@"insert into House (hWidth,vID,hUnit,hWeight) values ({0},{1},{2},{3})"
+                , hWidth, vID, hUnit, hWeight);
             Sql sql = new Sql();
             return sql.insertHouse(sqlCommand);
         }
@@ -221,8 +169,8 @@ namespace Intersect
         {
             if (!isValid())
                 return false;
-            string sqlCommand = String.Format(@"update House set hWidth={0},hLeftGap={1},hRightGap={2},vID={3},hUnit={4},hHouseHold={5},hName='{6}' where hID={7}"
-                , hWidth, hLeftGap, hRightGap, vID, hUnit, hHouseHold, hName, hID);
+            string sqlCommand = String.Format(@"update House set hWidth={0},vID={1},hUnit={2},hWeight={3} where hID={4}"
+                , hWidth, vID, hUnit, hWeight, hID);
             Sql sql = new Sql();
             return sql.updateHouse(sqlCommand);
         }
@@ -254,11 +202,8 @@ namespace Intersect
             hID = Int32.Parse(reader[0].ToString());
             vID = Int32.Parse(reader[1].ToString());
             hWidth = Double.Parse(reader[2].ToString());
-            hLeftGap = Double.Parse(reader[3].ToString());
-            hRightGap = Double.Parse(reader[4].ToString());
-            hUnit = Int32.Parse(reader[5].ToString());
-            hHouseHold = Int32.Parse(reader[6].ToString());
-            hName = reader[7].ToString();
+            hUnit = Int32.Parse(reader[3].ToString());
+            hWeight = Double.Parse(reader[4].ToString());
         }
 
         public override bool select()
@@ -270,27 +215,6 @@ namespace Intersect
             SqlDataReader reader = sql.selectHouse(sqlCommand);
             initBySqlDataReader(reader);
             sql.closeConnection();
-            return true;
-        }
-
-        public bool compare(House house)
-        {
-            if (house == null)
-                return false;
-            if (hID != house.id)
-                return false;
-            if (hWidth != house.width)
-                return false;
-            if (hLeftGap != house.leftGap)
-                return false;
-            if (hRightGap != house.rightGap)
-                return false;
-            if (hUnit != house.unit)
-                return false;
-            if (hHouseHold != house.houseHold)
-                return false;
-            if (hName != house.name)
-                return false;
             return true;
         }
 

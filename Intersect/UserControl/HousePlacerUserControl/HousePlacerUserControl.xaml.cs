@@ -18,6 +18,7 @@ using ESRI.ArcGIS.Geometry;
 using System.Threading;
 using Intersect.Lib;
 using ESRI.ArcGIS.Carto;
+using System.IO;
 
 namespace Intersect
 {
@@ -33,11 +34,9 @@ namespace Intersect
 
         private AxMapControl houseMapControl;
         private AxToolbarControl houseToolbarControl;
-        private int housePlacerIndexCount;
 
         public Intersect.ProgramStepUserControl.OnMapControlMouseDown mapControlMouseDown;
-        public bool valid = false;
-        private bool prePlaced = false;
+        public bool finish = false;
 
         public HousePlacerUserControl()
         {
@@ -49,8 +48,6 @@ namespace Intersect
             program = new Program();
             program.id = programID;
             program.select();
-
-            housePlacerIndexCount = 0;
 
             villageList = program.getAllRelatedVillage();
             if (villageList == null)
@@ -77,13 +74,6 @@ namespace Intersect
                         {
                             houseList = new ObservableCollection<House>();
                         }
-                        else
-                        {
-                            foreach (House house in houseList)
-                            {
-                                house.housePlacerListIndex = housePlacerIndexCount++;
-                            }
-                        }
                         village.houseList = houseList;
                         village.innerRoad = village.getRelatedInnerRoad();
                     }
@@ -93,8 +83,6 @@ namespace Intersect
 
             mapControl = mc;
 
-            prePlaced = false;
-
             mapControlMouseDown = null;
             HousePlacerListBox.ItemsSource = villageList;
 
@@ -103,11 +91,20 @@ namespace Intersect
                 System.Threading.Thread.Sleep(500);
                 Dispatcher.BeginInvoke((ThreadStart)delegate()
                 {
-                    if (isValid())
+                    foreach (Village village in villageList)
                     {
-                        valid = true;
-                        NotificationHelper.Trigger("HousePlacerUserControlFinish");
+                        if (File.Exists(System.IO.Path.Combine(program.path, "摆放结果_" + village.name + ".shp")))
+                        {
+                            PlaceManager placeManager = new PlaceManager(village.commonHouse, new List<House>(village.houseList), mapControl);
+                            placeManager.addShapeFile(program.path, "摆放结果_" + village.name + ".shp", "摆放结果_" + village.name);
+                        }
+                        else
+                        {
+                            return;
+                        }
                     }
+                    finish = true;
+                    NotificationHelper.Trigger("HousePlacerUserControlFinish");
                 });
             });
             t.Start();
@@ -116,19 +113,6 @@ namespace Intersect
         public void unInit()
         { 
             
-        }
-
-        public void prePlace()
-        {
-            if (prePlaced)
-            {
-                return;
-            }
-            prePlaced = true;
-            if (valid)
-            {
-                place();
-            }
         }
 
         public void initAxComponents()
@@ -152,6 +136,8 @@ namespace Intersect
         {
             foreach (Village village in villageList)
             {
+                PlaceManager placeManager = new PlaceManager(village.commonHouse, new List<House>(village.houseList), mapControl);
+                placeManager.deleteShapeFile(program.path, "摆放结果_" + village.name);
                 village.commonHouse.delete();
                 foreach (House house in village.houseList)
                 {
@@ -163,7 +149,10 @@ namespace Intersect
         private bool isValid()
         {
             if (villageList.Count == 0)
+            {
                 return false;
+            }
+
             BindingGroup bindingGroup = HousePlacerStackPanel.BindingGroup;
             if (!Tool.checkBindingGroup(bindingGroup)) 
             {
@@ -179,13 +168,16 @@ namespace Intersect
             Grid housePlacerGrid = houseStackPanel.Parent as Grid;
             TextBlock villageIDTextBlock = housePlacerGrid.FindName("VillageIDTextBlock") as TextBlock;
             int villageID = Int32.Parse(villageIDTextBlock.Text);
+
             House house = House.GetDefaultHouse();
             house.villageID = villageID;
+            house.saveWithoutCheck();
+            house.id = House.GetLastHouseID();
+
             foreach (Village village in villageList)
             {
                 if (village.id == villageID)
                 {
-                    house.housePlacerListIndex = housePlacerIndexCount++;
                     village.houseList.Add(house);
                 }
             }
@@ -194,17 +186,18 @@ namespace Intersect
         private void HouseGroupBoxMouseDown(object sender, MouseButtonEventArgs e)
         {
             GroupBox houseGroupBox = sender as GroupBox;
-            TextBlock houseListIndexTextBlock = houseGroupBox.FindName("HouseListIndexTextBlock") as TextBlock;
-            int houseListIndex = Int32.Parse(houseListIndexTextBlock.Text);
+            TextBlock houseIDTextBlock = houseGroupBox.FindName("HouseIDTextBlock") as TextBlock;
+            int houseID = Int32.Parse(houseIDTextBlock.Text.ToString());
             TextBlock villageIDTextBlock = houseGroupBox.FindName("VillageIDTextBlock") as TextBlock;
             int villageID = Int32.Parse(villageIDTextBlock.Text);
+
             foreach (Village village in villageList)
             {
                 if (village.id == villageID)
                 {
                     foreach (House house in village.houseList)
                     {
-                        if (house.housePlacerListIndex == houseListIndex)
+                        if (house.id == houseID)
                         {
                             houseShowcaseManager = new HouseShowcaseManager(houseMapControl);
                             houseShowcaseManager.ShowHouse(house, village.commonHouse);
@@ -231,7 +224,7 @@ namespace Intersect
             if (isValid())
             {
                 NotificationHelper.Trigger("mask");
-                valid = true;
+                finish = true;
                 NotificationHelper.Trigger("HousePlacerUserControlFinish");
                 save();
                 //开始计算.
@@ -251,36 +244,33 @@ namespace Intersect
             foreach (Village village in villageList)
             {
                 PlaceManager placeManager = new PlaceManager(village.commonHouse, new List<House>(village.houseList), mapControl);
-                placeManager.makeArea((village.polygonElement as IElement).Geometry);
-                if (placeManager.splitArea((village.innerRoad.lineElement as IElement).Geometry))
+                placeManager.deleteShapeFile(program.path, "摆放结果_" + village.name);
+                placeManager.makeArea((village.polygonElement as IElement).Geometry,
+                    (village.innerRoad.lineElement as IElement).Geometry);
+                if (!placeManager.place())
                 {
-                    placeManager.place();
-                    for (int i = 0; i < placeManager.drawnHouseList.Count; i++)
-                    {
-                        HouseManager houseManager = placeManager.drawnHouseList[i];
-                        ArrayList housePolygonArrayList = houseManager.makeHousePolygon();
-                        GisTool.drawPolygon(houseManager.makeHousePolygon()[0] as IPolygon, mapControl, GisTool.RandomRgbColor());
-                        foreach (IGeometry geom in housePolygonArrayList[1] as List<IGeometry>)
-                        {
-                            GisTool.drawPolygon(geom as IPolygon, mapControl, GisTool.RandomRgbColor());
-                        }
-                    }
-                    string path = System.IO.Path.Combine(program.path, "outerground.shp");
-                    placeManager.saveOuterGround(path);
-
-                    path = System.IO.Path.Combine(program.path, "centerground.shp");
-                    placeManager.saveCenterGround(path);
-
-                    path = System.IO.Path.Combine(program.path, "result.shp");
-                    placeManager.saveHouse(path);
-
-                    path = System.IO.Path.Combine(program.path, "innerroad.shp");
-                    placeManager.saveInnerRoad(path);
-
-                    path = System.IO.Path.Combine(program.path, "road.shp");
-                    placeManager.saveRoad(path);
-                    Tool.M("摆放完成");
+                    return;
                 }
+                placeManager.save(program.path, "摆放结果_" + village.name + ".shp");
+                placeManager.addShapeFile(program.path, "摆放结果_" + village.name + ".shp", "摆放结果_" + village.name);
+                NotificationHelper.Trigger("unmask");
+                return;
+                
+                string path = System.IO.Path.Combine(program.path, "outerground.shp");
+                placeManager.saveOuterGround(path);
+
+                path = System.IO.Path.Combine(program.path, "centerground.shp");
+                placeManager.saveCenterGround(path);
+
+                path = System.IO.Path.Combine(program.path, "result.shp");
+                placeManager.saveHouse(path);
+
+                path = System.IO.Path.Combine(program.path, "innerroad.shp");
+                placeManager.saveInnerRoad(path);
+
+                path = System.IO.Path.Combine(program.path, "road.shp");
+                placeManager.saveRoad(path);
+                Tool.M("摆放完成");
             }
         }
     }

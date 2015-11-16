@@ -97,5 +97,41 @@ namespace Intersect
             else
                 return false;
         }
+
+        public static double GetMax(List<double> list)
+        {
+            double max = 0;
+            if (list.Count == 0)
+            {
+                return 0;
+            }
+            max = list[0];
+            for (int i = 0; i < list.Count; i++)
+            {
+                if ((double)list[i] > max)
+                {
+                    max = (double)list[i];
+                }
+            }
+            return max;
+        }
+
+        public static double GetMin(List<double> list)
+        {
+            double min = 0;
+            if (list.Count == 0)
+            {
+                return 0;
+            }
+            min = list[0];
+            for (int i = 0; i < list.Count; i++)
+            {
+                if ((double)list[i] < min)
+                {
+                    min = (double)list[i];
+                }
+            }
+            return min;
+        }
     }
 }

@@ -148,6 +148,12 @@ namespace Intersect
             projectWindow.mask();
             if (check() == Const.ERROR_INT)
             {
+                projectWindow.unmask();
+                return Const.ERROR_INT;
+            }
+            if (Tool.C("确定会清空该项目所有方案数据，是否继续？"))
+            {
+                projectWindow.unmask();
                 return Const.ERROR_INT;
             }
             int result = update();

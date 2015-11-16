@@ -6,11 +6,11 @@
              xmlns:cls="clr-namespace:Intersect"
              xmlns:i="clr-namespace:System.Windows.Forms.Integration;assembly=WindowsFormsIntegration"
              mc:Ignorable="d" >
-    <StackPanel Name="HousePlacerStackPanel" Height="400" Style="{StaticResource NotErrorTip}">
+    <StackPanel Name="HousePlacerStackPanel" MaxHeight="600" Style="{StaticResource NotErrorTip}">
         <StackPanel.BindingGroup>
             <BindingGroup Name="HousePlacerBindingGroup"></BindingGroup>
         </StackPanel.BindingGroup>
-        <ListBox Name="HousePlacerListBox" Height="370" ScrollViewer.CanContentScroll="False">
+        <ListBox Name="HousePlacerListBox" Height="270" ScrollViewer.CanContentScroll="False">
             <ListBox.ItemContainerStyle>
                 <Style TargetType="ListBoxItem">
                     <Setter Property="HorizontalContentAlignment" Value="Stretch"></Setter>
@@ -20,8 +20,8 @@
                 <DataTemplate>
                     <Grid Name="HousePlacerGrid">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="2*"></RowDefinition>
-                            <RowDefinition Height="8*"></RowDefinition>
+                            <RowDefinition Height="1*"></RowDefinition>
+                            <RowDefinition Height="20*"></RowDefinition>
                         </Grid.RowDefinitions>
                         <TextBlock Name="VillageIDTextBlock" Text="{Binding Path=id, Mode=TwoWay}" Visibility="Collapsed"></TextBlock>
                         <Grid Grid.Row="0" Name="VillageInfoGrid">
@@ -43,68 +43,93 @@
                             <CheckBox Grid.Column="2" Name="VillageInUseCheckBox" IsEnabled="False" IsChecked="{Binding Path=inUse, Mode=OneTime}"></CheckBox>
                         </Grid>
                         <StackPanel Grid.Row="1" Name="HouseStackPanel" Style="{StaticResource NotErrorTip}">
-                            <GroupBox Name="CommonHouseGroupBox" Height="190">
+                            <GroupBox Name="CommonHouseGroupBox">
                                 <GroupBox.HeaderTemplate>
                                     <DataTemplate>
-                                        <TextBlock Style="{StaticResource GroupBoxHeader}">户型设置</TextBlock>
+                                        <TextBlock Style="{StaticResource GroupBoxHeader}">户型整体设置</TextBlock>
                                     </DataTemplate>
                                 </GroupBox.HeaderTemplate>
                                 <ScrollViewer VerticalScrollBarVisibility="Auto">
-                                    <StackPanel Name="CommonHouseStackPanel">
-                                        <cls:HouseItemUserControl x:Name="HeightHouseItemUserControl" Title="楼房进深(单位:米)">
-                                            <cls:HouseItemUserControl.Value>
-                                                <Binding Path="commonHouse.height" Mode="TwoWay" UpdateSourceTrigger="LostFocus" BindingGroupName="HousePlacerBindingGroup">
-                                                    <Binding.ValidationRules>
-                                                        <cls:PositiveDoubleValidationRule></cls:PositiveDoubleValidationRule>
-                                                    </Binding.ValidationRules>
-                                                </Binding>
-                                            </cls:HouseItemUserControl.Value>
-                                        </cls:HouseItemUserControl>
-                                        <cls:HouseItemUserControl x:Name="FrontGapHouseItemUserControl" Title="楼房前深(单位:米)">
-                                            <cls:HouseItemUserControl.Value>
-                                                <Binding Path="commonHouse.frontGap" Mode="TwoWay" UpdateSourceTrigger="LostFocus" BindingGroupName="HousePlacerBindingGroup">
-                                                    <Binding.ValidationRules>
-                                                        <cls:PositiveDoubleValidationRule></cls:PositiveDoubleValidationRule>
-                                                    </Binding.ValidationRules>
-                                                </Binding>
-                                            </cls:HouseItemUserControl.Value>
-                                        </cls:HouseItemUserControl>
-                                        <cls:HouseItemUserControl x:Name="FloorHouseItemUserControl" Title="楼房层数">
-                                            <cls:HouseItemUserControl.Value>
-                                                <Binding Path="commonHouse.floor" Mode="TwoWay" UpdateSourceTrigger="LostFocus" BindingGroupName="HousePlacerBindingGroup">
-                                                    <Binding.ValidationRules>
-                                                        <cls:PositiveDoubleValidationRule></cls:PositiveDoubleValidationRule>
-                                                    </Binding.ValidationRules>
-                                                </Binding>
-                                            </cls:HouseItemUserControl.Value>
-                                        </cls:HouseItemUserControl>
-                                        <cls:HouseItemUserControl x:Name="FloorHeightHouseItemUserControl" Title="楼房层高(单位:米)">
-                                            <cls:HouseItemUserControl.Value>
-                                                <Binding Path="commonHouse.floorHeight" Mode="TwoWay" UpdateSourceTrigger="LostFocus" BindingGroupName="HousePlacerBindingGroup">
-                                                    <Binding.ValidationRules>
-                                                        <cls:PositiveDoubleValidationRule></cls:PositiveDoubleValidationRule>
-                                                    </Binding.ValidationRules>
-                                                </Binding>
-                                            </cls:HouseItemUserControl.Value>
-                                        </cls:HouseItemUserControl>
-                                        <cls:HouseItemUserControl x:Name="BackGapRatioHouseItemUserControl" Title="楼房后深系数">
-                                            <cls:HouseItemUserControl.Value>
-                                                <Binding Path="commonHouse.backGapRatio" Mode="TwoWay" UpdateSourceTrigger="LostFocus" BindingGroupName="HousePlacerBindingGroup">
-                                                    <Binding.ValidationRules>
-                                                        <cls:PositiveDoubleValidationRule></cls:PositiveDoubleValidationRule>
-                                                    </Binding.ValidationRules>
-                                                </Binding>
-                                            </cls:HouseItemUserControl.Value>
-                                        </cls:HouseItemUserControl>
-                                        <Grid Name="BackGapHouseItemGrid">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="0.7*"></ColumnDefinition>
-                                                <ColumnDefinition Width="0.3*"></ColumnDefinition>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Grid.Column="0" Style="{StaticResource SettingTitle}">
-                                                楼房后深
-                                            </TextBlock>
-                                            <TextBlock Grid.Column="1" Style="{StaticResource SettingTitle}">
+                                    <Grid Name="CommonHouseGrid">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="1*"></ColumnDefinition>
+                                            <ColumnDefinition Width="1*"></ColumnDefinition>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0">
+                                            <cls:HouseItemUserControl x:Name="HeightHouseItemUserControl" Title="楼房进深(单位:米)">
+                                                <cls:HouseItemUserControl.Value>
+                                                    <Binding Path="commonHouse.height" Mode="TwoWay" UpdateSourceTrigger="LostFocus" BindingGroupName="HousePlacerBindingGroup">
+                                                        <Binding.ValidationRules>
+                                                            <cls:PositiveDoubleValidationRule></cls:PositiveDoubleValidationRule>
+                                                        </Binding.ValidationRules>
+                                                    </Binding>
+                                                </cls:HouseItemUserControl.Value>
+                                            </cls:HouseItemUserControl>
+                                            <cls:HouseItemUserControl x:Name="FrontGapHouseItemUserControl" Title="楼房前深(单位:米)">
+                                                <cls:HouseItemUserControl.Value>
+                                                    <Binding Path="commonHouse.frontGap" Mode="TwoWay" UpdateSourceTrigger="LostFocus" BindingGroupName="HousePlacerBindingGroup">
+                                                        <Binding.ValidationRules>
+                                                            <cls:PositiveDoubleValidationRule></cls:PositiveDoubleValidationRule>
+                                                        </Binding.ValidationRules>
+                                                    </Binding>
+                                                </cls:HouseItemUserControl.Value>
+                                            </cls:HouseItemUserControl>
+                                            <cls:HouseItemUserControl x:Name="HorizontalGapHouseItemUserControl" Title="楼房间隔(单位:米)">
+                                                <cls:HouseItemUserControl.Value>
+                                                    <Binding Path="commonHouse.horizontalGap" Mode="TwoWay" UpdateSourceTrigger="LostFocus" BindingGroupName="HousePlacerBindingGroup">
+                                                        <Binding.ValidationRules>
+                                                            <cls:PositiveDoubleValidationRule></cls:PositiveDoubleValidationRule>
+                                                        </Binding.ValidationRules>
+                                                    </Binding>
+                                                </cls:HouseItemUserControl.Value>
+                                            </cls:HouseItemUserControl>
+                                            <cls:HouseItemUserControl x:Name="MinNumberHouseItemUserControl" Title="最少户数">
+                                                <cls:HouseItemUserControl.Value>
+                                                    <Binding Path="commonHouse.minNumber" Mode="TwoWay" UpdateSourceTrigger="LostFocus" BindingGroupName="HousePlacerBindingGroup">
+                                                        <Binding.ValidationRules>
+                                                            <cls:PositiveDoubleValidationRule></cls:PositiveDoubleValidationRule>
+                                                        </Binding.ValidationRules>
+                                                    </Binding>
+                                                </cls:HouseItemUserControl.Value>
+                                            </cls:HouseItemUserControl>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="1">
+                                            <cls:HouseItemUserControl x:Name="FloorHouseItemUserControl" Title="楼房层数">
+                                                <cls:HouseItemUserControl.Value>
+                                                    <Binding Path="commonHouse.floor" Mode="TwoWay" UpdateSourceTrigger="LostFocus" BindingGroupName="HousePlacerBindingGroup">
+                                                        <Binding.ValidationRules>
+                                                            <cls:PositiveDoubleValidationRule></cls:PositiveDoubleValidationRule>
+                                                        </Binding.ValidationRules>
+                                                    </Binding>
+                                                </cls:HouseItemUserControl.Value>
+                                            </cls:HouseItemUserControl>
+                                            <cls:HouseItemUserControl x:Name="FloorHeightHouseItemUserControl" Title="楼房层高(单位:米)">
+                                                <cls:HouseItemUserControl.Value>
+                                                    <Binding Path="commonHouse.floorHeight" Mode="TwoWay" UpdateSourceTrigger="LostFocus" BindingGroupName="HousePlacerBindingGroup">
+                                                        <Binding.ValidationRules>
+                                                            <cls:PositiveDoubleValidationRule></cls:PositiveDoubleValidationRule>
+                                                        </Binding.ValidationRules>
+                                                    </Binding>
+                                                </cls:HouseItemUserControl.Value>
+                                            </cls:HouseItemUserControl>
+                                            <cls:HouseItemUserControl x:Name="BackGapRatioHouseItemUserControl" Title="楼房后深系数">
+                                                <cls:HouseItemUserControl.Value>
+                                                    <Binding Path="commonHouse.backGapRatio" Mode="TwoWay" UpdateSourceTrigger="LostFocus" BindingGroupName="HousePlacerBindingGroup">
+                                                        <Binding.ValidationRules>
+                                                            <cls:PositiveDoubleValidationRule></cls:PositiveDoubleValidationRule>
+                                                        </Binding.ValidationRules>
+                                                    </Binding>
+                                                </cls:HouseItemUserControl.Value>
+                                            </cls:HouseItemUserControl>
+                                            <Grid Name="BackGapHouseItemGrid">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="7*"></ColumnDefinition>
+                                                    <ColumnDefinition Width="3*"></ColumnDefinition>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Grid.Column="0" Style="{StaticResource SettingTitle}">
+                                                    楼房后深
+                                                </TextBlock>
+                                                <TextBlock Grid.Column="1" Style="{StaticResource SettingTitle}">
                                                 <TextBlock.Text>
                                                     <MultiBinding>
                                                         <MultiBinding.Converter>
@@ -115,13 +140,14 @@
                                                         <Binding ElementName="FloorHouseItemUserControl" Path="Value" Mode="TwoWay"></Binding>
                                                     </MultiBinding>
                                                 </TextBlock.Text>
-                                            </TextBlock>
-                                        </Grid>
-                                    </StackPanel>
+                                                </TextBlock>
+                                            </Grid>
+                                        </StackPanel>
+                                    </Grid>
                                 </ScrollViewer>
                             </GroupBox>
-                            <Button Name="AddHouseButton" Style="{StaticResource SuccessButton}" Click="AddHouseButtonClick">添加户型</Button>
-                            <ListBox Name="HouseListBox" Style="{StaticResource ListBox}" MaxHeight="220" ScrollViewer.CanContentScroll="False">
+                            <Button Name="AddHouseButton" Style="{StaticResource SuccessButton_Small}" Click="AddHouseButtonClick">添加户型</Button>
+                            <ListBox Name="HouseListBox" Style="{StaticResource ListBox}" ScrollViewer.CanContentScroll="False">
                                 <ListBox.ItemsSource>
                                     <Binding Path="houseList" Mode="TwoWay"></Binding>
                                 </ListBox.ItemsSource>
@@ -129,7 +155,7 @@
                                     <Style TargetType="ListBoxItem">
                                         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
                                         <Setter Property="Margin" Value="5"></Setter>
-                                        <Setter Property="Height" Value="190"></Setter>
+                                        <Setter Property="Height" Value="100"></Setter>
                                     </Style>
                                 </ListBox.ItemContainerStyle>
                                 <ListBox.ItemTemplate>
@@ -142,8 +168,8 @@
                                             </GroupBox.HeaderTemplate>
                                             <StackPanel Name="HouseStackPanel">
                                                 <TextBlock Name="VillageIDTextBlock" Visibility="Collapsed" Text="{Binding Path=villageID, Mode=TwoWay}"></TextBlock>
-                                                <TextBlock Name="HouseListIndexTextBlock" Visibility="Collapsed" Text="{Binding Path=housePlacerListIndex, Mode=TwoWay}"></TextBlock>
-                                                <cls:HouseItemUserControl x:Name="WidthHouseItemUserControl" Title="楼房面宽(单位:米)" PreviewMouseDown="HouseItemUserControlMouseDown">
+                                                <TextBlock Name="HouseIDTextBlock" Visibility="Collapsed" Text="{Binding Path=id, Mode=TwoWay}"></TextBlock>
+                                                <cls:HouseItemUserControl x:Name="WidthHouseItemUserControl" Title="户型面宽(单位:米)">
                                                     <cls:HouseItemUserControl.Value>
                                                         <Binding Path="width" Mode="TwoWay" UpdateSourceTrigger="LostFocus" BindingGroupName="HousePlacerBindingGroup">
                                                             <Binding.ValidationRules>
@@ -152,25 +178,7 @@
                                                         </Binding>
                                                     </cls:HouseItemUserControl.Value>
                                                 </cls:HouseItemUserControl>
-                                                <cls:HouseItemUserControl x:Name="LeftGapHouseItemUserControl" Title="楼房左间距(单位:米)" PreviewMouseDown="HouseItemUserControlMouseDown">
-                                                    <cls:HouseItemUserControl.Value>
-                                                        <Binding Path="leftGap" Mode="TwoWay" UpdateSourceTrigger="LostFocus" BindingGroupName="HousePlacerBindingGroup">
-                                                            <Binding.ValidationRules>
-                                                                <cls:PositiveDoubleValidationRule></cls:PositiveDoubleValidationRule>
-                                                            </Binding.ValidationRules>
-                                                        </Binding>
-                                                    </cls:HouseItemUserControl.Value>
-                                                </cls:HouseItemUserControl>
-                                                <cls:HouseItemUserControl x:Name="RightGapHouseItemUserControl" Title="楼房右间距(单位:米)" PreviewMouseDown="HouseItemUserControlMouseDown">
-                                                    <cls:HouseItemUserControl.Value>
-                                                        <Binding Path="rightGap" Mode="TwoWay" UpdateSourceTrigger="LostFocus" BindingGroupName="HousePlacerBindingGroup">
-                                                            <Binding.ValidationRules>
-                                                                <cls:PositiveDoubleValidationRule></cls:PositiveDoubleValidationRule>
-                                                            </Binding.ValidationRules>
-                                                        </Binding>
-                                                    </cls:HouseItemUserControl.Value>
-                                                </cls:HouseItemUserControl>
-                                                <cls:HouseItemUserControl x:Name="UnitHouseItemUserControl" Title="楼房单元数" PreviewMouseDown="HouseItemUserControlMouseDown">
+                                                <cls:HouseItemUserControl x:Name="UnitHouseItemUserControl" Title="户型拼数">
                                                     <cls:HouseItemUserControl.Value>
                                                         <Binding Path="unit" Mode="TwoWay" UpdateSourceTrigger="LostFocus" BindingGroupName="HousePlacerBindingGroup">
                                                             <Binding.ValidationRules>
@@ -179,7 +187,16 @@
                                                         </Binding>
                                                     </cls:HouseItemUserControl.Value>
                                                 </cls:HouseItemUserControl>
-                                                <cls:HouseItemUserControl x:Name="HouseHoldHouseItemUserControl" Title="楼房户数" PreviewMouseDown="HouseItemUserControlMouseDown">
+                                                <cls:HouseItemUserControl x:Name="WeightHouseItemUserControl" Title="户型占比(单位:%)">
+                                                    <cls:HouseItemUserControl.Value>
+                                                        <Binding Path="weight" Mode="TwoWay" UpdateSourceTrigger="LostFocus" BindingGroupName="HousePlacerBindingGroup">
+                                                            <Binding.ValidationRules>
+                                                                <cls:PositiveDoubleValidationRule></cls:PositiveDoubleValidationRule>
+                                                            </Binding.ValidationRules>
+                                                        </Binding>
+                                                    </cls:HouseItemUserControl.Value>
+                                                </cls:HouseItemUserControl>
+                                                <!--<cls:HouseItemUserControl x:Name="HouseHoldHouseItemUserControl" Title="楼房户数" PreviewMouseDown="HouseItemUserControlMouseDown">
                                                     <cls:HouseItemUserControl.Value>
                                                         <Binding Path="houseHold" Mode="TwoWay" UpdateSourceTrigger="LostFocus" BindingGroupName="HousePlacerBindingGroup">
                                                             <Binding.ValidationRules>
@@ -187,16 +204,7 @@
                                                             </Binding.ValidationRules>
                                                         </Binding>
                                                     </cls:HouseItemUserControl.Value>
-                                                </cls:HouseItemUserControl>
-                                                <cls:HouseItemUserControl x:Name="NameHouseItemUserControl" Title="楼房名" PreviewMouseDown="HouseItemUserControlMouseDown">
-                                                    <cls:HouseItemUserControl.Value>
-                                                        <Binding Path="name" Mode="TwoWay" UpdateSourceTrigger="LostFocus" BindingGroupName="HousePlacerBindingGroup">
-                                                            <Binding.ValidationRules>
-                                                                <cls:StringValidationRule></cls:StringValidationRule>
-                                                            </Binding.ValidationRules>
-                                                        </Binding>
-                                                    </cls:HouseItemUserControl.Value>
-                                                </cls:HouseItemUserControl>
+                                                </cls:HouseItemUserControl>-->
                                                 <TextBlock Visibility="Collapsed" Text="{Binding Path=id, Mode=TwoWay}" Name="ID"></TextBlock>
                                             </StackPanel>
                                         </GroupBox>
@@ -209,7 +217,7 @@
             </ListBox.ItemTemplate>
         </ListBox>
         <Button Name="StartCaculateButton" Click="StartCaculateButtonClick" Style="{StaticResource OperationButton}" Height="30">开始计算</Button>
-        <i:WindowsFormsHost Name="HouseToolbarHost" Margin="480 , -300 , 0 , 0" Height="30" Width="300"></i:WindowsFormsHost>
-        <i:WindowsFormsHost Name="HouseMapHost" Margin="480 , -190 , 0 , 0" Height="300" Width="400"></i:WindowsFormsHost>
+        <i:WindowsFormsHost Margin="0, 5, 0, 0" Name="HouseToolbarHost" Height="30" Width="460"></i:WindowsFormsHost>
+        <i:WindowsFormsHost Name="HouseMapHost" Height="220" Width="460"></i:WindowsFormsHost>
     </StackPanel>
 </UserControl>

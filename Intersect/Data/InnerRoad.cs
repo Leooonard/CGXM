@@ -230,21 +230,6 @@ namespace Intersect
             return pointList;
         }
 
-        public bool compare(InnerRoad innerRoad)
-        {
-            if (irID != innerRoad.id)
-                return false;
-            if (prID != innerRoad.programID)
-                return false;
-            if (vID != innerRoad.villageID)
-                return false;
-            if (irName != innerRoad.name)
-                return false;
-            if (irPath != innerRoad.path)
-                return false;
-            return true;
-        }
-
         public static int GetLastInnerRoadID()
         {
             string sqlCommand = String.Format("select max(irID) from InnerRoad");
