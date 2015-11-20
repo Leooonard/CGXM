@@ -19,6 +19,7 @@ using System.Threading;
 using Intersect.Lib;
 using ESRI.ArcGIS.Carto;
 using System.IO;
+using ESRI.ArcGIS.Geodatabase;
 
 namespace Intersect
 {
@@ -106,7 +107,7 @@ namespace Intersect
                         }
                         for (int i = 0; i < houseList.Count; i++)
                         {
-                            houseList[i].name = NumberToAlphaBeta(i);
+                            houseList[i].name = "户型" + NumberToAlphaBeta(i);
                         }
                         village.houseList = houseList;
                         village.innerRoad = village.getRelatedInnerRoad();
@@ -123,6 +124,7 @@ namespace Intersect
                 {
                     PlaceManager placeManager = new PlaceManager(village.commonHouse, new List<House>(village.houseList), mapControl);
                     placeManager.addShapeFile(program.path, "摆放结果_" + village.name + ".shp", "摆放结果_" + village.name);
+                    loadHouseResult();
                 }
                 else
                 {
@@ -140,7 +142,7 @@ namespace Intersect
                 return;
             }
             houseMapControl = new AxMapControl();
-            HouseMapHost.Child = houseMapControl;
+            //HouseMapHost.Child = houseMapControl;
         }
 
         public void clear()
@@ -193,35 +195,35 @@ namespace Intersect
                     village.houseList.Add(house);
                     for (int i = 0; i < village.houseList.Count; i++)
                     {
-                        village.houseList[i].name = NumberToAlphaBeta(i);
+                        village.houseList[i].name = "户型" + NumberToAlphaBeta(i);
                     }
                 }
             }
         }
 
-        private void HouseGroupBoxMouseDown(object sender, MouseButtonEventArgs e)
-        {
-            GroupBox houseGroupBox = sender as GroupBox;
-            TextBlock houseIDTextBlock = houseGroupBox.FindName("HouseIDTextBlock") as TextBlock;
-            int houseID = Int32.Parse(houseIDTextBlock.Text.ToString());
-            TextBlock villageIDTextBlock = houseGroupBox.FindName("VillageIDTextBlock") as TextBlock;
-            int villageID = Int32.Parse(villageIDTextBlock.Text);
+        //private void HouseGroupBoxMouseDown(object sender, MouseButtonEventArgs e)
+        //{
+        //    GroupBox houseGroupBox = sender as GroupBox;
+        //    TextBlock houseIDTextBlock = houseGroupBox.FindName("HouseIDTextBlock") as TextBlock;
+        //    int houseID = Int32.Parse(houseIDTextBlock.Text.ToString());
+        //    TextBlock villageIDTextBlock = houseGroupBox.FindName("VillageIDTextBlock") as TextBlock;
+        //    int villageID = Int32.Parse(villageIDTextBlock.Text);
 
-            foreach (Village village in villageList)
-            {
-                if (village.id == villageID)
-                {
-                    foreach (House house in village.houseList)
-                    {
-                        if (house.id == houseID)
-                        {
-                            houseShowcaseManager = new HouseShowcaseManager(houseMapControl);
-                            houseShowcaseManager.ShowHouse(house, village.commonHouse);
-                        }
-                    }
-                }
-            }
-        }
+        //    foreach (Village village in villageList)
+        //    {
+        //        if (village.id == villageID)
+        //        {
+        //            foreach (House house in village.houseList)
+        //            {
+        //                if (house.id == houseID)
+        //                {
+        //                    houseShowcaseManager = new HouseShowcaseManager(houseMapControl);
+        //                    houseShowcaseManager.ShowHouse(house, village.commonHouse);
+        //                }
+        //            }
+        //        }
+        //    }
+        //}
 
         private void save()
         {
@@ -255,6 +257,40 @@ namespace Intersect
             }
         }
 
+        private void loadHouseResult()
+        {
+            IFeatureLayer featureLayer = mapControl.get_Layer(0) as IFeatureLayer;
+            IFeatureClass featureClass = featureLayer.FeatureClass;
+            int totalFeatureCount = featureClass.FeatureCount(null);
+
+            ObservableCollection<HouseResult> houseResultList = new ObservableCollection<HouseResult>();
+
+            foreach (Village village in villageList)
+            {
+                foreach (House house in village.houseList)
+                {
+                    HouseResult houseResult = new HouseResult();
+
+                    IQueryFilter filter = new QueryFilterClass();
+                    filter.WhereClause = "类型='" + house.id.ToString() + "'";
+                    IFeatureSelection featureSelection = featureLayer as IFeatureSelection;
+                    featureSelection.SelectFeatures(filter, esriSelectionResultEnum.esriSelectionResultNew, false);
+                    ISelectionSet selSet = featureSelection.SelectionSet;
+                    houseResult.count += selSet.Count;
+
+                    houseResult.houseName = house.name;
+                    houseResult.area = house.width * village.commonHouse.height * village.commonHouse.floor;
+                    houseResult.landArea = house.width * village.commonHouse.height * houseResult.count;
+                    houseResult.constructArea = house.width * village.commonHouse.height * village.commonHouse.floor * houseResult.count;
+                    houseResult.ratio = (double)houseResult.count / totalFeatureCount * 100;
+                    houseResultList.Add(houseResult);
+                }
+
+            }
+
+            HouseResultListBox.ItemsSource = houseResultList;
+        }
+
         private void place()
         {
             foreach (Village village in villageList)
@@ -269,6 +305,7 @@ namespace Intersect
                 }
                 placeManager.save(program.path, "摆放结果_" + village.name + ".shp");
                 placeManager.addShapeFile(program.path, "摆放结果_" + village.name + ".shp", "摆放结果_" + village.name);
+                loadHouseResult();
                 NotificationHelper.Trigger("unmask");
                 return;
                 
@@ -294,7 +331,6 @@ namespace Intersect
         {
             Button houseDeleteButton = sender as Button;
             Grid grid = houseDeleteButton.Parent as Grid;
-            grid = grid.Parent as Grid;
             TextBlock houseIDTextBlock = grid.FindName("HouseIDTextBlock") as TextBlock;
             int houseID = Int32.Parse(houseIDTextBlock.Text);
             TextBlock villageIDTextBlock = grid.FindName("VillageIDTextBlock") as TextBlock;
@@ -312,7 +348,7 @@ namespace Intersect
                             village.houseList.RemoveAt(i);
                             for (int j = 0; j < village.houseList.Count; j++)
                             {
-                                village.houseList[j].name = NumberToAlphaBeta(j);
+                                village.houseList[j].name = "户型" + NumberToAlphaBeta(j);
                             }
                         }
                     }
@@ -328,7 +364,7 @@ namespace Intersect
                 "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"
             };
 
-            return alphaBetaList[number];
+            return alphaBetaList[number].ToUpper();
         }
     }
 }

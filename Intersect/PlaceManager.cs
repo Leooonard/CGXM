@@ -11,9 +11,9 @@ using ESRI.ArcGIS.Carto;
 
 namespace Intersect
 {
-    class PlaceManager
+    public class PlaceManager
     {
-        public List<IGeometry> drawnHouseList;
+        public List<_Geometry> drawnHouseList;
         public IPolyline innerRoadLine;
         private CommonHouse commonHouse;
         private List<_House> _houseList;
@@ -21,15 +21,29 @@ namespace Intersect
         private Area area;
         private double totalWeight;
 
-        private class _House
+        public class _House
         {
             public House house;
+            public CommonHouse commonHouse;
             public int count;
 
-            public _House(House h, int c)
+            public _House(House h, int c, CommonHouse ch)
             {
                 house = h;
                 count = c;
+                commonHouse = ch;
+            }
+        }
+
+        public class _Geometry
+        {
+            public IGeometry geom;
+            public _House _house;
+
+            public _Geometry(IGeometry g, _House h)
+            {
+                geom = g;
+                _house = h;
             }
         }
 
@@ -44,7 +58,7 @@ namespace Intersect
             _houseList = new List<_House>();
             foreach (House house in hList)
             {
-                _House _house = new _House(house, (int)(commonHouse.minNumber * house.weight / totalWeight));
+                _House _house = new _House(house, (int)(commonHouse.minNumber * house.weight / totalWeight), commonHouse);
                 _houseList.Add(_house);
             }
             //由小到大排序.
@@ -164,7 +178,7 @@ namespace Intersect
             }
 
             //往stripedrow里填坑.
-            drawnHouseList = new List<IGeometry>();
+            drawnHouseList = new List<_Geometry>();
             for (int i = 0; i < stripedRowList.Count; i++)
             {
                 PlaceHouse(stripedRowList[i], drawnHouseList);
@@ -331,24 +345,27 @@ namespace Intersect
 
         public string getTotalHouseInfo()
         {
-            int totalHouseHold = 0;
-            double totalHouseArea = 0;
-            foreach (HouseManager houseManager in drawnHouseList)
-            {
-                //totalHouseHold += houseManager.house.houseHold;
-                totalHouseArea += houseManager.house.width * houseManager.commonHouse.height;
-            }
-            string totalHouseHoldInfo = String.Format("总户数: {0}(户)", totalHouseHold);
-            string totalHouseAreaInfo = String.Format("总建筑面积: {0}(平方米)", totalHouseArea);
-            string totalHouseInfo = String.Format("{0}\n{1}", totalHouseHoldInfo, totalHouseAreaInfo);
-            return totalHouseInfo;
+            return "";
+            //int totalHouseHold = 0;
+            //double totalHouseArea = 0;
+            //foreach (HouseManager houseManager in drawnHouseList)
+            //{
+            //    //totalHouseHold += houseManager.house.houseHold;
+            //    totalHouseArea += houseManager.house.width * houseManager.commonHouse.height;
+            //}
+            //string totalHouseHoldInfo = String.Format("总户数: {0}(户)", totalHouseHold);
+            //string totalHouseAreaInfo = String.Format("总建筑面积: {0}(平方米)", totalHouseArea);
+            //string totalHouseInfo = String.Format("{0}\n{1}", totalHouseHoldInfo, totalHouseAreaInfo);
+            //return totalHouseInfo;
         }
 
         public void save(string folder, string shpName)
         {
             GisTool.CreateShapefile(folder, shpName, mapControl.SpatialReference);
             IFeatureClass houseFeatureClass = GisTool.getFeatureClass(folder, shpName);
-            GisTool.AddHouseToFeatureClass(drawnHouseList, houseFeatureClass);
+            GisTool.addFeatureLayerField(houseFeatureClass, "层数", esriFieldType.esriFieldTypeInteger, 5);
+            GisTool.addFeatureLayerField(houseFeatureClass, "类型", esriFieldType.esriFieldTypeString, 5);
+            GisTool.AddHouseResultToFeatureClass(drawnHouseList, houseFeatureClass);
         }
 
         public void deleteShapeFile(string folder, string layerName)
@@ -508,7 +525,7 @@ namespace Intersect
             return stripedAreaList;
         }
 
-        private void PlaceHouse(stripedRow row, List<IGeometry> drawnHouseList)
+        private void PlaceHouse(stripedRow row, List<_Geometry> drawnHouseList)
         {
             //将房子放在格子中, 如果没有被chosenAreaFeaCls包含, 则不保留.
             double restRowWidth = row.rowWidth; //剩余的行宽.
@@ -529,7 +546,7 @@ namespace Intersect
                     {
                         IPolygon housePolygon = GisTool.MakePolygon(currentPoint.X + _houseList[i].house.width * j,
                             currentPoint.Y, _houseList[i].house.width, commonHouse.height);
-                        drawnHouseList.Add(housePolygon);
+                        drawnHouseList.Add(new _Geometry(housePolygon, _houseList[i]));
                     }
 
                     restRowWidth -= _houseList[i].house.width * _houseList[i].house.unit;

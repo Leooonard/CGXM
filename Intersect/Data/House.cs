@@ -81,7 +81,19 @@ namespace Intersect
             }
         }
 
-        public string name;
+        private string hName;
+        public string name
+        {
+            get
+            {
+                return hName;
+            }
+            set
+            {
+                hName = value;
+                onPropertyChanged("name");
+            }
+        }
 
         public House()
         {
