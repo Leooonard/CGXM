@@ -234,6 +234,18 @@ namespace Intersect
                 return;
             }
 
+            IGeometry tempGeom1, tempGeom2;
+            try
+            {
+                villagePolygonTopologicalOperator.Cut(innerRoadPolyline, out tempGeom1, out tempGeom2);
+            }
+            catch (Exception e)
+            {
+                Tool.M("内部路不合法，请重画。");
+                NotificationHelper.Trigger("unmask");
+                return;
+            }
+
             innerRoadPolyline = villagePolygonTopologicalOperator.Intersect(innerRoadPolyline, esriGeometryDimension.esriGeometry1Dimension) as IPolyline;
 
             if (village.innerRoad != null && village.innerRoad.lineElement != null)
