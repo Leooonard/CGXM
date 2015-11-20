@@ -237,6 +237,7 @@ namespace Intersect
             IGeometry tempGeom1, tempGeom2;
             try
             {
+                villagePolygonTopologicalOperator.Simplify();
                 villagePolygonTopologicalOperator.Cut(innerRoadPolyline, out tempGeom1, out tempGeom2);
             }
             catch (Exception e)

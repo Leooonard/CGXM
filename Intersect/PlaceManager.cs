@@ -83,6 +83,7 @@ namespace Intersect
             tpOp = area.areaGeom as ITopologicalOperator;
             IGeometry polygon1;
             IGeometry polygon2;
+            tpOp.Simplify();
             tpOp.Cut(line, out polygon1, out polygon2);
             IRgbColor color1 = new RgbColorClass();
             color1.Red = 255;
@@ -104,6 +105,7 @@ namespace Intersect
                 ptCol.AddPoint(tempStartPt);
                 ptCol.AddPoint(tempEndPt);
                 tpOp = polygon1 as ITopologicalOperator;
+                tpOp.Simplify();
                 tpOp.Cut(tempLine, out upperHouseArea, out upperRoadHouseArea);
                 tempStartPt.Y -= roadHeight / cosA * 2;
                 tempEndPt.Y -= roadHeight / cosA * 2;
@@ -112,6 +114,7 @@ namespace Intersect
                 ptCol.AddPoint(tempStartPt);
                 ptCol.AddPoint(tempEndPt);
                 tpOp = polygon2 as ITopologicalOperator;
+                tpOp.Simplify();
                 tpOp.Cut(tempLine, out lowerRoadHouseArea, out lowerHouseArea);
             }
             else
@@ -124,6 +127,7 @@ namespace Intersect
                 ptCol.AddPoint(tempStartPt);
                 ptCol.AddPoint(tempEndPt);
                 tpOp = polygon2 as ITopologicalOperator;
+                tpOp.Simplify();
                 tpOp.Cut(tempLine, out upperHouseArea, out upperRoadHouseArea);
                 tempStartPt.Y -= roadHeight / cosA * 2;
                 tempEndPt.Y -= roadHeight / cosA * 2;
@@ -132,6 +136,7 @@ namespace Intersect
                 ptCol.AddPoint(tempStartPt);
                 ptCol.AddPoint(tempEndPt);
                 tpOp = polygon1 as ITopologicalOperator;
+                tpOp.Simplify();
                 tpOp.Cut(tempLine, out lowerRoadHouseArea, out lowerHouseArea);
             }
             //把upperHouseArea, lowerHouseArea细分成条状.
@@ -481,10 +486,12 @@ namespace Intersect
                 IGeometry tempGeom;
                 if (direction)
                 {
+                    tpOp.Simplify();
                     tpOp.Cut(stripLine, out tempGeom, out cutedGeom);
                 }
                 else
                 {
+                    tpOp.Simplify();
                     tpOp.Cut(stripLine, out cutedGeom, out tempGeom);
                 }
                 stripedAreaList.Add(tempGeom);
