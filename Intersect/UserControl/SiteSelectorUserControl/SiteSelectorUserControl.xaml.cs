@@ -42,49 +42,26 @@ namespace Intersect
             return SelectMainRoadUserControl.isFinish() && SelectVillageUserControl.isFinish();
         }
 
-        public void delete()
+        public void clear()
         {
-            SelectMainRoadUserControl.delete();
-            SelectVillageUserControl.delete();
-        }
-
-        public void unInit()
-        {
-            SelectMainRoadUserControl.unInit();
-            SelectVillageUserControl.unInit();
-        }
-
-        private bool initOnced = false;
-        private void initOnce(int programID)
-        {
-            if (initOnced == true)
-            {
-                return;
-            }
-            initOnced = false;
-
-            //放只初始化一次的代码, 比如注册事件.
-            NotificationHelper.Register("SelectMainRoadUserControlRefresh", new NotificationHelper.NotificationEvent(delegate()
-            {
-                SelectVillageUserControl.delete();
-                SelectVillageUserControl.unInit();
-                SelectVillageUserControl.init(programID, mapControl, toolbarControl);
-                NotificationHelper.Trigger("SiteSelectorUserControlRefresh");
-            }));
-
-            NotificationHelper.Register("SelectVillageUserControlRefresh", new NotificationHelper.NotificationEvent(delegate()
-            {
-                NotificationHelper.Trigger("SiteSelectorUserControlRefresh");     
-            }));
+            SelectMainRoadUserControl.clear();
+            SelectVillageUserControl.clear();
         }
 
         public void init(int programID, AxMapControl mc, AxToolbarControl tc)
         {
-            initOnce(programID);
+            //放只初始化一次的代码, 比如注册事件.
+            NotificationHelper.Register("SelectVillageUserControlRefresh", new NotificationHelper.NotificationEvent(delegate()
+            {
+                SelectVillageUserControl.clear();
+                SelectVillageUserControl.refresh();
+                NotificationHelper.Trigger("HousePlacerUserControlRefresh");
+            }));
 
-            Pager.nowStep = 1;
-            Pager.totalStep = 2;
-            Pager.update();
+            NotificationHelper.Register("SelectVillageUserControlFinish", new NotificationHelper.NotificationEvent(delegate()
+            {
+                NotificationHelper.Trigger("HousePlacerUserControlRefresh");
+            }));
 
             Pager.nextStepButtonCheck = nextStepCheckValid;
             Pager.nextStepButtonClick += new EventHandler(nextStepClick);
@@ -97,18 +74,24 @@ namespace Intersect
             SelectMainRoadUserControl.init(programID, mapControl, toolbarControl);
             SelectVillageUserControl.init(programID, mapControl, toolbarControl);
 
-            Thread t = new Thread(delegate()
+            refresh();
+        }
+
+        public void refresh()
+        {
+            Pager.nowStep = 1;
+            Pager.totalStep = 2;
+            Pager.update();
+            SelectMainRoadUserControl.Visibility = System.Windows.Visibility.Visible;
+            SelectVillageUserControl.Visibility = System.Windows.Visibility.Collapsed;
+
+            SelectMainRoadUserControl.refresh();
+            SelectVillageUserControl.refresh();
+
+            if (isFinish())
             {
-                System.Threading.Thread.Sleep(500);
-                Dispatcher.BeginInvoke((ThreadStart)delegate()
-                {
-                    if (isFinish())
-                    {
-                        NotificationHelper.Trigger("SiteSelectorUserControlFinish");
-                    }
-                });
-            });
-            t.Start();
+                NotificationHelper.Trigger("SiteSelectorUserControlFinish");
+            }
         }
 
         private bool onMapControlMouseDown(object sender, IMapControlEvents2_OnMouseDownEvent e)

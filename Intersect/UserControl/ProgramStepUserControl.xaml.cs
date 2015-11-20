@@ -45,19 +45,8 @@ namespace Intersect
             return ConfigUserControl.isFinish() && SiteSelectorUserControl.isFinish();
         }
 
-        private bool initOnced = false;
-        private void initOnce()
-        { 
-            //消息注册等只能执行一次的代码放在这里.
-            if (initOnced)
-            {
-                return;
-            }
-            else
-            {
-                initOnced = true;
-            }
-
+        public void init(int programID, AxMapControl mc, AxToolbarControl tc, AxTOCControl toc)
+        {
             NotificationHelper.Register("ConfigUserControlFinish", new NotificationHelper.NotificationEvent(delegate()
             {
                 TabItem configTabItem = ProgramTabControl.FindName("ConfigTabItem") as TabItem;
@@ -109,38 +98,20 @@ namespace Intersect
                 textBlock.Foreground = new SolidColorBrush(Colors.Black);
             }));
 
-            NotificationHelper.Register("ConfigUserControlRefresh", new NotificationHelper.NotificationEvent(delegate()
-            {
-                SiteSelectorUserControl.delete();
-                SiteSelectorUserControl.unInit();
-                SiteSelectorUserControl.init(program.id, mapControl, toolbarControl);
-
-                HousePlacerUserControl.delete();
-                HousePlacerUserControl.unInit();
-                HousePlacerUserControl.init(program.id, mapControl);
-            }));
-
             NotificationHelper.Register("SiteSelectorUserControlRefresh", new NotificationHelper.NotificationEvent(delegate()
             {
-                HousePlacerUserControl.delete();
-                HousePlacerUserControl.unInit();
-                HousePlacerUserControl.init(program.id, mapControl);
+                SiteSelectorUserControl.clear();
+                SiteSelectorUserControl.refresh();
+
+                HousePlacerUserControl.clear();
+                HousePlacerUserControl.refresh();
             }));
 
             NotificationHelper.Register("HousePlacerUserControlRefresh", new NotificationHelper.NotificationEvent(delegate()
-            { 
-                  
+            {
+                HousePlacerUserControl.clear();
+                HousePlacerUserControl.refresh();
             }));
-        }
-
-        public void unInit()
-        { 
-            
-        }
-
-        public void init(int programID, AxMapControl mc, AxToolbarControl tc, AxTOCControl toc)
-        {
-            initOnce();
 
             program = new Program();
             program.id = programID;
@@ -153,6 +124,17 @@ namespace Intersect
             ConfigUserControl.init(programID, mapControl, tocControl);
             SiteSelectorUserControl.init(programID, mapControl, toolbarControl);
             HousePlacerUserControl.init(programID, mapControl);
+        }
+
+        public void clear()
+        { 
+        }
+
+        public void refresh()
+        {
+            ConfigUserControl.refresh();
+            SiteSelectorUserControl.refresh();
+            HousePlacerUserControl.refresh();
         }
 
         private void ConfigGridMouseDown(object sender, MouseButtonEventArgs e)

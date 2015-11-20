@@ -33,7 +33,6 @@ namespace Intersect
         private HouseShowcaseManager houseShowcaseManager;
 
         private AxMapControl houseMapControl;
-        private AxToolbarControl houseToolbarControl;
 
         public Intersect.ProgramStepUserControl.OnMapControlMouseDown mapControlMouseDown;
         public bool finish = false;
@@ -48,7 +47,38 @@ namespace Intersect
             program = new Program();
             program.id = programID;
             program.select();
+            
+            mapControl = mc;
+            mapControlMouseDown = null;
 
+            load();
+
+            if (finish)
+            {
+                NotificationHelper.Trigger("HousePlacerUserControlFinish");
+            }
+            else
+            {
+                NotificationHelper.Trigger("HousePlacerUserControlUnFinish");
+            }
+        }
+
+        public void refresh()
+        {
+            load();
+
+            if (finish)
+            {
+                NotificationHelper.Trigger("HousePlacerUserControlFinish");
+            }
+            else
+            {
+                NotificationHelper.Trigger("HousePlacerUserControlUnFinish");
+            }
+        }
+
+        private void load()
+        {
             villageList = program.getAllRelatedVillage();
             if (villageList == null)
             {
@@ -74,6 +104,10 @@ namespace Intersect
                         {
                             houseList = new ObservableCollection<House>();
                         }
+                        for (int i = 0; i < houseList.Count; i++)
+                        {
+                            houseList[i].name = NumberToAlphaBeta(i);
+                        }
                         village.houseList = houseList;
                         village.innerRoad = village.getRelatedInnerRoad();
                     }
@@ -81,38 +115,22 @@ namespace Intersect
                 villageList = inUseVillageList;
             }
 
-            mapControl = mc;
-
-            mapControlMouseDown = null;
             HousePlacerListBox.ItemsSource = villageList;
 
-            Thread t = new Thread(delegate()
+            foreach (Village village in villageList)
             {
-                System.Threading.Thread.Sleep(500);
-                Dispatcher.BeginInvoke((ThreadStart)delegate()
+                if (File.Exists(System.IO.Path.Combine(program.path, "摆放结果_" + village.name + ".shp")))
                 {
-                    foreach (Village village in villageList)
-                    {
-                        if (File.Exists(System.IO.Path.Combine(program.path, "摆放结果_" + village.name + ".shp")))
-                        {
-                            PlaceManager placeManager = new PlaceManager(village.commonHouse, new List<House>(village.houseList), mapControl);
-                            placeManager.addShapeFile(program.path, "摆放结果_" + village.name + ".shp", "摆放结果_" + village.name);
-                        }
-                        else
-                        {
-                            return;
-                        }
-                    }
-                    finish = true;
-                    NotificationHelper.Trigger("HousePlacerUserControlFinish");
-                });
-            });
-            t.Start();
-        }
-
-        public void unInit()
-        { 
-            
+                    PlaceManager placeManager = new PlaceManager(village.commonHouse, new List<House>(village.houseList), mapControl);
+                    placeManager.addShapeFile(program.path, "摆放结果_" + village.name + ".shp", "摆放结果_" + village.name);
+                }
+                else
+                {
+                    finish = false;
+                    return;
+                }
+            }
+            finish = true;
         }
 
         public void initAxComponents()
@@ -122,17 +140,10 @@ namespace Intersect
                 return;
             }
             houseMapControl = new AxMapControl();
-            houseToolbarControl = new AxToolbarControl();
             HouseMapHost.Child = houseMapControl;
-            HouseToolbarHost.Child = houseToolbarControl;
-            houseToolbarControl.SetBuddyControl(houseMapControl);
-            if (houseToolbarControl.Count == 0)
-            {
-                houseToolbarControl.AddItem("esriControls.ControlsMapNavigationToolbar");
-            }
         }
 
-        public void delete()
+        public void clear()
         {
             foreach (Village village in villageList)
             {
@@ -164,7 +175,8 @@ namespace Intersect
         private void AddHouseButtonClick(object sender, RoutedEventArgs e)
         {
             Button addHouseButton = sender as Button;
-            StackPanel houseStackPanel = addHouseButton.Parent as StackPanel;
+            Grid grid = addHouseButton.Parent as Grid;
+            StackPanel houseStackPanel = grid.Parent as StackPanel;
             Grid housePlacerGrid = houseStackPanel.Parent as Grid;
             TextBlock villageIDTextBlock = housePlacerGrid.FindName("VillageIDTextBlock") as TextBlock;
             int villageID = Int32.Parse(villageIDTextBlock.Text);
@@ -179,6 +191,10 @@ namespace Intersect
                 if (village.id == villageID)
                 {
                     village.houseList.Add(house);
+                    for (int i = 0; i < village.houseList.Count; i++)
+                    {
+                        village.houseList[i].name = NumberToAlphaBeta(i);
+                    }
                 }
             }
         }
@@ -272,6 +288,47 @@ namespace Intersect
                 placeManager.saveRoad(path);
                 Tool.M("摆放完成");
             }
+        }
+
+        private void DeleteHouseButton_Click(object sender, RoutedEventArgs e)
+        {
+            Button houseDeleteButton = sender as Button;
+            Grid grid = houseDeleteButton.Parent as Grid;
+            grid = grid.Parent as Grid;
+            TextBlock houseIDTextBlock = grid.FindName("HouseIDTextBlock") as TextBlock;
+            int houseID = Int32.Parse(houseIDTextBlock.Text);
+            TextBlock villageIDTextBlock = grid.FindName("VillageIDTextBlock") as TextBlock;
+            int villageID = Int32.Parse(villageIDTextBlock.Text);
+
+            foreach(Village village in villageList)
+            {
+                if (village.id == villageID)
+                {
+                    for (int i = 0; i < village.houseList.Count; i++)
+                    {
+                        if (village.houseList[i].id == houseID)
+                        {
+                            village.houseList[i].delete();
+                            village.houseList.RemoveAt(i);
+                            for (int j = 0; j < village.houseList.Count; j++)
+                            {
+                                village.houseList[j].name = NumberToAlphaBeta(j);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private string NumberToAlphaBeta(int number)
+        {
+            string[] alphaBetaList = new string[] { 
+                "a", "b", "c", "d", "e", "f", "g", "h",
+                "i", "j", "k", "l", "m", "n", "o", "p",
+                "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"
+            };
+
+            return alphaBetaList[number];
         }
     }
 }

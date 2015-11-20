@@ -53,15 +53,7 @@ namespace Intersect
 
         public void unmask()
         {
-            Thread t = new Thread(delegate()
-            {
-                System.Threading.Thread.Sleep(500);
-                this.Dispatcher.BeginInvoke((ThreadStart)delegate()
-                {
-                    ProjectMask.Visibility = System.Windows.Visibility.Collapsed;
-                });
-            });
-            t.Start();
+            ProjectMask.Visibility = System.Windows.Visibility.Collapsed;
         }
 
         public void CloseButton_Click(object sender, RoutedEventArgs e)

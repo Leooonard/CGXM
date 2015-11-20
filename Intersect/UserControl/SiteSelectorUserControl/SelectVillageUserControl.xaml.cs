@@ -43,9 +43,30 @@ namespace Intersect
         public void init(int programID, AxMapControl mc, AxToolbarControl tc)
         {
             villageColorRandomer = new VillageColorRandomer();
+
             program = new Program();
             program.id = programID;
             program.select();
+
+            mapControl = mc;
+            toolbarControl = tc;
+
+            load();
+
+            finish = isValid();
+
+            mapControlMouseDown = null;
+        }
+
+        public void refresh()
+        {
+            load();
+
+            finish = isValid();
+        }
+
+        private void load()
+        {
             villageList = program.getAllRelatedVillage();
             if (villageList == null)
             {
@@ -61,8 +82,6 @@ namespace Intersect
                 }
             }
 
-            mapControl = mc;
-            toolbarControl = tc;
             foreach (Village village in villageList)
             {
                 GisTool.drawPolygonElement(village.polygonElement, mapControl);
@@ -86,9 +105,6 @@ namespace Intersect
                 }
             }
 
-            finish = isValid();
-
-            mapControlMouseDown = null;
             VillageListBox.ItemsSource = villageList;
         }
 
@@ -97,12 +113,7 @@ namespace Intersect
             return finish;
         }
 
-        public void unInit()
-        { 
-            
-        }
-
-        public void delete()
+        public void clear()
         {
             foreach (Village village in villageList)
             {
@@ -114,7 +125,8 @@ namespace Intersect
                     GisTool.ErasePolylineElement(village.innerRoad.lineElement, mapControl);
                 }
             }
-            villageList = new ObservableCollection<Village>();
+
+            villageList = null;
         }
 
         //临时添加
@@ -190,7 +202,7 @@ namespace Intersect
                     village.innerRoad.saveOrUpdate();
                 }
 
-                NotificationHelper.Trigger("SelectVillageUserControlRefresh");
+                NotificationHelper.Trigger("SelectVillageUserControlFinish");
 
                 ModifyButton.Visibility = System.Windows.Visibility.Visible;
                 FinishButton.Visibility = System.Windows.Visibility.Collapsed;

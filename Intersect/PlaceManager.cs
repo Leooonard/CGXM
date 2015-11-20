@@ -92,8 +92,8 @@ namespace Intersect
             color2.Red = 255;
             color2.Green = 0;
             color2.Blue = 255;
-            GisTool.drawPolygon(polygon1, mapControl, color1);
-            GisTool.drawPolygon(polygon2, mapControl, color2);
+            //GisTool.drawPolygon(polygon1, mapControl, color1);
+            //GisTool.drawPolygon(polygon2, mapControl, color2);
             if (startPt.X < endPt.X)
             {
                 //从左至右的线, polygon1在上方.
@@ -155,7 +155,7 @@ namespace Intersect
             if (maxHouseNumber < commonHouse.minNumber)
             {
                 Tool.M("排放失败，放不下。");
-                return false;
+                //return false;
             }
 
             //往stripedrow里填坑.
@@ -169,7 +169,7 @@ namespace Intersect
                 if (_house.count > 0)
                 {
                     Tool.M("排放失败，放不下。");
-                    return false;
+                    //return false;
                 }
             }
 
@@ -515,7 +515,7 @@ namespace Intersect
                     if (_houseList[i].count == 0)
                     {
                         //额度用完了。给下一个房型排。
-                        break;
+                        //break;
                     }
 
                     for (int j = 0; j < _houseList[i].house.unit; j++)

@@ -20,6 +20,7 @@ namespace Intersect
     public partial class NetSizeUserControl : UserControl
     {
         private NetSize netSize;
+        private Program program;
 
         public NetSizeUserControl()
         {
@@ -52,20 +53,27 @@ namespace Intersect
             return true;
         }
 
-        public void unInit()
-        { 
-            
-        }
-
         public void init(int programID)
         {
-            Program program = new Program();
+            program = new Program();
             program.id = programID;
+            program.select();
+
+            load();
+        }
+
+        public void refresh()
+        {
+            load();
+        }
+
+        private void load()
+        {
             netSize = program.getRelatedNetSize();
             if (netSize == null)
             {
                 netSize = new NetSize();
-                netSize.programID = programID;
+                netSize.programID = program.id;
                 netSize.saveWithoutCheck();
                 netSize.id = NetSize.GetLastNetSizeID();
             }

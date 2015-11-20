@@ -16,6 +16,7 @@ using System.Data.SqlClient;
 using System.Collections.ObjectModel;
 using Intersect.Lib;
 using ESRI.ArcGIS.esriSystem;
+using System.Threading;
 
 namespace Intersect
 {
@@ -358,7 +359,7 @@ namespace Intersect
             object dataValues;
 
             pGeoFeatureLayer = (IGeoFeatureLayer)GisTool.getLayerByName(layerName, mapControl);
-            pTable = (ITable)pGeoFeatureLayer;
+           pTable = (ITable)pGeoFeatureLayer;
 
             pTableHistogram = (ITableHistogram)pBasicHistogram;
             pTableHistogram.Field = fieldName;
@@ -405,8 +406,9 @@ namespace Intersect
                 pClassBreaksRender.set_Break(breakIndex, Classes[breakIndex + 1]);
             }
             pGeoFeatureLayer.Renderer = (IFeatureRenderer)pClassBreaksRender;
-            mapControl.ActiveView.Refresh();
+            tocControl.SetBuddyControl(mapControl);
             tocControl.Refresh();
+            mapControl.ActiveView.Refresh();
         }
 
         private delegate bool IntersectFilterResultHandler(IGeometry filteredGeometry, List<Feature> featureList);

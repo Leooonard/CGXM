@@ -133,7 +133,7 @@ namespace Intersect
                     if (programStepUserControl.Visibility == System.Windows.Visibility.Visible)
                     {
                         hideProgramDetailMode(parentStackPanel);
-                        programStepUserControl.unInit();
+                        //programStepUserControl.clear();
                         programStepUserControl = null;
                     }
                     else

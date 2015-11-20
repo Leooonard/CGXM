@@ -30,9 +30,9 @@ namespace Intersect
             InitializeComponent();
         }
 
-        public void unInit()
+        public void clear()
         { 
-        
+            
         }
 
         public void init(int programID)
@@ -45,11 +45,21 @@ namespace Intersect
             project.id = program.projectID;
             project.select();
 
-            ObservableCollection<Label> labelList;
-            ObservableCollection<Condition> tempList;
             restraintConditionList = new ObservableCollection<Condition>();
             standardConditionList = new ObservableCollection<Condition>();
 
+            load();
+        }
+
+        public void refresh()
+        {
+            load();
+        }
+
+        private void load()
+        {
+            ObservableCollection<Label> labelList;
+            ObservableCollection<Condition> tempList;
             tempList = program.getAllRelatedCondition();
             if (tempList.Count == 0)
             {

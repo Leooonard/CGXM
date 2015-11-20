@@ -81,6 +81,8 @@ namespace Intersect
             }
         }
 
+        public string name;
+
         public House()
         {
             hID = Const.ERROR_INT;

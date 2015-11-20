@@ -51,6 +51,21 @@ namespace Intersect
             mapControl = mc;
             toolbarControl = tc;
 
+            mapControlMouseDown = null;
+
+            load();
+
+            finish = isValid();
+        }
+
+        public void refresh()
+        {
+            load();
+            finish = isValid();
+        }
+
+        private void load()
+        {
             mainRoadList = program.getAllRelatedMainRoad();
             if (mainRoadList == null)
             {
@@ -59,18 +74,10 @@ namespace Intersect
 
             foreach (MainRoad mainRoad in mainRoadList)
             {
-                GisTool.DrawPolylineElement(mainRoad.lineElement, mapControl);   
+                GisTool.DrawPolylineElement(mainRoad.lineElement, mapControl);
             }
 
-            finish = isValid();
-
-            mapControlMouseDown = null;
             MainRoadListBox.ItemsSource = mainRoadList;
-        }
-
-        public void unInit()
-        { 
-            
         }
 
         public bool isFinish()
@@ -121,7 +128,7 @@ namespace Intersect
             };
         }
 
-        public void delete()
+        public void clear()
         {
             for (int i = 0; i < mainRoadList.Count; i++)
             {
@@ -129,6 +136,8 @@ namespace Intersect
                 GisTool.ErasePolylineElement(mainRoad.lineElement, mapControl);
                 mainRoad.delete();
             }
+
+            mainRoadList = null;
         }
 
         private void DeleteMainRoadButtonClick(object sender, RoutedEventArgs e)
@@ -284,7 +293,7 @@ namespace Intersect
             GisTool.DeleteShapeFile(System.IO.Path.Combine(program.path, SiteSelectorUserControl.VILLAGE_AREA_SHP_NAME));
 
             //5. 更新后续数据.
-            NotificationHelper.Trigger("SelectMainRoadUserControlRefresh");
+            NotificationHelper.Trigger("SelectVillageUserControlRefresh");
         }
     }
 }

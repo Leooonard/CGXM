@@ -37,12 +37,6 @@ namespace Intersect
             InitializeComponent();
         }
 
-        public void unInit()
-        {
-            NetSizeUserControl.unInit();
-            ConditionUserControl.unInit();
-        }
-
         public void init(int programID, AxMapControl mc, AxTOCControl tc)
         {
             program = new Program();                
@@ -62,29 +56,31 @@ namespace Intersect
             finish = false;
 
             //在初始化时就要对valid进行判断.
-            Thread t = new Thread(delegate()
+            if (isValid())
             {
-                System.Threading.Thread.Sleep(500);
-                Dispatcher.BeginInvoke((ThreadStart)delegate()
+                finish = true;
+                NotificationHelper.Trigger("ConfigUserControlFinish");
+                SiteSelector siteSelector = new SiteSelector(mapControl, tocControl, program.id);
+                try
                 {
-                    if (isValid())
-                    {
-                        finish = true;
-                        NotificationHelper.Trigger("ConfigUserControlFinish");
-                        SiteSelector siteSelector = new SiteSelector(mapControl, tocControl, program.id);
-                        try
-                        {
-                            siteSelector.addShapeFile("评价结果.shp", "评价结果");
-                        }
-                        catch(Exception shpFileException)
-                        {
-                            //可能存在数据库中数据正确, 但是shpfile不见的情况. 这种情况下, 重新计算一遍.
-                            siteSelector.startSelectSite();
-                        }
-                    }
-                });
-            });
-            t.Start();
+                    siteSelector.addShapeFile("评价结果.shp", "评价结果");
+                }
+                catch (Exception shpFileException)
+                {
+                    //可能存在数据库中数据正确, 但是shpfile不见的情况. 这种情况下, 重新计算一遍.
+                    siteSelector.startSelectSite();
+                }
+            }
+        }
+
+        public void refresh()
+        {
+
+        }
+
+        private void load()
+        { 
+            
         }
 
         public bool isFinish()
@@ -110,7 +106,7 @@ namespace Intersect
 
                 finish = true;
                 NotificationHelper.Trigger("ConfigUserControlFinish");
-                NotificationHelper.Trigger("ConfigUserControlRefresh");
+                NotificationHelper.Trigger("SiteSelectorUserControlRefresh");
                 save();
 
                 //开始计算.
