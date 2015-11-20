@@ -6,6 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:wi="clr-namespace:System.Windows.Forms.Integration;assembly=WindowsFormsIntegration"
     xmlns:cls="clr-namespace:Intersect" Width="1000" Height="768"
+    Title="村镇区域空间布局优化情景仿真软件"
 >
 
     <Window.Resources>
