@@ -31,7 +31,7 @@ namespace Intersect
         private Program program;
         private ObservableCollection<Village> villageList;
         private AxMapControl mapControl;
-        private HouseShowcaseManager houseShowcaseManager;
+        //private HouseShowcaseManager houseShowcaseManager;
 
         private AxMapControl houseMapControl;
 

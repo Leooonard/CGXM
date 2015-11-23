@@ -63,6 +63,12 @@ namespace Intersect
                 NotificationHelper.Trigger("HousePlacerUserControlRefresh");
             }));
 
+            Pager.nowStep = 1;
+            Pager.totalStep = 2;
+            Pager.update();
+            SelectMainRoadUserControl.Visibility = System.Windows.Visibility.Visible;
+            SelectVillageUserControl.Visibility = System.Windows.Visibility.Collapsed;
+
             Pager.nextStepButtonCheck = nextStepCheckValid;
             Pager.nextStepButtonClick += new EventHandler(nextStepClick);
             Pager.previewStepButtonClick += new EventHandler(previewStepClick);
@@ -74,7 +80,10 @@ namespace Intersect
             SelectMainRoadUserControl.init(programID, mapControl, toolbarControl);
             SelectVillageUserControl.init(programID, mapControl, toolbarControl);
 
-            refresh();
+            if (isFinish())
+            {
+                NotificationHelper.Trigger("SiteSelectorUserControlFinish");
+            }
         }
 
         public void refresh()

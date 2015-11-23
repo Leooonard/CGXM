@@ -111,13 +111,6 @@ namespace Intersect
 
         private void AddMainRoadButtonClick(object sender, RoutedEventArgs e)
         {
-            MainRoad mainRoad = new MainRoad();
-            mainRoad.programID = program.id;
-            mainRoad.saveWithoutCheck();
-            mainRoad.id = MainRoad.GetLastMainRoadID();
-            mainRoad.name = "主路#" + mainRoad.id.ToString();
-            mainRoadList.Add(mainRoad);
-
             //把左栏遮盖, 让用户在右侧画线.
             NotificationHelper.Trigger("mask");
             mapControlMouseDown = delegate(object sender2, IMapControlEvents2_OnMouseDownEvent e2)
@@ -172,11 +165,19 @@ namespace Intersect
                 Tool.M("画主路出现错误，请重画。");
                 return onMapControlMouseDown();
             }
+            MainRoad mainRoad = new MainRoad();
+            mainRoad.programID = program.id;
+            mainRoad.saveWithoutCheck();
+            mainRoad.id = MainRoad.GetLastMainRoadID();
+            mainRoad.name = "主路#" + mainRoad.id.ToString();
+            mainRoadList.Add(mainRoad);
+
             ILineElement mainRoadLineElement = new LineElementClass();
             IElement element = mainRoadLineElement as IElement;
             element.Geometry = mainRoadPolyline;
             mainRoadList[mainRoadList.Count - 1].lineElement = mainRoadLineElement;
             mainRoadList[mainRoadList.Count - 1].updatePath();
+            mainRoadList[mainRoadList.Count - 1].update();
             GisTool.DrawPolylineElement(mainRoadLineElement, mapControl);
             mapControlMouseDown = null;
             NotificationHelper.Trigger("unmask");
