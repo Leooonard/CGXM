@@ -148,6 +148,7 @@ namespace Intersect
             projectWindow.mask();
             if (check() == Const.ERROR_INT)
             {
+                projectWindow.unmask();
                 return Const.ERROR_INT;
             }
             Tool.M("系统将创建工作目录，请保证当前地图文件目录不移动。");
