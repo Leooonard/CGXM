@@ -58,7 +58,7 @@ namespace Intersect
             _houseList = new List<_House>();
             foreach (House house in hList)
             {
-                _House _house = new _House(house, (int)(commonHouse.minNumber * house.weight / totalWeight), commonHouse);
+                _House _house = new _House(house, (int)(house.weight / totalWeight), commonHouse);
                 _houseList.Add(_house);
             }
             //由小到大排序.
@@ -171,11 +171,6 @@ namespace Intersect
                 stripedRowList[i].formatRow();
             }
             double maxHouseNumber = caculateMaxHouseNumber(stripedRowList);
-            if (maxHouseNumber < commonHouse.minNumber)
-            {
-                Tool.M("排放失败，放不下。");
-                //return false;
-            }
 
             //往stripedrow里填坑.
             drawnHouseList = new List<_Geometry>();
@@ -228,7 +223,7 @@ namespace Intersect
             {
                 houseWidthList.Add(_house.house.width * _house.house.unit);
             }
-            double horizontalGap = commonHouse.horizontalGap;
+            double horizontalGap = 0;
 
             List<double> resultList = new List<double>();
             for (int i = 0; i < houseWidthList.Count; i++)
@@ -553,16 +548,8 @@ namespace Intersect
                     currentPoint.X += _houseList[i].house.width * _houseList[i].house.unit;
                     _houseList[i].count--;
 
-                    if (restRowWidth >= commonHouse.horizontalGap)
-                    {
-                        restRowWidth -= commonHouse.horizontalGap;
-                        currentPoint.X += commonHouse.horizontalGap;
-                    }
-                    else
-                    { 
-                        //放不下一个间距了，这个stripedrow排放结束。
-                        return;
-                    }
+                    Tool.M("这里的代码还没有修改，不要使用。");
+                    return;
                 }
             }
         }
@@ -582,11 +569,13 @@ namespace Intersect
             double restRowWidth = row.rowWidth; //剩余的行宽.
             IPoint currentPoint = row.lowerLeftPt; //开始的左下角.
             int round = 0;
-            while (restRowWidth > commonHouse.horizontalGap + tempHouseList[tempHouseList.Count - 1].width)
+            Tool.M("这里的代码还没有修改，不要使用");
+            return;
+            while (restRowWidth > tempHouseList[tempHouseList.Count - 1].width)
             {
                 while (true)
                 {
-                    if (commonHouse.horizontalGap + tempHouseList[0].width > restRowWidth)
+                    if (tempHouseList[0].width > restRowWidth)
                     {
                         tempHouseList.RemoveAt(0);
                         round = 0;
