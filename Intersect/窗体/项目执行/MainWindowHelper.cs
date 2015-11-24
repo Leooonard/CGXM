@@ -42,6 +42,11 @@ namespace Intersect
                 {
                     createProgram();
                 });
+
+            mainWindow.deleteProgramButtonClickEventHandler += new EventHandler(delegate(object sender, EventArgs e)
+                {
+                    deleteProgram(sender, e);
+                });
             mainWindow.programNameTextBlockMouseDownEventHandler += new MouseButtonEventHandler(delegate(object sender, MouseButtonEventArgs e)
                 {
                     if (e.ClickCount == 2)
@@ -115,9 +120,30 @@ namespace Intersect
             programList.Add(program);
         }
 
+        //先只删除数据库，不删除文件夹。文件夹删了会报错，以后找解决方案。
+        private void deleteProgram(object sender, EventArgs e)
+        {
+            if (!Tool.C("确定删除该方案？"))
+            {
+                return;
+            }
+            Image deleteProgramButton = sender as Image;
+            int programID = Int32.Parse(deleteProgramButton.Tag.ToString());
+            foreach (Program program in programList)
+            {
+                if (program.id == programID)
+                {
+                    program.delete();
+                    programList.Remove(program);
+                    return;
+                }
+            }
+
+        }
+
         private void programDetailMode(StackPanel parentStackPanel)
         {
-            mainWindow.mask();
+            NotificationHelper.Trigger("mask");
             Thread t = new Thread(delegate()
             {
                 mainWindow.Dispatcher.BeginInvoke((ThreadStart)delegate()
@@ -150,7 +176,7 @@ namespace Intersect
                         initProgramDetailMode(programStepUserControl, programID);
                     }
 
-                    mainWindow.unmask();
+                    NotificationHelper.Trigger("unmask");
                 });
             });
             t.Start();

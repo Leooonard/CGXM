@@ -174,7 +174,7 @@
                                         <Button Grid.Column="1" Name="ProgramNameButton" Style="{StaticResource OperationButton_Small}" Height="30" Click="ProgramNameButtonClick">完成</Button>
                                     </Grid>
                                     <StackPanel Grid.Column="1">
-                                        <Image Source="/Image/cancel.png" Width="15" Height="20" Name="DeleteProgramButton">
+                                        <Image Tag="{Binding ElementName=ProgramIDTextBlock, Path=Text, Mode=OneWay}"  Source="/Image/cancel.png" Width="15" Height="20" Name="DeleteProgramButton" MouseDown="DeleteProgramButton_Click">
                                             <Image.Visibility>
                                                 <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorLevel=1, AncestorType={x:Type ListBoxItem}}" Path="IsMouseOver">
                                                     <Binding.Converter>

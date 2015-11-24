@@ -46,31 +46,11 @@ namespace Intersect
         public AxToolbarControl toolbarControl;
         public AxTOCControl tocControl;
         private Geoprocessor gp;
-        private bool chosenAreaFlag = true;
-        private int projectAndMapID; //指现在被光标选中的pm.
-        private int chosenProjectAndMapID; //指当前programlist所属的pm.
-        private int programID;
-        private Project projectAndMap;
-        private List<Feature> siteSelectResultArray; //将记录每次选址之后的结果.
-        private string lastFocusedFormName;
-        private List<ListBoxItem> projectAndMapListItemList;
-        private bool divideAreaFlag = true;
-        private List<Condition> conditionList;
-        private List<string> mapLayerNameList;
-        private ObservableCollection<Project> projectAndMapList;
-        private ObservableCollection<Program> programList;
-        private ObservableCollection<House> houseList;
-        private CommonHouse commonHouse;
-
-        private int configId;
-        private Exception exp;
 
         public event EventHandler createProgramButtonClickEventHandler;
+        public event EventHandler deleteProgramButtonClickEventHandler;
         public event MouseButtonEventHandler programNameTextBlockMouseDownEventHandler;
         public event EventHandler programNameButtonClickEventHandler;
-        public event MouseButtonEventHandler configGridMouseDownEventHandler;
-        public event MouseButtonEventHandler siteSelectorGridMouseDownEventHandler;
-        public event MouseButtonEventHandler housePlaceGridMouseDownEventHandler;
         
         public MainWindow()
         {
@@ -80,38 +60,15 @@ namespace Intersect
             toolbarControl = new AxToolbarControl();
             tocControl = new AxTOCControl();
 
-            chosenAreaFlag = false;
-            conditionList = new List<Condition>();
-
-            projectAndMapListItemList = new List<ListBoxItem>();
-            //configIns = new config(this);
-
             //注册mask，unmask事件。
             NotificationHelper.Register("mask", new NotificationHelper.NotificationEvent(delegate()
                 {
-                    mask();
+                    ProgramListMask.Visibility = System.Windows.Visibility.Visible;
                 }));
             NotificationHelper.Register("unmask", new NotificationHelper.NotificationEvent(delegate() 
                 {
-                    unmask();
+                    ProgramListMask.Visibility = System.Windows.Visibility.Collapsed;
                 }));
-        }
-
-        public void mask()
-        {
-            ProgramListMask.Visibility = System.Windows.Visibility.Visible;
-        }
-
-        public void unmask()
-        {
-            ProgramListMask.Visibility = System.Windows.Visibility.Collapsed;
-        }
-
-        private void UpdateProgramList()
-        {
-            Sql sqlIns = new Sql();
-            List<Program> list = sqlIns.SelectAllProgramByPmID(chosenProjectAndMapID);
-            ProgramList.ItemsSource = list;
         }
 
         public bool checkMap(string path)
@@ -140,54 +97,6 @@ namespace Intersect
             tocHost.Child = tocControl;
         }
 
-        private void ProjectAndMapStackPanel_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            int clickCount = e.ClickCount;
-            StackPanel stackPanel = sender as StackPanel;
-            TextBlock textBlock = stackPanel.FindName("ProjectAndMapID") as TextBlock;
-            projectAndMapID = Int32.Parse(textBlock.Text);
-            if (clickCount == 1)
-            {
-            }
-            else if (clickCount == 2)
-            {
-                //双击时的逻辑.
-                //通过pmID查询相关的所有config, 放入列表.
-                chosenProjectAndMapID = projectAndMapID;
-                Thread t = new Thread(delegate()
-                {
-                    System.Threading.Thread.Sleep(500);
-                    this.Dispatcher.BeginInvoke((ThreadStart)delegate()
-                    {
-                        projectAndMap = new Project();
-                        projectAndMap.id = chosenProjectAndMapID;
-                        projectAndMap.select();
-                        programList = projectAndMap.getAllRelatedProgram();
-                        ProgramList.ItemsSource = programList;
-
-                        ProgramListTitle.Text = projectAndMap.name + "-方案列表";
-
-                        CreateProgramButton.IsEnabled = true;
-                    });
-                });
-                t.Start();
-            }
-        }
-
-        private void HideMapControl()
-        {
-            mapHost.Visibility = System.Windows.Visibility.Hidden;
-            toolbarHost.Visibility = System.Windows.Visibility.Hidden;
-            tocHost.Visibility = System.Windows.Visibility.Hidden;
-        }
-
-        private void ShowMapControl()
-        {
-            mapHost.Visibility = System.Windows.Visibility.Visible;
-            toolbarHost.Visibility = System.Windows.Visibility.Visible;
-            tocHost.Visibility = System.Windows.Visibility.Visible;
-        }
-
         private List<string> getMaplayerNameList(AxMapControl mapControl)
         {
             List<string> mapLayerNameList = new List<string>();
@@ -212,28 +121,6 @@ namespace Intersect
             return mapLayerNameList;
         }
 
-        private void ConfigGrid_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            Grid grid = sender as Grid;
-            TextBlock textBlock = grid.FindName("ConditionIDTextBlock") as TextBlock;
-            int conditionID = Int32.Parse(textBlock.Text);
-            Condition condition = new Condition();
-            condition.id = conditionID;
-            condition.select();
-
-            //将地图中对应的那层进行单独显示.
-
-            //先隐藏所有层.
-            GisTool.HideAllLayerInMap(mapControl);
-
-            //依靠名字找层, 再显示.
-            string layerName = mapLayerNameList[condition.labelID];
-            ILayer layer = GisTool.getLayerByName(layerName, mapControl);
-            layer.Visible = true;
-
-            mapControl.ActiveView.Refresh();
-        }
-
         private void CreateProgramButtonClick(object sender, RoutedEventArgs e)
         {
             createProgramButtonClickEventHandler(sender, e);
@@ -241,52 +128,7 @@ namespace Intersect
 
         private void DeleteProgramButton_Click(object sender, RoutedEventArgs e)
         {
-            Sql sqlIns = new Sql();
-            if (sqlIns.DeleteProgramByID(programID))
-            {
-                Tool.M("删除成功");
-                UpdateProgramList();
-            }
-            else
-            {
-                Tool.M("删除失败");
-            }
-        }
-
-        private void PrintRestrainAndStandardTextBlack(StackPanel stackPanel)
-        {
-            StackPanel restraintStackPanel = stackPanel.FindName("RestrainConfigStackPanel") as StackPanel;
-            StackPanel standardStackPanel = stackPanel.FindName("StandardConfigStackPanel") as StackPanel;
-            for (int i = 0; i < restraintStackPanel.Children.Count; i++)
-            {
-                Grid grid = restraintStackPanel.Children[i] as Grid;
-                TextBlock textBlock = grid.Children[0] as TextBlock;
-                textBlock.Foreground = new SolidColorBrush(Colors.Black);
-                textBlock.FontWeight = FontWeights.Normal;
-            }
-            for (int i = 0; i < standardStackPanel.Children.Count; i++)
-            {
-                Grid grid = standardStackPanel.Children[i] as Grid;
-                TextBlock textBlock = grid.Children[0] as TextBlock;
-                textBlock.Foreground = new SolidColorBrush(Colors.Black);
-                textBlock.FontWeight = FontWeights.Normal;
-            }
-        }
-
-        private void HouseListItem_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            Grid grid = sender as Grid;
-            StackPanel stackPanel = grid.Parent as StackPanel;
-            TextBlock textBlock = stackPanel.FindName("ID") as TextBlock;
-            int hID = Int32.Parse(textBlock.Text);
-            House house = new House();
-            foreach (House h in houseList)
-            {
-                if (hID == h.id)
-                {
-                    house = h;
-                }
-            }
+            deleteProgramButtonClickEventHandler(sender, e);
         }
 
         private LinearGradientBrush defaultTextBoxBorderBrush = null;
@@ -301,22 +143,5 @@ namespace Intersect
             if (programNameButtonClickEventHandler != null)
                 programNameButtonClickEventHandler(sender, e);
         }
-
-        private void ConfigGridMouseDown(object sender, MouseButtonEventArgs e)
-        {
-            configGridMouseDownEventHandler(sender, e);
-        }
-
-        private void SiteSelectorGridMouseDown(object sender, MouseButtonEventArgs e)
-        {
-            siteSelectorGridMouseDownEventHandler(sender, e);
-        }
-
-        private void HousePlaceGridMouseDown(object sender, MouseButtonEventArgs e)
-        {
-            housePlaceGridMouseDownEventHandler(sender, e);
-        }
-
-        
     }
 }
