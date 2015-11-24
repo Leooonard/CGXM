@@ -60,6 +60,7 @@ namespace Intersect
 
             NotificationHelper.Register("SelectVillageUserControlFinish", new NotificationHelper.NotificationEvent(delegate()
             {
+                NotificationHelper.Trigger("SiteSelectorUserControlFinish");
                 NotificationHelper.Trigger("HousePlacerUserControlRefresh");
             }));
 
