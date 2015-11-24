@@ -213,8 +213,10 @@ namespace Intersect
                 Tool.M("主路没有构成完整区域，请重试。");
                 return;
             }
+            NotificationHelper.Trigger("mask");
             if(!Tool.C("继续操作会清空之后的数据, 是否继续?"))
             {
+                NotificationHelper.Trigger("unmask");
                 return;
             }
 
@@ -245,6 +247,7 @@ namespace Intersect
                 GisTool.DeleteShapeFile(System.IO.Path.Combine(program.path, SiteSelectorUserControl.MAINROAD_LIST_SHP_NAME));
                 GisTool.DeleteShapeFile(System.IO.Path.Combine(program.path, SiteSelectorUserControl.VILLAGE_AREA_SHP_NAME));
 
+                NotificationHelper.Trigger("unmask");
                 return;
             }
 
@@ -295,6 +298,8 @@ namespace Intersect
 
             //5. 更新后续数据.
             NotificationHelper.Trigger("SelectVillageUserControlRefresh");
+
+            NotificationHelper.Trigger("unmask");
         }
     }
 }

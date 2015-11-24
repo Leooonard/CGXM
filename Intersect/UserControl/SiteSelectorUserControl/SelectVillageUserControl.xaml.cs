@@ -189,8 +189,10 @@ namespace Intersect
         {
             if (isValid())
             {
+                NotificationHelper.Trigger("mask");
                 if (!Tool.C("继续操作会清空之后的数据, 是否继续?"))
                 {
+                    NotificationHelper.Trigger("unmask");
                     return;
                 }
 
@@ -207,6 +209,8 @@ namespace Intersect
                 ModifyButton.Visibility = System.Windows.Visibility.Visible;
                 FinishButton.Visibility = System.Windows.Visibility.Collapsed;
                 VillageListBox.IsEnabled = false;
+
+                NotificationHelper.Trigger("unmask");
             }
             else
             {
