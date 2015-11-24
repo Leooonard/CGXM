@@ -84,37 +84,38 @@ namespace Intersect
             if (villageList == null)
             {
                 villageList = new ObservableCollection<Village>();
+                HousePlacerListBox.ItemsSource = villageList;
+                finish = false;
+                return;
             }
-            else
+
+            ObservableCollection<Village> inUseVillageList = new ObservableCollection<Village>();
+            foreach (Village village in villageList)
             {
-                ObservableCollection<Village> inUseVillageList = new ObservableCollection<Village>();
-                foreach (Village village in villageList)
+                if (village.inUse)
                 {
-                    if (village.inUse)
+                    inUseVillageList.Add(village);
+                    CommonHouse commonHouse = village.getRelatedCommonHouse();
+                    if (commonHouse == null)
                     {
-                        inUseVillageList.Add(village);
-                        CommonHouse commonHouse = village.getRelatedCommonHouse();
-                        if (commonHouse == null)
-                        {
-                            commonHouse = CommonHouse.GetDefaultCommonHouse();
-                            commonHouse.villageID = village.id;
-                        }
-                        village.commonHouse = commonHouse;
-                        ObservableCollection<House> houseList = village.getAllRelatedHouse();
-                        if (houseList == null)
-                        {
-                            houseList = new ObservableCollection<House>();
-                        }
-                        for (int i = 0; i < houseList.Count; i++)
-                        {
-                            houseList[i].name = "户型" + NumberToAlphaBeta(i);
-                        }
-                        village.houseList = houseList;
-                        village.innerRoad = village.getRelatedInnerRoad();
+                        commonHouse = CommonHouse.GetDefaultCommonHouse();
+                        commonHouse.villageID = village.id;
                     }
+                    village.commonHouse = commonHouse;
+                    ObservableCollection<House> houseList = village.getAllRelatedHouse();
+                    if (houseList == null)
+                    {
+                        houseList = new ObservableCollection<House>();
+                    }
+                    for (int i = 0; i < houseList.Count; i++)
+                    {
+                        houseList[i].name = "户型" + NumberToAlphaBeta(i);
+                    }
+                    village.houseList = houseList;
+                    village.innerRoad = village.getRelatedInnerRoad();
                 }
-                villageList = inUseVillageList;
             }
+            villageList = inUseVillageList;
 
             HousePlacerListBox.ItemsSource = villageList;
 
