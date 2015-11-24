@@ -95,10 +95,25 @@ namespace Intersect
             }
         }
 
+        private double hLandWidth;
+        public double landWidth
+        {
+            get
+            {
+                return hLandWidth;
+            }
+            set
+            {
+                hLandWidth = value;
+                onPropertyChanged("landWidth");
+            }
+        }
+
         public House()
         {
             hID = Const.ERROR_INT;
             hWidth = Const.ERROR_DOUBLE;
+            hLandWidth = Const.ERROR_DOUBLE;
             vID = Const.ERROR_INT;
             hUnit = Const.ERROR_INT;
         }
@@ -107,6 +122,7 @@ namespace Intersect
         {
             House house = new House();
             house.width = Const.DEFAULT_NUMBER_VALUE;
+            house.landWidth = Const.DEFAULT_NUMBER_VALUE;
             house.unit = Const.DEFAULT_NUMBER_VALUE;
             return house;
         }
@@ -121,9 +137,9 @@ namespace Intersect
             {
                 return Const.INNER_ERROR_TIP;
             }
-            if (!shieldVariableList.Contains("width") && hWidth <= 0)
+            if (!shieldVariableList.Contains("width") && hWidth <= 0 || hWidth > hLandWidth)
             {
-                return "户型面宽须大于0";
+                return "户型面宽须大于0，且小于宅基地面宽";
             }
             if (!shieldVariableList.Contains("villageID") && vID == Const.ERROR_INT)
             {
@@ -132,6 +148,10 @@ namespace Intersect
             if (!shieldVariableList.Contains("unit") && hUnit <= 0)
             {
                 return "户型拼数须大于0";
+            }
+            if (!shieldVariableList.Contains("landWidth") && hLandWidth <= hWidth)
+            {
+                return "宅基地面块必须大于户型面宽";
             }
             return "";
         }
@@ -146,7 +166,7 @@ namespace Intersect
             {
                 return false;
             }
-            if (!shieldVariableList.Contains("hWidth") && hWidth <= 0)
+            if (!shieldVariableList.Contains("hWidth") && hWidth <= 0 || hWidth > hLandWidth)
             {
                 return false;
             }
@@ -158,6 +178,10 @@ namespace Intersect
             {
                 return false;
             }
+            if (!shieldVariableList.Contains("hLandWidth") && hLandWidth <= hWidth)
+            {
+                return false;
+            }
             return true;
         }
 
@@ -165,16 +189,16 @@ namespace Intersect
         {
             if (!isValid(new List<string>() { "hID"}))
                 return false;
-            string sqlCommand = String.Format(@"insert into House (hWidth,vID,hUnit,hWeight) values ({0},{1},{2},{3})"
-                , hWidth, vID, hUnit, hWeight);
+            string sqlCommand = String.Format(@"insert into House (hWidth,vID,hUnit,hWeight,hLandWidth) values ({0},{1},{2},{3},{4})"
+                , hWidth, vID, hUnit, hWeight, hLandWidth);
             Sql sql = new Sql();
             return sql.insertHouse(sqlCommand);
         }
 
         public bool saveWithoutCheck()
         {
-            string sqlCommand = String.Format(@"insert into House (hWidth,vID,hUnit,hWeight) values ({0},{1},{2},{3})"
-                , hWidth, vID, hUnit, hWeight);
+            string sqlCommand = String.Format(@"insert into House (hWidth,vID,hUnit,hWeight,hLandWidth) values ({0},{1},{2},{3},{4})"
+                , hWidth, vID, hUnit, hWeight, hLandWidth);
             Sql sql = new Sql();
             return sql.insertHouse(sqlCommand);
         }
@@ -183,8 +207,8 @@ namespace Intersect
         {
             if (!isValid())
                 return false;
-            string sqlCommand = String.Format(@"update House set hWidth={0},vID={1},hUnit={2},hWeight={3} where hID={4}"
-                , hWidth, vID, hUnit, hWeight, hID);
+            string sqlCommand = String.Format(@"update House set hWidth={0},vID={1},hUnit={2},hWeight={3},hLandWidth={4} where hID={5}"
+                , hWidth, vID, hUnit, hWeight, hLandWidth, hID);
             Sql sql = new Sql();
             return sql.updateHouse(sqlCommand);
         }
@@ -218,6 +242,7 @@ namespace Intersect
             hWidth = Double.Parse(reader[2].ToString());
             hUnit = Int32.Parse(reader[3].ToString());
             hWeight = Double.Parse(reader[4].ToString());
+            hLandWidth = Double.Parse(reader[5].ToString());
         }
 
         public override bool select()
