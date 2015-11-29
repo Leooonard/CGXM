@@ -46,7 +46,7 @@ namespace Intersect
             }
             set
             {
-                fScore = value;
+                fScore = Double.Parse(value.ToString("F3"));
                 onPropertyChanged("score");
             }
         }

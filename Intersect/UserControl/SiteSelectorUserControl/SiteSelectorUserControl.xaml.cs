@@ -85,6 +85,10 @@ namespace Intersect
             {
                 NotificationHelper.Trigger("SiteSelectorUserControlFinish");
             }
+            else
+            {
+                NotificationHelper.Trigger("SiteSelectorUserControlUnFinish");                
+            }
         }
 
         public void refresh()
@@ -101,6 +105,10 @@ namespace Intersect
             if (isFinish())
             {
                 NotificationHelper.Trigger("SiteSelectorUserControlFinish");
+            }
+            else
+            {
+                NotificationHelper.Trigger("SiteSelectorUserControlUnFinish");                
             }
         }
 

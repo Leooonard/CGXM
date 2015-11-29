@@ -109,6 +109,30 @@ namespace Intersect
             }
         }
 
+        private double hArea;
+        public double area
+        {
+            get
+            {
+                return hArea;
+            }
+            set
+            {
+                hArea = value;
+                onPropertyChanged("area");
+            }
+        }
+
+        public void updateAreaWidth(double landHeight)
+        {
+            if (landHeight <= 0 || hArea == Const.ERROR_DOUBLE)
+            {
+                hLandWidth = Const.ERROR_DOUBLE;
+                return;
+            }
+            hLandWidth = hArea / landHeight;
+        }
+
         public House()
         {
             hID = Const.ERROR_INT;
@@ -116,6 +140,7 @@ namespace Intersect
             hLandWidth = Const.ERROR_DOUBLE;
             vID = Const.ERROR_INT;
             hUnit = Const.ERROR_INT;
+            hArea = Const.ERROR_DOUBLE;
         }
 
         public static House GetDefaultHouse()
@@ -124,6 +149,7 @@ namespace Intersect
             house.width = Const.DEFAULT_NUMBER_VALUE;
             house.landWidth = Const.DEFAULT_NUMBER_VALUE;
             house.unit = Const.DEFAULT_NUMBER_VALUE;
+            house.area = Const.DEFAULT_NUMBER_VALUE;
             return house;
         }
 
@@ -139,7 +165,7 @@ namespace Intersect
             }
             if (!shieldVariableList.Contains("width") && hWidth <= 0 || hWidth > hLandWidth)
             {
-                return "户型面宽须大于0，且小于宅基地面宽";
+                return "住宅面宽须大于0，且小于等于宅基地面宽";
             }
             if (!shieldVariableList.Contains("villageID") && vID == Const.ERROR_INT)
             {
@@ -149,9 +175,9 @@ namespace Intersect
             {
                 return "户型拼数须大于0";
             }
-            if (!shieldVariableList.Contains("landWidth") && hLandWidth <= hWidth)
+            if (!shieldVariableList.Contains("landWidth") && hLandWidth < hWidth)
             {
-                return "宅基地面块必须大于户型面宽";
+                return "宅基地面块必须大于等于住宅面宽";
             }
             return "";
         }
@@ -189,16 +215,16 @@ namespace Intersect
         {
             if (!isValid(new List<string>() { "hID"}))
                 return false;
-            string sqlCommand = String.Format(@"insert into House (hWidth,vID,hUnit,hWeight,hLandWidth) values ({0},{1},{2},{3},{4})"
-                , hWidth, vID, hUnit, hWeight, hLandWidth);
+            string sqlCommand = String.Format(@"insert into House (hWidth,vID,hUnit,hWeight,hLandWidth,hArea) values ({0},{1},{2},{3},{4},{5})"
+                , hWidth, vID, hUnit, hWeight, hLandWidth, hArea);
             Sql sql = new Sql();
             return sql.insertHouse(sqlCommand);
         }
 
         public bool saveWithoutCheck()
         {
-            string sqlCommand = String.Format(@"insert into House (hWidth,vID,hUnit,hWeight,hLandWidth) values ({0},{1},{2},{3},{4})"
-                , hWidth, vID, hUnit, hWeight, hLandWidth);
+            string sqlCommand = String.Format(@"insert into House (hWidth,vID,hUnit,hWeight,hLandWidth,hArea) values ({0},{1},{2},{3},{4},{5})"
+                , hWidth, vID, hUnit, hWeight, hLandWidth, hArea);
             Sql sql = new Sql();
             return sql.insertHouse(sqlCommand);
         }
@@ -207,8 +233,8 @@ namespace Intersect
         {
             if (!isValid())
                 return false;
-            string sqlCommand = String.Format(@"update House set hWidth={0},vID={1},hUnit={2},hWeight={3},hLandWidth={4} where hID={5}"
-                , hWidth, vID, hUnit, hWeight, hLandWidth, hID);
+            string sqlCommand = String.Format(@"update House set hWidth={0},vID={1},hUnit={2},hWeight={3},hLandWidth={4},hArea={5} where hID={6}"
+                , hWidth, vID, hUnit, hWeight, hLandWidth, hArea, hID);
             Sql sql = new Sql();
             return sql.updateHouse(sqlCommand);
         }
@@ -243,6 +269,7 @@ namespace Intersect
             hUnit = Int32.Parse(reader[3].ToString());
             hWeight = Double.Parse(reader[4].ToString());
             hLandWidth = Double.Parse(reader[5].ToString());
+            hArea = Double.Parse(reader[6].ToString());
         }
 
         public override bool select()

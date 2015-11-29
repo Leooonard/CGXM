@@ -174,6 +174,15 @@ namespace Intersect
             }
         }
 
+        public static IPolyline makePolyline(IPoint startPoint, IPoint endPoint)
+        {
+            IPolyline polyline = new PolylineClass();
+            IPointCollection pointCollection = polyline as IPointCollection;
+            pointCollection.AddPoint(startPoint);
+            pointCollection.AddPoint(endPoint);
+            return polyline;
+        }
+
         public static IPolygon MakePolygon(double upperLeftX, double upperLeftY, double width, double height)
         {
             IPoint upperLeftPt = new PointClass();
@@ -264,7 +273,7 @@ namespace Intersect
         public static void drawPolygon(IGeometry geom, AxMapControl mapControl, IRgbColor color = null)
         {
             ISimpleFillSymbol simpleFillSymbol = new SimpleFillSymbolClass();
-            simpleFillSymbol.Style = esriSimpleFillStyle.esriSFSHollow;
+            simpleFillSymbol.Style = esriSimpleFillStyle.esriSFSSolid;
             if(color != null)
             {
                 simpleFillSymbol.Color = color;
@@ -544,6 +553,18 @@ namespace Intersect
             }
             element.Geometry = polygon;
             return polygonElement;
+        }
+
+        public static List<IPoint> getIPointListFromIPolygon(IPolygon polygon)
+        {
+            List<IPoint> pointList = new List<IPoint>();
+            Ring ring = polygon as Ring;
+            for (int i = 0; i < ring.PointCount; i++)
+            {
+                IPoint pt = ring.get_Point(i);
+                pointList.Add(pt);
+            }
+            return pointList;
         }
 
         public static List<Point> getPointListFromIPolygonElement(IPolygonElement polygonElement)

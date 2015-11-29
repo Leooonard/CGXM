@@ -99,16 +99,6 @@ namespace Intersect
             IGeometry polygon2;
             tpOp.Simplify();
             tpOp.Cut(line, out polygon1, out polygon2);
-            IRgbColor color1 = new RgbColorClass();
-            color1.Red = 255;
-            color1.Green = 255;
-            color1.Blue = 0;
-            IRgbColor color2 = new RgbColorClass();
-            color2.Red = 255;
-            color2.Green = 0;
-            color2.Blue = 255;
-            //GisTool.drawPolygon(polygon1, mapControl, color1);
-            //GisTool.drawPolygon(polygon2, mapControl, color2);
             if (startPt.X < endPt.X)
             {
                 //从左至右的线, polygon1在上方.

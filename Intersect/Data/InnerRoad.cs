@@ -77,6 +77,21 @@ namespace Intersect
                 onPropertyChanged("path");
             }
         }
+
+        private double irWidth;
+        public double width
+        {
+            get
+            {
+                return irWidth;
+            }
+            set
+            {
+                irWidth = value;
+                onPropertyChanged("width");
+            }
+        }
+
         public ILineElement lineElement;
 
         public InnerRoad()
@@ -86,6 +101,7 @@ namespace Intersect
             vID = Const.ERROR_INT;
             irName = DEFAULT_IRNAME;
             irPath = Const.ERROR_STRING;
+            irWidth = Const.ERROR_DOUBLE;
         }
 
         private void initBySqlDataReader(SqlDataReader reader)
@@ -96,6 +112,7 @@ namespace Intersect
             vID = Int32.Parse(reader[2].ToString());
             irName = reader[3].ToString();
             irPath = reader[4].ToString();
+            irWidth = 10;
             if (irPath != "")
             {
                 List<Point> pointList = InnerRoad.ConvertStringToPointList(irPath);

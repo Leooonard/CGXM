@@ -32,6 +32,10 @@ namespace Intersect
             set
             {
                 chHeight = value;
+                if (chFrontGap != Const.ERROR_DOUBLE && chBackGap != Const.ERROR_DOUBLE && chHeight != Const.ERROR_DOUBLE)
+                {
+                    chLandHeight = chFrontGap + chBackGap + chHeight;
+                }
                 onPropertyChanged("height");
             }
         }
@@ -46,6 +50,10 @@ namespace Intersect
             set
             {
                 chFrontGap = value;
+                if (chFrontGap != Const.ERROR_DOUBLE && chBackGap != Const.ERROR_DOUBLE && chHeight != Const.ERROR_DOUBLE)
+                {
+                    chLandHeight = chFrontGap + chBackGap + chHeight;
+                }
                 onPropertyChanged("frontGap");
             }
         }
@@ -97,15 +105,20 @@ namespace Intersect
         {
             get
             {
-                if (chBackGap != -1)
-                    return chBackGap;
-                if (chBackGapRatio == -1 || chFloorHeight == -1 || chFloor == -1)
-                    return -1;
-                return chBackGapRatio * chFloorHeight * chFloor;
+                //if (chBackGap != -1)
+                //    return chBackGap;
+                //if (chBackGapRatio == -1 || chFloorHeight == -1 || chFloor == -1)
+                //    return -1;
+                //return chBackGapRatio * chFloorHeight * chFloor;
+                return chBackGap;
             }
             set
             {
                 chBackGap = value;
+                if (chFrontGap != Const.ERROR_DOUBLE && chBackGap != Const.ERROR_DOUBLE && chHeight != Const.ERROR_DOUBLE)
+                {
+                    chLandHeight = chFrontGap + chBackGap + chHeight;
+                }
                 onPropertyChanged("backGap");
             }
         }
@@ -134,7 +147,20 @@ namespace Intersect
             set
             {
                 chLandHeight = value;
-                onPropertyChanged("landHeight");
+            }
+        }
+
+        private double chRoadWidth;
+        public double roadWidth
+        {
+            get
+            {
+                return chRoadWidth;
+            }
+            set
+            {
+                chRoadWidth = value;
+                onPropertyChanged("roadWidth");
             }
         }
 
@@ -149,6 +175,7 @@ namespace Intersect
             chBackGap = Const.ERROR_DOUBLE;
             vID = Const.ERROR_INT;
             chLandHeight = Const.ERROR_DOUBLE;
+            chRoadWidth = Const.ERROR_DOUBLE;
         }
 
         public static CommonHouse GetDefaultCommonHouse()
@@ -161,6 +188,7 @@ namespace Intersect
             commonHouse.backGapRatio = Const.DEFAULT_NUMBER_VALUE;
             commonHouse.backGap = Const.ERROR_INT;
             commonHouse.landHeight = Const.DEFAULT_NUMBER_VALUE;
+            commonHouse.roadWidth = Const.DEFAULT_NUMBER_VALUE;
             return commonHouse;
         }
 
@@ -295,6 +323,7 @@ namespace Intersect
             chBackGapRatio = Double.Parse(reader[6].ToString());
             chBackGap = Double.Parse(reader[7].ToString());
             chLandHeight = Double.Parse(reader[8].ToString());
+            chRoadWidth = 5;
         }
 
         public override bool select()

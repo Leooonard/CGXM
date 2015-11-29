@@ -240,6 +240,14 @@ namespace Intersect
 
         private void StartCaculateButtonClick(object sender, RoutedEventArgs e)
         {
+            //每次计算前, 都算计算一次宅基地面宽.
+            foreach (Village village in villageList)
+            {
+                foreach (House house in village.houseList)
+                {
+                    house.updateAreaWidth(village.commonHouse.landHeight);
+                }
+            }
             if (isValid())
             {
                 NotificationHelper.Trigger("mask");
@@ -247,7 +255,13 @@ namespace Intersect
                 NotificationHelper.Trigger("HousePlacerUserControlFinish");
                 save();
                 //开始计算.
-                place();
+                //place();
+                foreach(Village village in villageList)
+                {
+                    PlaceHelper placeHelper = new PlaceHelper(village, village.commonHouse, village.houseList.ToList<House>());
+                    placeHelper.setMapControl(mapControl);
+                    placeHelper.place();
+                }
 
                 NotificationHelper.Trigger("unmask");
             }

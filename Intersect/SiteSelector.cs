@@ -312,9 +312,9 @@ namespace Intersect
         {
             GisTool.CreateShapefile(program.path, shpName, mapControl.SpatialReference);
             IFeatureClass resultFeatureClass = GisTool.getFeatureClass(program.path, shpName);
-            GisTool.addFeatureLayerField(resultFeatureClass, "rslt", esriFieldType.esriFieldTypeDouble, 10);
+            GisTool.addFeatureLayerField(resultFeatureClass, "评价值", esriFieldType.esriFieldTypeDouble, 3);
 
-            GisTool.AddFeaturesToFeatureClass(featureList, resultFeatureClass, "rslt");
+            GisTool.AddFeaturesToFeatureClass(featureList, resultFeatureClass, "评价值");
         }
 
         private void deleteShapeFile(string layerName)
@@ -340,7 +340,7 @@ namespace Intersect
                 ILayerEffects layerEffects = resultFeatureLayer as ILayerEffects;
                 layerEffects.Transparency = 60;
                 mapControl.AddLayer(resultFeatureLayer);
-                classBreakRender(layerName, "rslt");
+                classBreakRender(layerName, "评价值");
                 mapControl.ActiveView.Refresh();
 
                 return true;
