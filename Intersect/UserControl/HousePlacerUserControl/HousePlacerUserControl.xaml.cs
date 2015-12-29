@@ -29,9 +29,9 @@ namespace Intersect
     public partial class HousePlacerUserControl : UserControl
     {
         private Program program;
+        private ObservableCollection<HouseResult> houseResultList;
         private ObservableCollection<Village> villageList;
         private AxMapControl mapControl;
-        //private HouseShowcaseManager houseShowcaseManager;
 
         private AxMapControl houseMapControl;
 
@@ -84,7 +84,9 @@ namespace Intersect
             if (villageList == null)
             {
                 villageList = new ObservableCollection<Village>();
+                houseResultList = new ObservableCollection<HouseResult>();
                 HousePlacerListBox.ItemsSource = villageList;
+                HouseResultListBox.ItemsSource = houseResultList;
                 finish = false;
                 return;
             }
@@ -119,18 +121,21 @@ namespace Intersect
 
             HousePlacerListBox.ItemsSource = villageList;
 
+            houseResultList = new ObservableCollection<HouseResult>();
+            HouseResultListBox.ItemsSource = houseResultList;
+
             foreach (Village village in villageList)
             {
-                if (File.Exists(System.IO.Path.Combine(program.path, "摆放结果_" + village.name + ".shp")))
-                {
-                    PlaceManager placeManager = new PlaceManager(village.commonHouse, new List<House>(village.houseList), mapControl);
-                    placeManager.addShapeFile(program.path, "摆放结果_" + village.name + ".shp", "摆放结果_" + village.name);
-                    loadHouseResult();
-                }
-                else
+                PlaceHelper placeHelper = new PlaceHelper(village, village.commonHouse, village.houseList.ToList<House>(), mapControl);
+                if (!placeHelper.check(program.path))
                 {
                     finish = false;
                     return;
+                }
+                placeHelper.add(program.path);
+                foreach (HouseResult houseResult in placeHelper.report(program.path))
+                { 
+                    houseResultList.Add(houseResult);
                 }
             }
             finish = true;
@@ -143,21 +148,21 @@ namespace Intersect
                 return;
             }
             houseMapControl = new AxMapControl();
-            //HouseMapHost.Child = houseMapControl;
         }
 
         public void clear()
         {
             foreach (Village village in villageList)
             {
-                PlaceManager placeManager = new PlaceManager(village.commonHouse, new List<House>(village.houseList), mapControl);
-                placeManager.deleteShapeFile(program.path, "摆放结果_" + village.name);
+                PlaceHelper placeHelper = new PlaceHelper(village, village.commonHouse, village.houseList.ToList<House>(), mapControl);
+                placeHelper.clear(program.path);
                 village.commonHouse.delete();
                 foreach (House house in village.houseList)
                 {
                     house.delete();
                 }
             }
+            houseResultList.Clear();
         }
 
         private bool isValid()
@@ -165,6 +170,17 @@ namespace Intersect
             if (villageList.Count == 0)
             {
                 return false;
+            }
+
+            foreach (Village village in villageList)
+            {
+                foreach (House house in village.houseList)
+                {
+                    if (house.landWidth < 0 || house.height < 0)
+                    {
+                        return false;
+                    }
+                }
             }
 
             BindingGroup bindingGroup = HousePlacerStackPanel.BindingGroup;
@@ -245,7 +261,7 @@ namespace Intersect
             {
                 foreach (House house in village.houseList)
                 {
-                    house.updateAreaWidth(village.commonHouse.landHeight);
+                    house.updateData(village.commonHouse);
                 }
             }
             if (isValid())
@@ -255,13 +271,7 @@ namespace Intersect
                 NotificationHelper.Trigger("HousePlacerUserControlFinish");
                 save();
                 //开始计算.
-                //place();
-                foreach(Village village in villageList)
-                {
-                    PlaceHelper placeHelper = new PlaceHelper(village, village.commonHouse, village.houseList.ToList<House>());
-                    placeHelper.setMapControl(mapControl);
-                    placeHelper.place();
-                }
+                place();
 
                 NotificationHelper.Trigger("unmask");
             }
@@ -272,73 +282,20 @@ namespace Intersect
             }
         }
 
-        private void loadHouseResult()
-        {
-            IFeatureLayer featureLayer = mapControl.get_Layer(0) as IFeatureLayer;
-            IFeatureClass featureClass = featureLayer.FeatureClass;
-            int totalFeatureCount = featureClass.FeatureCount(null);
-
-            ObservableCollection<HouseResult> houseResultList = new ObservableCollection<HouseResult>();
-
-            foreach (Village village in villageList)
-            {
-                foreach (House house in village.houseList)
-                {
-                    HouseResult houseResult = new HouseResult();
-
-                    IQueryFilter filter = new QueryFilterClass();
-                    filter.WhereClause = "类型='" + house.id.ToString() + "'";
-                    IFeatureSelection featureSelection = featureLayer as IFeatureSelection;
-                    featureSelection.SelectFeatures(filter, esriSelectionResultEnum.esriSelectionResultNew, false);
-                    ISelectionSet selSet = featureSelection.SelectionSet;
-                    houseResult.count += selSet.Count;
-
-                    houseResult.houseName = house.name;
-                    houseResult.area = house.width * village.commonHouse.height * village.commonHouse.floor;
-                    houseResult.landArea = house.width * village.commonHouse.height * houseResult.count;
-                    houseResult.constructArea = house.width * village.commonHouse.height * village.commonHouse.floor * houseResult.count;
-                    houseResult.ratio = (double)houseResult.count / totalFeatureCount * 100;
-                    houseResultList.Add(houseResult);
-                }
-
-            }
-
-            HouseResultListBox.ItemsSource = houseResultList;
-        }
-
         private void place()
         {
+            houseResultList.Clear();
             foreach (Village village in villageList)
             {
-                PlaceManager placeManager = new PlaceManager(village.commonHouse, new List<House>(village.houseList), mapControl);
-                placeManager.deleteShapeFile(program.path, "摆放结果_" + village.name);
-                placeManager.makeArea((village.polygonElement as IElement).Geometry,
-                    (village.innerRoad.lineElement as IElement).Geometry);
-                if (!placeManager.place())
+                PlaceHelper placeHelper = new PlaceHelper(village, village.commonHouse, village.houseList.ToList<House>(), mapControl);
+                placeHelper.clear(program.path);
+                placeHelper.place();
+                placeHelper.save(program.path);
+                placeHelper.add(program.path);
+                foreach (HouseResult houseResult in placeHelper.report(program.path))
                 {
-                    return;
+                    houseResultList.Add(houseResult);
                 }
-                placeManager.save(program.path, "摆放结果_" + village.name + ".shp");
-                placeManager.addShapeFile(program.path, "摆放结果_" + village.name + ".shp", "摆放结果_" + village.name);
-                loadHouseResult();
-                NotificationHelper.Trigger("unmask");
-                return;
-                
-                string path = System.IO.Path.Combine(program.path, "outerground.shp");
-                placeManager.saveOuterGround(path);
-
-                path = System.IO.Path.Combine(program.path, "centerground.shp");
-                placeManager.saveCenterGround(path);
-
-                path = System.IO.Path.Combine(program.path, "result.shp");
-                placeManager.saveHouse(path);
-
-                path = System.IO.Path.Combine(program.path, "innerroad.shp");
-                placeManager.saveInnerRoad(path);
-
-                path = System.IO.Path.Combine(program.path, "road.shp");
-                placeManager.saveRoad(path);
-                Tool.M("摆放完成");
             }
         }
 

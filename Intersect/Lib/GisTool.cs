@@ -872,29 +872,29 @@ namespace Intersect
             workspaceEdit.StopEditing(true);
         }
 
-        public static void AddHouseResultToFeatureClass(List<Intersect.PlaceManager._Geometry> drawnHouseResultList, IFeatureClass featureClass)
-        {
-            IFeatureLayer featureLayer = new FeatureLayerClass();
-            featureLayer.FeatureClass = featureClass;
-            IWorkspaceEdit workspaceEdit = (featureClass as IDataset).Workspace as IWorkspaceEdit;
-            workspaceEdit.StartEditing(true);
-            workspaceEdit.StartEditOperation();
+        //public static void AddHouseResultToFeatureClass(List<Intersect.PlaceManager._Geometry> drawnHouseResultList, IFeatureClass featureClass)
+        //{
+        //    IFeatureLayer featureLayer = new FeatureLayerClass();
+        //    featureLayer.FeatureClass = featureClass;
+        //    IWorkspaceEdit workspaceEdit = (featureClass as IDataset).Workspace as IWorkspaceEdit;
+        //    workspaceEdit.StartEditing(true);
+        //    workspaceEdit.StartEditOperation();
 
-            foreach (Intersect.PlaceManager._Geometry drawnHouseResult in drawnHouseResultList)
-            {
-                IFeature fea = featureClass.CreateFeature();
-                fea.Shape = drawnHouseResult.geom;
-                fea.Store();
-                ITable pTable = (ITable)featureLayer;
-                IRow pRow = pTable.GetRow(featureClass.FeatureCount(null) - 1);
-                pRow.set_Value(pTable.FindField("层数"), drawnHouseResult._house.commonHouse.floor);
-                pRow.set_Value(pTable.FindField("类型"), drawnHouseResult._house.house.id);
-                pRow.Store();
-            }
+        //    foreach (Intersect.PlaceManager._Geometry drawnHouseResult in drawnHouseResultList)
+        //    {
+        //        IFeature fea = featureClass.CreateFeature();
+        //        fea.Shape = drawnHouseResult.geom;
+        //        fea.Store();
+        //        ITable pTable = (ITable)featureLayer;
+        //        IRow pRow = pTable.GetRow(featureClass.FeatureCount(null) - 1);
+        //        pRow.set_Value(pTable.FindField("层数"), drawnHouseResult._house.commonHouse.floor);
+        //        pRow.set_Value(pTable.FindField("类型"), drawnHouseResult._house.house.id);
+        //        pRow.Store();
+        //    }
 
-            workspaceEdit.StopEditOperation();
-            workspaceEdit.StopEditing(true);
-        }
+        //    workspaceEdit.StopEditOperation();
+        //    workspaceEdit.StopEditing(true);
+        //}
 
         public static void DeleteShapeFile(string path)
         {

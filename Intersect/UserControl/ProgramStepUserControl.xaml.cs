@@ -140,13 +140,21 @@ namespace Intersect
         private void ConfigGridMouseDown(object sender, MouseButtonEventArgs e)
         {
             Grid grid = sender as Grid;
-            onTabChange(grid, e);
+            bool result = onTabChange(grid, e);
+            if (!result)
+            {
+                Tool.M("请先完成评价计算步骤.");
+            }
         }
 
         private void SiteSelectorGridMouseDown(object sender, MouseButtonEventArgs e)
         {
             Grid grid = sender as Grid;
-            onTabChange(grid, e);
+            bool result = onTabChange(grid, e);
+            if (!result)
+            {
+                Tool.M("请先完成评价计算步骤.");
+            }
         }
 
         private void HousePlacerGridMouseDown(object sender, MouseButtonEventArgs e)
@@ -155,17 +163,12 @@ namespace Intersect
             bool result = onTabChange(grid, e);
             if (result)
             {
-                Thread t = new Thread(delegate()
-                {
-                    System.Threading.Thread.Sleep(1000);
-                    Dispatcher.BeginInvoke((ThreadStart)delegate()
-                    {
-                        //好像是因为, 不延缓1S直接调用会报错, 才采用了这个这么蠢的方法.
-                        HousePlacerUserControl.initAxComponents();
-                        SiteSelectorUserControl.SelectVillageUserControl.transparentVillage();
-                    });
-                });
-                t.Start();
+                //HousePlacerUserControl.initAxComponents();
+                SiteSelectorUserControl.SelectVillageUserControl.transparentVillage();
+            }
+            else
+            {
+                Tool.M("请先完成主路和内部路规划.");
             }
         }
 
@@ -176,7 +179,6 @@ namespace Intersect
             int result = TabChange(tabControl, tabItem.Name);
             if (result == Const.ERROR_INT)
             {
-                Tool.M("当前配置中包含错误，请检查。");
                 e.Handled = true;
                 return false;
             }

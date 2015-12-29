@@ -182,12 +182,12 @@ namespace Intersect
         {
             if (UncompleteLabelComboBoxManager.IsUncompleteLabelComboBoxTextRepeat(uncompleteLabelList, targetLabel, content))
             {
-                Tool.M("标签内容不能重复.");
-                if (targetLabel.content != "")
+                if (targetLabel.content == "")
                 {
                     comboBox.Text = content;
                     return;
                 }
+                Tool.M("标签内容不能重复.");
             }
             while (UncompleteLabelComboBoxManager.IsUncompleteLabelComboBoxTextRepeat(uncompleteLabelList, targetLabel, content))
             {

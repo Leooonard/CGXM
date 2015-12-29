@@ -109,38 +109,93 @@ namespace Intersect
             }
         }
 
-        private double hArea;
-        public double area
+        private double hLandArea;
+        public double landArea
         {
             get
             {
-                return hArea;
+                return hLandArea;
             }
             set
             {
-                hArea = value;
+                hLandArea = value;
                 onPropertyChanged("area");
             }
         }
 
-        public void updateAreaWidth(double landHeight)
+        private double hFrontGap;
+        public double frontGap
         {
-            if (landHeight <= 0 || hArea == Const.ERROR_DOUBLE)
+            get
             {
-                hLandWidth = Const.ERROR_DOUBLE;
-                return;
+                return hFrontGap;
             }
-            hLandWidth = hArea / landHeight;
+            set
+            {
+                hFrontGap = value;
+                onPropertyChanged("frontGap");
+            }
+        }
+
+        private double hBackGap;
+        public double backGap
+        {
+            get
+            {
+                return hBackGap;
+            }
+            set
+            {
+                hBackGap = value;
+                onPropertyChanged("backGap");
+            }
+        }
+
+        private double hHeight;
+        public double height
+        {
+            get
+            {
+                return hHeight;
+            }
+            set
+            {
+                hHeight = value;
+                onPropertyChanged("height");
+            }
+        }
+
+        public void updateData(CommonHouse commonHouse)
+        {
+            landWidth = landArea / commonHouse.landHeight;
+            height = commonHouse.landHeight - frontGap - backGap;
+        }
+
+        private CommonHouse commonHouse
+        {
+            get
+            {
+                commonHouse.select();
+                return commonHouse;
+            }
+            set
+            {
+                commonHouse = value;
+            }
         }
 
         public House()
         {
             hID = Const.ERROR_INT;
+            vID = Const.ERROR_INT;
             hWidth = Const.ERROR_DOUBLE;
             hLandWidth = Const.ERROR_DOUBLE;
-            vID = Const.ERROR_INT;
             hUnit = Const.ERROR_INT;
-            hArea = Const.ERROR_DOUBLE;
+            hWeight = Const.ERROR_DOUBLE;
+            hLandArea = Const.ERROR_DOUBLE;
+            hFrontGap = Const.ERROR_DOUBLE;
+            hBackGap = Const.ERROR_DOUBLE;
+            hHeight = Const.ERROR_DOUBLE;
         }
 
         public static House GetDefaultHouse()
@@ -149,7 +204,11 @@ namespace Intersect
             house.width = Const.DEFAULT_NUMBER_VALUE;
             house.landWidth = Const.DEFAULT_NUMBER_VALUE;
             house.unit = Const.DEFAULT_NUMBER_VALUE;
-            house.area = Const.DEFAULT_NUMBER_VALUE;
+            house.landArea = Const.DEFAULT_NUMBER_VALUE;
+            house.frontGap = Const.DEFAULT_NUMBER_VALUE;
+            house.backGap = Const.DEFAULT_NUMBER_VALUE;
+            house.height = Const.DEFAULT_NUMBER_VALUE;
+            house.weight = Const.DEFAULT_NUMBER_VALUE;
             return house;
         }
 
@@ -175,9 +234,29 @@ namespace Intersect
             {
                 return "户型拼数须大于0";
             }
-            if (!shieldVariableList.Contains("landWidth") && hLandWidth < hWidth)
+            if (!shieldVariableList.Contains("landWidth") && hLandWidth == Const.ERROR_DOUBLE || hLandWidth < hWidth)
             {
-                return "宅基地面块必须大于等于住宅面宽";
+                return "宅基地面块须大于等于住宅面宽";
+            }
+            if (!shieldVariableList.Contains("frontGap") && hFrontGap == Const.ERROR_DOUBLE)
+            {
+                return "宅基地前院深须大于0";
+            }
+            if (!shieldVariableList.Contains("backGap") && hBackGap == Const.ERROR_DOUBLE)
+            {
+                return "宅基地后院深须大于0";
+            }
+            if (!shieldVariableList.Contains("weight") && hWeight == Const.ERROR_DOUBLE)
+            {
+                return "户型占比须大于0";
+            }
+            if (!shieldVariableList.Contains("landArea") && hLandArea == Const.ERROR_DOUBLE)
+            {
+                return "宅基地占地面积须大于0";
+            }
+            if (!shieldVariableList.Contains("height") && hHeight == Const.ERROR_DOUBLE)
+            {
+                return "住宅进深须大于0";
             }
             return "";
         }
@@ -208,6 +287,26 @@ namespace Intersect
             {
                 return false;
             }
+            if (!shieldVariableList.Contains("frontGap") && hFrontGap == Const.ERROR_DOUBLE)
+            {
+                return false;
+            }
+            if (!shieldVariableList.Contains("backGap") && hBackGap == Const.ERROR_DOUBLE)
+            {
+                return false;
+            }
+            if (!shieldVariableList.Contains("weight") && hWeight == Const.ERROR_DOUBLE)
+            {
+                return false;
+            }
+            if (!shieldVariableList.Contains("landArea") && hLandArea == Const.ERROR_DOUBLE)
+            {
+                return false;
+            }
+            if (!shieldVariableList.Contains("height") && hHeight == Const.ERROR_DOUBLE)
+            {
+                return false;
+            }
             return true;
         }
 
@@ -215,16 +314,18 @@ namespace Intersect
         {
             if (!isValid(new List<string>() { "hID"}))
                 return false;
-            string sqlCommand = String.Format(@"insert into House (hWidth,vID,hUnit,hWeight,hLandWidth,hArea) values ({0},{1},{2},{3},{4},{5})"
-                , hWidth, vID, hUnit, hWeight, hLandWidth, hArea);
+            string sqlCommand = String.Format(@"insert into House (hWidth,vID,hUnit,hWeight,hLandWidth,hLandArea,
+                hFrontGap,hBackGap,hHeight) values ({0},{1},{2},{3},{4},{5},{6},{7},{8})"
+                , hWidth, vID, hUnit, hWeight, hLandWidth, hLandArea, hFrontGap, hBackGap, hHeight);
             Sql sql = new Sql();
             return sql.insertHouse(sqlCommand);
         }
 
         public bool saveWithoutCheck()
         {
-            string sqlCommand = String.Format(@"insert into House (hWidth,vID,hUnit,hWeight,hLandWidth,hArea) values ({0},{1},{2},{3},{4},{5})"
-                , hWidth, vID, hUnit, hWeight, hLandWidth, hArea);
+            string sqlCommand = String.Format(@"insert into House (hWidth,vID,hUnit,hWeight,hLandWidth,hLandArea,
+                hFrontGap,hBackGap,hHeight) values ({0},{1},{2},{3},{4},{5},{6},{7},{8})"
+                , hWidth, vID, hUnit, hWeight, hLandWidth, hLandArea, hFrontGap, hBackGap, hHeight);
             Sql sql = new Sql();
             return sql.insertHouse(sqlCommand);
         }
@@ -233,8 +334,9 @@ namespace Intersect
         {
             if (!isValid())
                 return false;
-            string sqlCommand = String.Format(@"update House set hWidth={0},vID={1},hUnit={2},hWeight={3},hLandWidth={4},hArea={5} where hID={6}"
-                , hWidth, vID, hUnit, hWeight, hLandWidth, hArea, hID);
+            string sqlCommand = String.Format(@"update House set hWidth={0},vID={1},hUnit={2},hWeight={3},
+                hLandWidth={4},hLandArea={5},hFrontGap={6},hBackGap={7},hHeight={8} where hID={9}"
+                , hWidth, vID, hUnit, hWeight, hLandWidth, hLandArea, hFrontGap, hBackGap, hHeight, hID);
             Sql sql = new Sql();
             return sql.updateHouse(sqlCommand);
         }
@@ -269,7 +371,10 @@ namespace Intersect
             hUnit = Int32.Parse(reader[3].ToString());
             hWeight = Double.Parse(reader[4].ToString());
             hLandWidth = Double.Parse(reader[5].ToString());
-            hArea = Double.Parse(reader[6].ToString());
+            hLandArea = Double.Parse(reader[6].ToString());
+            hFrontGap = Double.Parse(reader[7].ToString());
+            hBackGap = Double.Parse(reader[8].ToString());
+            hHeight = Double.Parse(reader[9].ToString());
         }
 
         public override bool select()

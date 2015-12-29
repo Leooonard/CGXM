@@ -22,42 +22,6 @@ namespace Intersect
             }
         }
 
-        private double chHeight;
-        public double height
-        {
-            get
-            {
-                return chHeight;
-            }
-            set
-            {
-                chHeight = value;
-                if (chFrontGap != Const.ERROR_DOUBLE && chBackGap != Const.ERROR_DOUBLE && chHeight != Const.ERROR_DOUBLE)
-                {
-                    chLandHeight = chFrontGap + chBackGap + chHeight;
-                }
-                onPropertyChanged("height");
-            }
-        }
-
-        private double chFrontGap;
-        public double frontGap
-        {
-            get
-            {
-                return chFrontGap;
-            }
-            set
-            {
-                chFrontGap = value;
-                if (chFrontGap != Const.ERROR_DOUBLE && chBackGap != Const.ERROR_DOUBLE && chHeight != Const.ERROR_DOUBLE)
-                {
-                    chLandHeight = chFrontGap + chBackGap + chHeight;
-                }
-                onPropertyChanged("frontGap");
-            }
-        }
-
         private int chFloor;
         public int floor
         {
@@ -86,43 +50,6 @@ namespace Intersect
             }
         }
 
-        private double chBackGapRatio;
-        public double backGapRatio
-        {
-            get
-            {
-                return chBackGapRatio;
-            }
-            set
-            {
-                chBackGapRatio = value;
-                onPropertyChanged("backGapRatio");
-            }
-        }
-
-        private double chBackGap;
-        public double backGap
-        {
-            get
-            {
-                //if (chBackGap != -1)
-                //    return chBackGap;
-                //if (chBackGapRatio == -1 || chFloorHeight == -1 || chFloor == -1)
-                //    return -1;
-                //return chBackGapRatio * chFloorHeight * chFloor;
-                return chBackGap;
-            }
-            set
-            {
-                chBackGap = value;
-                if (chFrontGap != Const.ERROR_DOUBLE && chBackGap != Const.ERROR_DOUBLE && chHeight != Const.ERROR_DOUBLE)
-                {
-                    chLandHeight = chFrontGap + chBackGap + chHeight;
-                }
-                onPropertyChanged("backGap");
-            }
-        }
-
         private int vID;
         public int villageID
         {
@@ -147,6 +74,7 @@ namespace Intersect
             set
             {
                 chLandHeight = value;
+                onPropertyChanged("landHeight");
             }
         }
 
@@ -167,12 +95,8 @@ namespace Intersect
         public CommonHouse()
         {
             chID = Const.ERROR_INT;
-            chHeight = Const.ERROR_DOUBLE;
-            chFrontGap = Const.ERROR_DOUBLE;
             chFloor = Const.ERROR_INT;
             chFloorHeight = Const.ERROR_DOUBLE;
-            chBackGapRatio = Const.ERROR_DOUBLE;
-            chBackGap = Const.ERROR_DOUBLE;
             vID = Const.ERROR_INT;
             chLandHeight = Const.ERROR_DOUBLE;
             chRoadWidth = Const.ERROR_DOUBLE;
@@ -181,12 +105,8 @@ namespace Intersect
         public static CommonHouse GetDefaultCommonHouse()
         {
             CommonHouse commonHouse = new CommonHouse();
-            commonHouse.height = Const.DEFAULT_NUMBER_VALUE;
-            commonHouse.frontGap = Const.DEFAULT_NUMBER_VALUE;
             commonHouse.floor = Const.DEFAULT_NUMBER_VALUE;
             commonHouse.floorHeight = Const.DEFAULT_NUMBER_VALUE;
-            commonHouse.backGapRatio = Const.DEFAULT_NUMBER_VALUE;
-            commonHouse.backGap = Const.ERROR_INT;
             commonHouse.landHeight = Const.DEFAULT_NUMBER_VALUE;
             commonHouse.roadWidth = Const.DEFAULT_NUMBER_VALUE;
             return commonHouse;
@@ -202,14 +122,6 @@ namespace Intersect
             {
                 return Const.INNER_ERROR_TIP;
             }
-            if (!shieldVariableList.Contains("height") && chHeight < 0)
-            {
-                return "户型进深须大于0";
-            }
-            if (!shieldVariableList.Contains("frontGap") && chFrontGap < 0)
-            {
-                return "户型前深须大于0";
-            }
             if (!shieldVariableList.Contains("floor") && chFloor < 0)
             {
                 return "户型楼层须大于0";
@@ -218,13 +130,9 @@ namespace Intersect
             {
                 return "户型层高须大于0";
             }
-            if (!shieldVariableList.Contains("backGapRatio") && chBackGapRatio < 0)
+            if (!shieldVariableList.Contains("landHeight") && chLandHeight <= 0)
             {
-                return "户型后深系数须大于0";
-            }
-            if (!shieldVariableList.Contains("landHeight") && landHeight < 0 && landHeight < height)
-            {
-                return "宅基地进深必须大于0，且小于住宅进深";
+                return "宅基地进深须大于0";
             }
             if (!shieldVariableList.Contains("villageID") && vID == Const.ERROR_INT)
             {
@@ -243,14 +151,6 @@ namespace Intersect
             {
                 return false;
             }
-            if (!shieldVariableList.Contains("chHeight") && chHeight < 0)
-            {
-                return false;
-            }
-            if (!shieldVariableList.Contains("chFrontGap") && chFrontGap < 0)
-            {
-                return false;
-            }
             if (!shieldVariableList.Contains("chFloor") && chFloor < 0)
             {
                 return false;
@@ -259,7 +159,7 @@ namespace Intersect
             {
                 return false;
             }
-            if (!shieldVariableList.Contains("landHeight") && landHeight < 0 && landHeight < height)
+            if (!shieldVariableList.Contains("chLandHeight") && chLandHeight < 0)
             {
                 return false;
             }
@@ -274,8 +174,8 @@ namespace Intersect
         {
             if (!isValid(new List<string>() { "chID"}))
                 return false;
-            string sqlCommand = String.Format(@"insert into CommonHouse (chHeight,chFrontGap,chFloor,chFloorHeight,chBackGapRatio,chBackGap,vID,chLandHeight)
-                    values({0},{1},{2},{3},{4},{5},{6},{7})", chHeight, chFrontGap, chFloor, chFloorHeight, chBackGapRatio, chBackGap, vID, chLandHeight);
+            string sqlCommand = String.Format(@"insert into CommonHouse (chFloor,chFloorHeight,vID,chLandHeight)
+                    values({0},{1},{2},{3})", chFloor, chFloorHeight, vID, chLandHeight);
             Sql sql = new Sql();
             return sql.insertCommonHouse(sqlCommand);
         }
@@ -284,8 +184,8 @@ namespace Intersect
         {
             if (!isValid())
                 return false;
-            string sqlCommand = String.Format(@"update CommonHouse set chHeight={0},chFrontGap={1},chFloor={2},chFloorHeight={3},chBackGapRatio={4}
-                ,chBackGap={5},vID={6},chLandHeight={7} where chID={8}", chHeight, chFrontGap, chFloor, chFloorHeight, chBackGapRatio, chBackGap, vID, chLandHeight, chID);
+            string sqlCommand = String.Format(@"update CommonHouse set chFloor={0},chFloorHeight={1},vID={2},
+                chLandHeight={3} where chID={4}", chFloor, chFloorHeight, vID, chLandHeight, chID);
             Sql sql = new Sql();
             return sql.updateCommonHouse(sqlCommand);
         }
@@ -316,13 +216,9 @@ namespace Intersect
             reader.Read();
             chID = Int32.Parse(reader[0].ToString());
             vID = Int32.Parse(reader[1].ToString());
-            chHeight = Double.Parse(reader[2].ToString());
-            chFrontGap = Double.Parse(reader[3].ToString());
-            chFloor = Int32.Parse(reader[4].ToString());
-            chFloorHeight = Double.Parse(reader[5].ToString());
-            chBackGapRatio = Double.Parse(reader[6].ToString());
-            chBackGap = Double.Parse(reader[7].ToString());
-            chLandHeight = Double.Parse(reader[8].ToString());
+            chFloor = Int32.Parse(reader[2].ToString());
+            chFloorHeight = Double.Parse(reader[3].ToString());
+            chLandHeight = Double.Parse(reader[4].ToString());
             chRoadWidth = 5;
         }
 

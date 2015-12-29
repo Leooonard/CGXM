@@ -67,8 +67,8 @@ namespace Intersect
                 }
                 catch (Exception shpFileException)
                 {
-                    //可能存在数据库中数据正确, 但是shpfile不见的情况. 这种情况下, 重新计算一遍.
-                    siteSelector.startSelectSite();
+                    //可能存在数据库中数据正确, 但是shpfile不见的情况.
+                    Tool.M("评价结果文件丢失, 请重新计算.");
                 }
             }
         }

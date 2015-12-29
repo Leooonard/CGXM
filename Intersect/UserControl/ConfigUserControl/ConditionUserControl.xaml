@@ -157,7 +157,7 @@
                                                 </Binding.Converter>
                                             </Binding>
                                         </ComboBoxItem.Visibility>
-                                        <TextBlock>坡度或高程大于(%)</TextBlock>
+                                        <TextBlock>坡度大于(%)</TextBlock>
                                     </ComboBoxItem>
                                     <ComboBoxItem>
                                         <ComboBoxItem.Visibility>
@@ -167,7 +167,7 @@
                                                 </Binding.Converter>
                                             </Binding>
                                         </ComboBoxItem.Visibility>
-                                        <TextBlock>坡度或高程小于(%)</TextBlock>
+                                        <TextBlock>坡度小于(%)</TextBlock>
                                     </ComboBoxItem>
                                     <ComboBoxItem>
                                         <ComboBoxItem.Visibility>
@@ -177,7 +177,7 @@
                                                 </Binding.Converter>
                                             </Binding>
                                         </ComboBoxItem.Visibility>
-                                        <TextBlock>坡度或高程大于等于(%)</TextBlock>
+                                        <TextBlock>坡度大于等于(%)</TextBlock>
                                     </ComboBoxItem>
                                     <ComboBoxItem>
                                         <ComboBoxItem.Visibility>
@@ -187,7 +187,47 @@
                                                 </Binding.Converter>
                                             </Binding>
                                         </ComboBoxItem.Visibility>
-                                        <TextBlock>坡度或高程小于等于(%)</TextBlock>
+                                        <TextBlock>坡度小于等于(%)</TextBlock>
+                                    </ComboBoxItem>
+                                    <ComboBoxItem>
+                                        <ComboBoxItem.Visibility>
+                                            <Binding Path="labelID" Mode="OneWay">
+                                                <Binding.Converter>
+                                                    <cls:LabelIDToComboBoxItemNotVisbilityConverter></cls:LabelIDToComboBoxItemNotVisbilityConverter>
+                                                </Binding.Converter>
+                                            </Binding>
+                                        </ComboBoxItem.Visibility>
+                                        <TextBlock>高程大于(米)</TextBlock>
+                                    </ComboBoxItem>
+                                    <ComboBoxItem>
+                                        <ComboBoxItem.Visibility>
+                                            <Binding Path="labelID" Mode="OneWay">
+                                                <Binding.Converter>
+                                                    <cls:LabelIDToComboBoxItemNotVisbilityConverter></cls:LabelIDToComboBoxItemNotVisbilityConverter>
+                                                </Binding.Converter>
+                                            </Binding>
+                                        </ComboBoxItem.Visibility>
+                                        <TextBlock>高程小于(米)</TextBlock>
+                                    </ComboBoxItem>
+                                    <ComboBoxItem>
+                                        <ComboBoxItem.Visibility>
+                                            <Binding Path="labelID" Mode="OneWay">
+                                                <Binding.Converter>
+                                                    <cls:LabelIDToComboBoxItemNotVisbilityConverter></cls:LabelIDToComboBoxItemNotVisbilityConverter>
+                                                </Binding.Converter>
+                                            </Binding>
+                                        </ComboBoxItem.Visibility>
+                                        <TextBlock>高程大于等于(米)</TextBlock>
+                                    </ComboBoxItem>
+                                    <ComboBoxItem>
+                                        <ComboBoxItem.Visibility>
+                                            <Binding Path="labelID" Mode="OneWay">
+                                                <Binding.Converter>
+                                                    <cls:LabelIDToComboBoxItemNotVisbilityConverter></cls:LabelIDToComboBoxItemNotVisbilityConverter>
+                                                </Binding.Converter>
+                                            </Binding>
+                                        </ComboBoxItem.Visibility>
+                                        <TextBlock>高程小于等于(米)</TextBlock>
                                     </ComboBoxItem>
                                 </ComboBox>
                                 <TextBox Name="ConditionValueTextBox" Grid.Column="3">
@@ -307,7 +347,7 @@
                                 </ComboBox>
                                 <TextBox Name="ConditionValueTextBox" Grid.Column="3">
                                     <TextBox.Text>
-                                        <Binding Path="value" Mode="TwoWay" BindingGroupName="ConditionStepBindingGroup">
+                                        <Binding Path="value" Mode="TwoWay" UpdateSourceTrigger="LostFocus" BindingGroupName="ConditionStepBindingGroup">
                                             <Binding.ValidationRules>
                                                 <cls:NotNegativeDoubleValidationRule></cls:NotNegativeDoubleValidationRule>
                                             </Binding.ValidationRules>

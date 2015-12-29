@@ -10,8 +10,8 @@
         <StackPanel.BindingGroup>
             <BindingGroup Name="SelectMainRoadBindingGroup"></BindingGroup>
         </StackPanel.BindingGroup>
-        <TextBlock FontSize="18" Margin="0, 0, 0, 10" Padding="5" HorizontalAlignment="Stretch" Background="LightCyan">规划主路</TextBlock>
-        <Button Name="AddMainRoadButton" Click="AddMainRoadButtonClick" Style="{StaticResource SuccessButton}" HorizontalAlignment="Center" Width="200">添加主路</Button>
+        <TextBlock FontSize="18" Margin="0, 0, 0, 10" Padding="5" HorizontalAlignment="Stretch" Background="LightCyan">规划外围道路</TextBlock>
+        <Button Name="AddMainRoadButton" Click="AddMainRoadButtonClick" Style="{StaticResource SuccessButton}" HorizontalAlignment="Center" Width="200">添加外围道路</Button>
         <ListBox Name="MainRoadListBox" Margin="0, 10, 0, 10">
             <ListBox.ItemContainerStyle>
                 <Style TargetType="ListBoxItem">

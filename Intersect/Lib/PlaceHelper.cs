@@ -7,6 +7,8 @@ using ESRI.ArcGIS.Carto;
 using ESRI.ArcGIS.Controls;
 using ESRI.ArcGIS.Display;
 using ESRI.ArcGIS.Geodatabase;
+using System.IO;
+using System.Collections.ObjectModel;
 
 namespace Intersect
 {
@@ -22,6 +24,9 @@ namespace Intersect
         //三维数组, 最外面那维记录哪个area, 里面记录每排, 每个排放.
         private List<List<List<_PlacedHouse>>> totalPlacedHouseList;
         private List<List<List<_PlacedHouse>>> totalPlacedRoadHouseList;
+
+        private List<IGeometry> areaList;
+        private List<IPolygon> roadList; //小区每排房子间的小路.
 
         //内部维护一个适宜计算的数据结构.
         private class _House
@@ -65,11 +70,12 @@ namespace Intersect
             }
         }
 
-        public PlaceHelper(Village v, CommonHouse ch, List<House> hl)
+        public PlaceHelper(Village v, CommonHouse ch, List<House> hl, AxMapControl mc)
         {
             village = v;
             commonHouse = ch;
             houseList = hl;
+            mapControl = mc;
             totalWeight = 0; //总的比重.
             foreach (House house in houseList)
             {
@@ -78,11 +84,8 @@ namespace Intersect
             _houseList = new List<_House>();
             totalPlacedHouseList = new List<List<List<_PlacedHouse>>>();
             totalPlacedRoadHouseList = new List<List<List<_PlacedHouse>>>();
-        }
-
-        public void setMapControl(AxMapControl mc)
-        {
-            mapControl = mc;
+            areaList = new List<IGeometry>();
+            roadList = new List<IPolygon>();
         }
 
         private void orgnizeRoadHouse()
@@ -142,7 +145,6 @@ namespace Intersect
                             }
                         }
 
-                        GisTool.drawPolygon(rowPlacedRoadHouseList[i].placedHouse, mapControl);
                     }
                 }
             }
@@ -335,7 +337,6 @@ namespace Intersect
                             }
                         }
 
-                        GisTool.drawPolygon(rowPlacedHouseList[i].placedHouse, mapControl);
                     }
                 }
             }
@@ -350,16 +351,16 @@ namespace Intersect
             IPoint upperLeftPoint = new PointClass();
             IPoint upperRigthPoint = new PointClass();
             lowerLeftPoint.X = landEnvelop.LowerLeft.X;
-            lowerLeftPoint.Y = landEnvelop.LowerLeft.Y + commonHouse.frontGap;
+            lowerLeftPoint.Y = landEnvelop.LowerLeft.Y + placedHouse.house.frontGap;
 
             lowerRightPoint.X = landEnvelop.LowerRight.X - dx;
-            lowerRightPoint.Y = landEnvelop.LowerRight.Y + commonHouse.frontGap;
+            lowerRightPoint.Y = landEnvelop.LowerRight.Y + placedHouse.house.frontGap;
 
             upperLeftPoint.X = landEnvelop.UpperLeft.X;
-            upperLeftPoint.Y = landEnvelop.UpperLeft.Y - commonHouse.backGap;
+            upperLeftPoint.Y = landEnvelop.UpperLeft.Y - placedHouse.house.backGap;
 
             upperRigthPoint.X = landEnvelop.UpperRight.X - dx;
-            upperRigthPoint.Y = landEnvelop.UpperRight.Y - commonHouse.backGap;
+            upperRigthPoint.Y = landEnvelop.UpperRight.Y - placedHouse.house.backGap;
             Ring ring = new RingClass();
             ring.AddPoint(lowerLeftPoint);
             ring.AddPoint(upperLeftPoint);
@@ -380,13 +381,13 @@ namespace Intersect
             IPoint upperLeftPoint = new PointClass();
             IPoint upperRigthPoint = new PointClass();
             lowerLeftPoint.X = landEnvelop.LowerLeft.X + dx;
-            lowerLeftPoint.Y = landEnvelop.LowerLeft.Y + commonHouse.frontGap;
+            lowerLeftPoint.Y = landEnvelop.LowerLeft.Y + placedHouse.house.frontGap;
             lowerRightPoint.X = landEnvelop.LowerRight.X;
-            lowerRightPoint.Y = landEnvelop.LowerRight.Y + commonHouse.frontGap;
+            lowerRightPoint.Y = landEnvelop.LowerRight.Y + placedHouse.house.frontGap;
             upperLeftPoint.X = landEnvelop.UpperLeft.X + dx;
-            upperLeftPoint.Y = landEnvelop.UpperLeft.Y - commonHouse.backGap;
+            upperLeftPoint.Y = landEnvelop.UpperLeft.Y - placedHouse.house.backGap;
             upperRigthPoint.X = landEnvelop.UpperRight.X;
-            upperRigthPoint.Y = landEnvelop.UpperRight.Y - commonHouse.backGap;
+            upperRigthPoint.Y = landEnvelop.UpperRight.Y - placedHouse.house.backGap;
             Ring ring = new RingClass();
             ring.AddPoint(lowerLeftPoint);
             ring.AddPoint(upperLeftPoint);
@@ -409,13 +410,13 @@ namespace Intersect
             IPoint upperLeftPoint = new PointClass();
             IPoint upperRigthPoint = new PointClass();
             lowerLeftPoint.X = landEnvelop.LowerLeft.X + dx;
-            lowerLeftPoint.Y = landEnvelop.LowerLeft.Y + commonHouse.frontGap;
+            lowerLeftPoint.Y = landEnvelop.LowerLeft.Y + placedHouse.house.frontGap;
             lowerRightPoint.X = landEnvelop.LowerRight.X - dx;
-            lowerRightPoint.Y = landEnvelop.LowerRight.Y + commonHouse.frontGap;
+            lowerRightPoint.Y = landEnvelop.LowerRight.Y + placedHouse.house.frontGap;
             upperLeftPoint.X = landEnvelop.UpperLeft.X + dx;
-            upperLeftPoint.Y = landEnvelop.UpperLeft.Y - commonHouse.backGap;
+            upperLeftPoint.Y = landEnvelop.UpperLeft.Y - placedHouse.house.backGap;
             upperRigthPoint.X = landEnvelop.UpperRight.X - dx;
-            upperRigthPoint.Y = landEnvelop.UpperRight.Y - commonHouse.backGap;
+            upperRigthPoint.Y = landEnvelop.UpperRight.Y - placedHouse.house.backGap;
             Ring ring = new RingClass();
             ring.AddPoint(lowerLeftPoint);
             ring.AddPoint(upperLeftPoint);
@@ -432,7 +433,7 @@ namespace Intersect
             //拿到切好后的图形. list中三个元素, 第一个元素是逻辑上的左边区块, 第二个元素是逻辑上的右边区块,
             //第三个元素是内部路扩张后的区块. 三个元素组合起来就是village中的polygon了.
             //所谓逻辑上的左右是因为, 内部路画的时候方向不同, 作为一个向量, 方向相反时, 逻辑上的左右就颠倒了.
-            List<IGeometry> areaList = cut();
+            areaList = cut();
 
             for (int i = 0; i < areaList.Count - 1; i++)
             {
@@ -451,6 +452,8 @@ namespace Intersect
                         if (southRoadPointCollection.get_Point(0).Y < extendedSouthRoadPointCollection.get_Point(0).Y)
                         { 
                             //找到正确的那条路了. 把两条平行的路拼成一个区域.
+                            IPolyline prolongedSouthRoadPolyline = prolongRoad(extendedSouthRoad, area);
+                            IPointCollection prolongedSouthRoadPointCollection = prolongedSouthRoadPolyline as IPointCollection;
                             Ring ring = new RingClass();
                             ring.AddPoint(southRoadPointCollection.get_Point(0));
                             ring.AddPoint(southRoadPointCollection.get_Point(1));
@@ -472,6 +475,12 @@ namespace Intersect
                                 lowerLeftPoint.Y = southRoadPointCollection.get_Point(1).Y;
                             }
                             roadHouseAreaList.Add(new _RoadArea(roadArea, alpha, lowerLeftPoint));
+                            ring = new RingClass();
+                            ring.AddPoint(southRoadPointCollection.get_Point(0));
+                            ring.AddPoint(southRoadPointCollection.get_Point(1));
+                            ring.AddPoint(prolongedSouthRoadPointCollection.get_Point(1));
+                            ring.AddPoint(prolongedSouthRoadPointCollection.get_Point(0));
+                            roadArea = GisTool.MakePolygonFromRing(ring); //路的那一整块都不能用.
                             area = areaTpOp.Difference(roadArea) as IPolygon;
                             areaTpOp = area as ITopologicalOperator;
                             break;
@@ -491,6 +500,8 @@ namespace Intersect
                         if (northRoadPointCollection.get_Point(0).Y > extendedNorthRoadPointCollection.get_Point(0).Y)
                         {
                             //找到正确的那条路了. 把两条平行的路拼成一个区域.
+                            IPolyline prolongedNorthRoadPolyline = prolongRoad(extendedNorthRoad, area);
+                            IPointCollection prolongedNorthRoadPointCollection = prolongedNorthRoadPolyline as IPointCollection;
                             Ring ring = new RingClass();
                             ring.AddPoint(northRoadPointCollection.get_Point(0));
                             ring.AddPoint(northRoadPointCollection.get_Point(1));
@@ -512,6 +523,12 @@ namespace Intersect
                                 lowerLeftPoint.Y = extendedNorthRoadPointCollection.get_Point(1).Y;
                             }
                             roadHouseAreaList.Add(new _RoadArea(roadArea, alpha, lowerLeftPoint));
+                            ring = new RingClass();
+                            ring.AddPoint(northRoadPointCollection.get_Point(0));
+                            ring.AddPoint(northRoadPointCollection.get_Point(1));
+                            ring.AddPoint(prolongedNorthRoadPointCollection.get_Point(1));
+                            ring.AddPoint(prolongedNorthRoadPointCollection.get_Point(0));
+                            roadArea = GisTool.MakePolygonFromRing(ring); //路的那一整块都不能用.
                             area = areaTpOp.Difference(roadArea) as IPolygon;
                             areaTpOp = area as ITopologicalOperator;
                             break;
@@ -522,7 +539,10 @@ namespace Intersect
                 //开始按包络线, 一排一排划条.
                 List<List<IPolygon>> rowList = splitRow(area);
                 List<IPolygon> houseRowList = rowList[0];
-                List<IPolygon> roadRowList = rowList[1];
+                foreach (IPolygon roadRow in rowList[1])
+                {
+                    roadList.Add(roadRow);
+                }
 
                 //全部区域截取完了, 算一下理论上能排放的量, 然后开始排放.
                 double totalArea = 0;
@@ -555,14 +575,6 @@ namespace Intersect
                     List<_PlacedHouse> roadHouseList = placeInRoadRow(roadHouseArea.roadArea, roadHouseArea.alpha, roadHouseArea.lowerLeftPoint);
                     foreach (_PlacedHouse roadHouse in roadHouseList)
                     {
-                        if (roadHouse == null)
-                        {
-                            continue;
-                        }
-                        //GisTool.drawPolygon(roadHouse.placedLand, mapControl);
-                    }
-                    foreach (_PlacedHouse roadHouse in roadHouseList)
-                    {
                         roadHouse.alpha = roadHouseArea.alpha;
                     }
                     placedRoadHouseList.Add(roadHouseList);
@@ -584,21 +596,12 @@ namespace Intersect
 
                     //开始在里面排房子.
                     List<_PlacedHouse> placedRowHouseList = placeInRow(formatedHouseRowPolygon, area);
-                    foreach (_PlacedHouse placedRowHouse in placedRowHouseList)
-                    {
-                        if (placedRowHouse == null)
-                        {
-                            continue;
-                        }
-                        //GisTool.drawPolygon(placedRowHouse.placedLand, mapControl);
-                    }
                     placedHouseList.Add(placedRowHouseList);
                 }
 
                 totalPlacedHouseList.Add(placedHouseList);
             }
 
-            GisTool.drawPolygon(areaList[areaList.Count - 1], mapControl);
 
             //把房子按拼数进行整理.
             orgnizeHouse();
@@ -607,22 +610,271 @@ namespace Intersect
 
         public void save(string path)
         {
-            string AreaFileName = "区域.shp";
-            string roadFileName = "道路.shp";
-            string innerRoadFileName = "内部路.shp";
-
-            
+            saveHouse(path);
+            saveLand(path);
+            saveArea(path);
+            saveInnerRoad(path);
+            saveRoad(path);
         }
 
-        private void saveLand()
+        public void add(string path)
         {
-            string landFileName = "宅基地.shp";
-            
+            string houseFileName = String.Format("房屋_{0}.shp", village.name);
+            string houseLayerName = String.Format("房屋_{0}", village.name);
+            load(path, houseFileName, houseLayerName);
+
+            string landFileName = String.Format("宅基地_{0}.shp", village.name);
+            string landLayerName = String.Format("宅基地_{0}", village.name);
+            load(path, landFileName, landLayerName);
+
+            string areaFileName = String.Format("区域_{0}.shp", village.name);
+            string areaLayerName = String.Format("区域_{0}", village.name);
+            load(path, areaFileName, areaLayerName);
+
+            string roadFileName = String.Format("道路_{0}.shp", village.name);
+            string roadLayerName = String.Format("道路_{0}", village.name);
+            load(path, roadFileName, roadLayerName);
+
+            string innerRoadFileName = String.Format("内部路_{0}.shp", village.name);
+            string innerRoadLayerName = String.Format("内部路_{0}", village.name);
+            load(path, innerRoadFileName, innerRoadLayerName);
+        }
+
+        public void clear(string path)
+        {
+            string houseLayerName = String.Format("房屋_{0}", village.name);
+            delete(path, houseLayerName);
+
+            string landLayerName = String.Format("宅基地_{0}", village.name);
+            delete(path, landLayerName);
+
+            string areaLayerName = String.Format("区域_{0}", village.name);
+            delete(path, areaLayerName);
+
+            string roadLayerName = String.Format("道路_{0}", village.name);
+            delete(path, roadLayerName);
+
+            string innerRoadLayerName = String.Format("内部路_{0}", village.name);
+            delete(path, innerRoadLayerName);
+        }
+
+        public bool check(string path)
+        {
+            string houseLayerName = String.Format("房屋_{0}.shp", village.name);
+            if (!File.Exists(System.IO.Path.Combine(path, houseLayerName)))
+            {
+                return false;
+            }
+
+            string landLayerName = String.Format("宅基地_{0}.shp", village.name);
+            if (!File.Exists(System.IO.Path.Combine(path, landLayerName)))
+            {
+                return false;
+            }
+
+            string areaLayerName = String.Format("区域_{0}.shp", village.name);
+            if (!File.Exists(System.IO.Path.Combine(path, areaLayerName)))
+            {
+                return false;
+            }
+
+            string roadLayerName = String.Format("道路_{0}.shp", village.name);
+            if (!File.Exists(System.IO.Path.Combine(path, roadLayerName)))
+            {
+                return false;
+            }
+
+            string innerRoadLayerName = String.Format("内部路_{0}.shp", village.name);
+            if (!File.Exists(System.IO.Path.Combine(path, innerRoadLayerName)))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public List<HouseResult> report(string path)
+        {
+            string houseFileName = String.Format("房屋_{0}.shp", village.name);
+            IFeatureClass houseFeatureClass = GisTool.getFeatureClass(path, houseFileName);
+            IFeatureLayer featureLayer = new FeatureLayerClass();
+            featureLayer.FeatureClass = houseFeatureClass;
+            int totalFeatureCount = houseFeatureClass.FeatureCount(null);
+            List<HouseResult> houseResultList = new List<HouseResult>();
+
+            foreach (House house in village.houseList)
+            {
+                HouseResult houseResult = new HouseResult();
+                IQueryFilter filter = new QueryFilterClass();
+                filter.WhereClause = "\"类型\"='" + house.id.ToString() + "'";
+                IFeatureSelection featureSelection = featureLayer as IFeatureSelection;
+                featureSelection.SelectFeatures(filter, esriSelectionResultEnum.esriSelectionResultNew, false);
+                ISelectionSet selSet = featureSelection.SelectionSet;
+                houseResult.count = selSet.Count;
+
+                houseResult.villageName = village.name;
+                houseResult.houseName = house.name;
+                houseResult.area = house.width * house.height * village.commonHouse.floor;
+                houseResult.landArea = house.width * house.height * houseResult.count;
+                houseResult.constructArea = house.width * house.height * village.commonHouse.floor * houseResult.count;
+                houseResult.ratio = (double)houseResult.count / totalFeatureCount * 100;
+                houseResultList.Add(houseResult);
+            }
+
+            return houseResultList;
+        }
+
+        private void delete(string path, string layerName)
+        {
+            int index = GisTool.getLayerIndexByName(layerName, mapControl);
+            if (index == -1)
+            {
+                return;
+            }
+
+            mapControl.DeleteLayer(index);
+            GisTool.DeleteShapeFile(System.IO.Path.Combine(path, layerName + ".shp"));
+        }
+
+        private void load(string path, string fileName, string layerName)
+        {
+            if (File.Exists(System.IO.Path.Combine(path, fileName)))
+            {
+                IFeatureClass houseFeatureClass = GisTool.getFeatureClass(path, fileName);
+                IFeatureLayer houseFeatureLayer = new FeatureLayerClass();
+                houseFeatureLayer.FeatureClass = houseFeatureClass;
+                houseFeatureLayer.Name = layerName;
+                ILayerEffects layerEffects = houseFeatureLayer as ILayerEffects;
+                layerEffects.Transparency = 60;
+                mapControl.AddLayer(houseFeatureLayer);
+                mapControl.ActiveView.Refresh();
+            }
+        }
+
+        private void saveRoad(string path)
+        {
+            string roadFileName = String.Format("道路_{0}.shp", village.name);
+            GisTool.CreateShapefile(path, roadFileName, mapControl.SpatialReference);
+            IFeatureClass featureClass = GisTool.getFeatureClass(path, roadFileName);
+
+            IFeatureLayer featureLayer = new FeatureLayerClass();
+            featureLayer.FeatureClass = featureClass;
+            IWorkspaceEdit workspaceEdit = (featureClass as IDataset).Workspace as IWorkspaceEdit;
+            workspaceEdit.StartEditing(true);
+            workspaceEdit.StartEditOperation();
+
+            foreach (IPolygon road in roadList)
+            {
+                IFeature fea = featureClass.CreateFeature();
+                fea.Shape = road;
+                fea.Store();
+            }
+
+            workspaceEdit.StopEditOperation();
+            workspaceEdit.StopEditing(true);
+        }
+
+        private void saveInnerRoad(string path)
+        {
+            string innerRoadFileName = String.Format("内部路_{0}.shp", village.name);
+            GisTool.CreateShapefile(path, innerRoadFileName, mapControl.SpatialReference);
+            IFeatureClass featureClass = GisTool.getFeatureClass(path, innerRoadFileName);
+
+            IFeatureLayer featureLayer = new FeatureLayerClass();
+            featureLayer.FeatureClass = featureClass;
+            IWorkspaceEdit workspaceEdit = (featureClass as IDataset).Workspace as IWorkspaceEdit;
+            workspaceEdit.StartEditing(true);
+            workspaceEdit.StartEditOperation();
+
+            //最后一个元素是内部路区域.
+            IPolygon area = areaList[areaList.Count - 1] as IPolygon;
+            IFeature fea = featureClass.CreateFeature();
+            fea.Shape = area;
+            fea.Store();
+
+            workspaceEdit.StopEditOperation();
+            workspaceEdit.StopEditing(true);
+        }
+
+        private void saveArea(string path)
+        {
+            string AreaFileName = String.Format("区域_{0}.shp", village.name);
+            GisTool.CreateShapefile(path, AreaFileName, mapControl.SpatialReference);
+            IFeatureClass featureClass = GisTool.getFeatureClass(path, AreaFileName);
+
+            IFeatureLayer featureLayer = new FeatureLayerClass();
+            featureLayer.FeatureClass = featureClass;
+            IWorkspaceEdit workspaceEdit = (featureClass as IDataset).Workspace as IWorkspaceEdit;
+            workspaceEdit.StartEditing(true);
+            workspaceEdit.StartEditOperation();
+
+            //最后一个元素是内部路区域.
+            for (int i = 0; i < areaList.Count - 1; i++ )
+            {
+                IPolygon area = areaList[i] as IPolygon;
+                IFeature fea = featureClass.CreateFeature();
+                fea.Shape = area;
+                fea.Store();
+            }
+
+            workspaceEdit.StopEditOperation();
+            workspaceEdit.StopEditing(true);
+        }
+
+        private void saveLand(string path)
+        {
+            string landFileName = String.Format("宅基地_{0}.shp", village.name);
+
+            GisTool.CreateShapefile(path, landFileName, mapControl.SpatialReference);
+            IFeatureClass featureClass = GisTool.getFeatureClass(path, landFileName);
+
+            IFeatureLayer featureLayer = new FeatureLayerClass();
+            featureLayer.FeatureClass = featureClass;
+            IWorkspaceEdit workspaceEdit = (featureClass as IDataset).Workspace as IWorkspaceEdit;
+            workspaceEdit.StartEditing(true);
+            workspaceEdit.StartEditOperation();
+
+            foreach (List<List<_PlacedHouse>> areaPlacedHouseList in totalPlacedHouseList)
+            {
+                foreach (List<_PlacedHouse> rowPlacedHouseList in areaPlacedHouseList)
+                {
+                    foreach (_PlacedHouse placedHouse in rowPlacedHouseList)
+                    {
+                        if (placedHouse == null)
+                        {
+                            continue;
+                        }
+                        IFeature fea = featureClass.CreateFeature();
+                        fea.Shape = placedHouse.placedLand;
+                        fea.Store();
+                    }
+                }
+            }
+
+            foreach (List<List<_PlacedHouse>> areaPlacedRoadHouseList in totalPlacedRoadHouseList)
+            {
+                foreach (List<_PlacedHouse> rowPlacedRoadHouseList in areaPlacedRoadHouseList)
+                {
+                    foreach (_PlacedHouse placedHouse in rowPlacedRoadHouseList)
+                    {
+                        if (placedHouse == null)
+                        {
+                            continue;
+                        }
+                        IFeature fea = featureClass.CreateFeature();
+                        fea.Shape = placedHouse.placedLand;
+                        fea.Store();
+                    }
+                }
+            }
+
+            workspaceEdit.StopEditOperation();
+            workspaceEdit.StopEditing(true);
         }
 
         private void saveHouse(string path)
         {
-            string houseFileName = "房屋.shp";
+            string houseFileName = String.Format("房屋_{0}.shp", village.name);
 
             GisTool.CreateShapefile(path, houseFileName, mapControl.SpatialReference);
             IFeatureClass featureClass = GisTool.getFeatureClass(path, houseFileName);
@@ -641,6 +893,32 @@ namespace Intersect
                 {
                     foreach (_PlacedHouse placedHouse in rowPlacedHouseList)
                     {
+                        if (placedHouse == null)
+                        {
+                            continue;
+                        }
+                        IFeature fea = featureClass.CreateFeature();
+                        fea.Shape = placedHouse.placedHouse;
+                        fea.Store();
+                        ITable pTable = (ITable)featureLayer;
+                        IRow pRow = pTable.GetRow(featureClass.FeatureCount(null) - 1);
+                        pRow.set_Value(pTable.FindField("层数"), commonHouse.floor);
+                        pRow.set_Value(pTable.FindField("类型"), placedHouse.house.id);
+                        pRow.Store();
+                    }
+                }
+            }
+
+            foreach (List<List<_PlacedHouse>> areaPlacedRoadHouseList in totalPlacedRoadHouseList)
+            {
+                foreach (List<_PlacedHouse> rowPlacedRoadHouseList in areaPlacedRoadHouseList)
+                {
+                    foreach (_PlacedHouse placedHouse in rowPlacedRoadHouseList)
+                    {
+                        if (placedHouse == null)
+                        {
+                            continue;
+                        }
                         IFeature fea = featureClass.CreateFeature();
                         fea.Shape = placedHouse.placedHouse;
                         fea.Store();

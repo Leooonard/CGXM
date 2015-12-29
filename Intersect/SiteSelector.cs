@@ -83,6 +83,8 @@ namespace Intersect
                 }
             }
 
+            //对总的权值做个检查, 如果不是100就怎么样?
+
             baseFeature = GisTool.GetBaseFeature(mapControl, project.baseMapIndex);
 
             featureList = new List<Feature>();
@@ -251,21 +253,37 @@ namespace Intersect
                             return ratio > restraint;
                         }));
                 }
-                else if (condition.category == Const.CONFIG_CATEGORY_RESTRAINT_OVERLAP_BIGGER)
+                else if (condition.category == Const.CONFIG_CATEGORY_RESTRAINT_HEIGHT_BIGGER)
                 {
-                    biggerOverlapRestraint(targetLayerPath, condition.value / totalStandardValue, featureList);
+                    biggerOverlapRestraint(targetLayerPath, condition.value, featureList);
                 }
-                else if (condition.category == Const.CONFIG_CATEGORY_RESTRAINT_OVERLAP_BIGGEREQUAL)
+                else if (condition.category == Const.CONFIG_CATEGORY_RESTRAINT_HEIGHT_BIGGEREQUAL)
                 {
-                    biggerEqualOverlapRestraint(targetLayerPath, condition.value / totalStandardValue, featureList);
+                    biggerEqualOverlapRestraint(targetLayerPath, condition.value, featureList);
                 }
-                else if (condition.category == Const.CONFIG_CATEGORY_RESTRAINT_OVERLAP_SMALLER)
+                else if (condition.category == Const.CONFIG_CATEGORY_RESTRAINT_HEIGHT_SMALLER)
                 {
-                    smallerOverlapRestraint(targetLayerPath, condition.value / totalStandardValue, featureList);
+                    smallerOverlapRestraint(targetLayerPath, condition.value, featureList);
                 }
-                else if (condition.category == Const.CONFIG_CATEGORY_RESTRAINT_OVERLAP_SMALLEREQUAL)
+                else if (condition.category == Const.CONFIG_CATEGORY_RESTRAINT_HEIGHT_SMALLEREQUAL)
                 {
-                    smallerEqualOverlapRestraint(targetLayerPath, condition.value / totalStandardValue, featureList);
+                    smallerEqualOverlapRestraint(targetLayerPath, condition.value, featureList);
+                }
+                else if (condition.category == Const.CONFIG_CATEGORY_RESTRAINT_SLOPE_BIGGER)
+                {
+                    biggerOverlapRestraint(targetLayerPath, condition.value / 100, featureList);
+                }
+                else if (condition.category == Const.CONFIG_CATEGORY_RESTRAINT_SLOPE_BIGGEREQUAL)
+                {
+                    biggerEqualOverlapRestraint(targetLayerPath, condition.value / 100, featureList);
+                }
+                else if (condition.category == Const.CONFIG_CATEGORY_RESTRAINT_SLOPE_SMALLER)
+                {
+                    smallerOverlapRestraint(targetLayerPath, condition.value / 100, featureList);
+                }
+                else if (condition.category == Const.CONFIG_CATEGORY_RESTRAINT_SLOPE_SMALLEREQUAL)
+                {
+                    smallerEqualOverlapRestraint(targetLayerPath, condition.value / 100, featureList);
                 }
             }
 

@@ -21,6 +21,20 @@ namespace Intersect
             }
         }
 
+        private string vName;
+        public string villageName
+        {
+            get
+            {
+                return vName;
+            }
+            set
+            {
+                vName = value;
+                onPropertyChanged("villageName");
+            }
+        }
+
         private string hName;
         public string houseName
         {

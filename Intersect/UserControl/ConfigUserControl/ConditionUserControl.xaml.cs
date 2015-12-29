@@ -138,6 +138,25 @@ namespace Intersect
 
         public bool isValid()
         {
+            //需要判断百分比单位的值, 是否超过了一百, 坡度是例外, 可以任何值.
+            foreach (Condition restraintCondition in restraintConditionList)
+            {
+                if (restraintCondition.category <= 3 && restraintCondition.category >= 0 && restraintCondition.value > 100)
+                {
+                    //这个类别下的条件值不能超过100.
+                    return false;
+                }
+            }
+
+            double totalStandardValue = 0;
+            foreach (Condition standardCondition in standardConditionList)
+            {
+                totalStandardValue += standardCondition.value;
+            }
+            if (totalStandardValue == 0)
+            {
+                return false;
+            }
             BindingGroup bindingGroup = ConditionStepStackPanel.BindingGroup;
             if (!Tool.checkBindingGroup(bindingGroup))
             {
