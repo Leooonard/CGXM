@@ -6,8 +6,6 @@
 *.user
 *.sln.docstates
 
-#.csproj
-*.csproj
 
 #exe
 *.exe
