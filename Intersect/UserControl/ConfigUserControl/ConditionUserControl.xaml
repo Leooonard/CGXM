@@ -22,7 +22,7 @@
             <TextBlock Grid.Column="0" TextAlignment="Center" Margin="0,0,0,5">图层名</TextBlock>
             <TextBlock Grid.Column="1" TextAlignment="Center" Margin="0,0,0,5">条件名</TextBlock>
             <TextBlock Grid.Column="2" TextAlignment="Center" Margin="0,0,0,5">条件种类</TextBlock>
-            <TextBlock Grid.Column="3" TextAlignment="Center" Margin="0,0,0,5">条件值</TextBlock>
+            <TextBlock Grid.Column="3" TextAlignment="Center" Margin="0,0,0,5">阈值</TextBlock>
         </Grid>
         <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="250">
             <StackPanel Name="ConditionStackPanel" Margin="0,0,0,5">
@@ -257,7 +257,7 @@
                     <TextBlock Grid.Column="0" TextAlignment="Center" Margin="0,0,0,5">图层名</TextBlock>
                     <TextBlock Grid.Column="1" TextAlignment="Center" Margin="0,0,0,5">准则名</TextBlock>
                     <TextBlock Grid.Column="2" TextAlignment="Center" Margin="0,0,0,5">准则种类</TextBlock>
-                    <TextBlock Grid.Column="3" TextAlignment="Center" Margin="0,0,0,5">评价值</TextBlock>
+                    <TextBlock Grid.Column="3" TextAlignment="Center" Margin="0,0,0,5">权重</TextBlock>
                 </Grid>
                 <ListBox Name="StandardConditionListBox" Style="{StaticResource ListBox}" Width="400" BorderThickness="0,1,0,0" MaxHeight="200">
                     <ListBox.ItemTemplate>

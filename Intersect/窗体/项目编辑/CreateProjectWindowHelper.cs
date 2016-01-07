@@ -88,7 +88,7 @@ namespace Intersect
         public int fileSave()
         {
             string newDirectoryPath = System.IO.Path.Combine((new string[] {
-                Const.WORKSPACE_PATH,
+                Const.CONFIG["WORKSPACE_PATH"],
                 FileHelper.FormatName(project.name)
             }));
             
@@ -153,7 +153,6 @@ namespace Intersect
             }
             Tool.M("系统将创建工作目录，请保证当前地图文件目录不移动。");
             fileSave();
-            Tool.M("完成。");
             int result = save();
             projectWindow.unmask();
             return result;

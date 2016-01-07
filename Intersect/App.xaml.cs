@@ -20,12 +20,14 @@ namespace Intersect
     {
         public App()
         {
+            Const constHelper = new Const();
+
             InitArcGISLicence();
 
             //检查工作目录在不在. 不存在就新开一个。
-            if (!Directory.Exists(Const.WORKSPACE_PATH))
+            if (!Directory.Exists(Const.CONFIG["WORKSPACE_PATH"]))
             {
-                Directory.CreateDirectory(Const.WORKSPACE_PATH);
+                Directory.CreateDirectory(Const.CONFIG["WORKSPACE_PATH"]);
             }
         }
 

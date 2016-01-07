@@ -12,8 +12,8 @@ namespace Intersect
     {
         private SqlConnection openConn()
         {
-            //string connectionString = @"server=MAVERICKS-PC;database=RTMS;Integrated Security=True;MultipleActiveResultSets=true";
-            string connectionString = @"server=(local);database=RTMS;Integrated Security=True;MultipleActiveResultSets=true;User ID=sa;Password=yaoyyy3y";
+            string connectionString = String.Format(@"server=(local);database={0};Integrated Security=True;MultipleActiveResultSets=true;User ID={1};Password={2}",
+                Const.CONFIG["DATABASE_NAME"], Const.CONFIG["DATABASE_USERNAME"], Const.CONFIG["DATABASE_PASSWORD"]);
             SqlConnection conn = new SqlConnection(connectionString);
             conn.Open();
             return conn;
