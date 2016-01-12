@@ -22,13 +22,23 @@ namespace Intersect
         {
             Const constHelper = new Const();
 
-            InitArcGISLicence();
+            try
+            {
+                InitArcGISLicence();
+            }
+            catch (Exception exp)
+            {
+                Tool.M(exp.Message);
+            }
+
+
 
             //检查工作目录在不在. 不存在就新开一个。
             if (!Directory.Exists(Const.CONFIG["WORKSPACE_PATH"]))
             {
                 Directory.CreateDirectory(Const.CONFIG["WORKSPACE_PATH"]);
             }
+
         }
 
         public void InitArcGISLicence()

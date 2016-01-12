@@ -5,6 +5,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CGXM", "Intersect\CGXM.cspr
 EndProject
 Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Setup1", "Setup1\Setup1.vdproj", "{9D3633B5-0BF4-471A-8EB0-39456A9C0876}"
 EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "CGXMInstaller", "CGXMInstaller\CGXMInstaller.vdproj", "{B7B5423D-C3E9-4CCA-A857-736636CB92D0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -17,6 +19,8 @@ Global
 		{C79314F1-8A8C-4487-B034-38A1F7036D91}.Release|x86.Build.0 = Release|x86
 		{9D3633B5-0BF4-471A-8EB0-39456A9C0876}.Debug|x86.ActiveCfg = Debug
 		{9D3633B5-0BF4-471A-8EB0-39456A9C0876}.Release|x86.ActiveCfg = Release
+		{B7B5423D-C3E9-4CCA-A857-736636CB92D0}.Debug|x86.ActiveCfg = Debug
+		{B7B5423D-C3E9-4CCA-A857-736636CB92D0}.Release|x86.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

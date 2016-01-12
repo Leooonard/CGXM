@@ -59,7 +59,7 @@ namespace Intersect
         public static Dictionary<string, string> CONFIG;
 
         private LineFileReader reader;
-        private const string CONFIG_FILE_PATH = @"../../TSLO.config";
+        private const string CONFIG_FILE_PATH = @"./TSLO.config";
 
         public Const()
         {
@@ -68,8 +68,9 @@ namespace Intersect
             {
                 reader = new LineFileReader(CONFIG_FILE_PATH);
             }
-            catch (FileNotFoundException exp)
+            catch (Exception exp)
             {
+                Tool.M("配置文件丢失");
                 throw new Exception("配置文件丢失");
             }
             List<string> configs = reader.readByLine();
@@ -87,6 +88,7 @@ namespace Intersect
             string configValue = match.Groups[2].Value;
             if (checkConfigField(configName) == false || checkConfigField(configValue) == false)
             {
+                Tool.M("配置文件错误");
                 throw new Exception("配置文件错误");
             }
             CONFIG.Add(configName, configValue);
