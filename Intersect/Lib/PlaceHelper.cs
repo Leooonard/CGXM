@@ -9,6 +9,7 @@ using ESRI.ArcGIS.Display;
 using ESRI.ArcGIS.Geodatabase;
 using System.IO;
 using System.Collections.ObjectModel;
+using System.Windows.Forms;
 
 namespace Intersect
 {
@@ -214,6 +215,18 @@ namespace Intersect
             placedHouse.placedHouse = orgnizedPlacedHouse;
 
             return placedHouse;
+        }
+
+        public bool isThisVillage(Village thatVillage)
+        {
+            if (village.id == thatVillage.id)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         private _PlacedHouse orgnizeLeftRoadHouse(_PlacedHouse house)
@@ -751,7 +764,230 @@ namespace Intersect
             }
         }
 
-        private void saveRoad(string path)
+        public void exportHouse()
+        {
+            FolderBrowserDialog folderDialog = new FolderBrowserDialog();
+            folderDialog.ShowDialog();
+            string folderPath = folderDialog.SelectedPath;
+            exportArea(folderPath);
+            exportInnerRoad(folderPath);
+            exportRoad(folderPath);
+            exportHouseLand(folderPath);
+            exportHouseElement(folderPath);
+        }
+
+        private void exportArea(string path)
+        {
+            string AreaFileName = "quyu.shp";
+            GisTool.CreateShapefile(path, AreaFileName, mapControl.SpatialReference);
+            IFeatureClass featureClass = GisTool.getFeatureClass(path, AreaFileName);
+            GisTool.addFeatureLayerField(featureClass, "role", esriFieldType.esriFieldTypeString, 10);
+
+            IFeatureLayer featureLayer = new FeatureLayerClass();
+            featureLayer.FeatureClass = featureClass;
+            IWorkspaceEdit workspaceEdit = (featureClass as IDataset).Workspace as IWorkspaceEdit;
+            workspaceEdit.StartEditing(true);
+            workspaceEdit.StartEditOperation();
+
+            //最后一个元素是内部路区域.
+            for (int i = 0; i < areaList.Count - 1; i++)
+            {
+                IPolygon area = areaList[i] as IPolygon;
+                IFeature fea = featureClass.CreateFeature();
+                fea.Shape = area;
+                fea.Store();
+                ITable pTable = (ITable)featureLayer;
+                IRow pRow = pTable.GetRow(featureClass.FeatureCount(null) - 1);
+                pRow.set_Value(pTable.FindField("role"), "quyu");
+                pRow.Store();
+            }
+
+            workspaceEdit.StopEditOperation();
+            workspaceEdit.StopEditing(true);
+        }
+
+        private void exportInnerRoad(string path)
+        {
+            string innerRoadFileName = "neibulu.shp";
+            GisTool.CreateShapefile(path, innerRoadFileName, mapControl.SpatialReference);
+            IFeatureClass featureClass = GisTool.getFeatureClass(path, innerRoadFileName);
+            GisTool.addFeatureLayerField(featureClass, "role", esriFieldType.esriFieldTypeString, 10);
+
+            IFeatureLayer featureLayer = new FeatureLayerClass();
+            featureLayer.FeatureClass = featureClass;
+            IWorkspaceEdit workspaceEdit = (featureClass as IDataset).Workspace as IWorkspaceEdit;
+            workspaceEdit.StartEditing(true);
+            workspaceEdit.StartEditOperation();
+
+            //最后一个元素是内部路区域.
+            IPolygon area = areaList[areaList.Count - 1] as IPolygon;
+            IFeature fea = featureClass.CreateFeature();
+            fea.Shape = area;
+            fea.Store();
+            ITable pTable = (ITable)featureLayer;
+            IRow pRow = pTable.GetRow(featureClass.FeatureCount(null) - 1);
+            pRow.set_Value(pTable.FindField("role"), "neibulu");
+            pRow.Store();
+
+            workspaceEdit.StopEditOperation();
+            workspaceEdit.StopEditing(true);
+        }
+
+        private void exportRoad(string path)
+        {
+            string roadFileName = "daolu.shp";
+            GisTool.CreateShapefile(path, roadFileName, mapControl.SpatialReference);
+            IFeatureClass featureClass = GisTool.getFeatureClass(path, roadFileName);
+            GisTool.addFeatureLayerField(featureClass, "role", esriFieldType.esriFieldTypeString, 10);
+
+            IFeatureLayer featureLayer = new FeatureLayerClass();
+            featureLayer.FeatureClass = featureClass;
+            IWorkspaceEdit workspaceEdit = (featureClass as IDataset).Workspace as IWorkspaceEdit;
+            workspaceEdit.StartEditing(true);
+            workspaceEdit.StartEditOperation();
+
+            foreach (IPolygon road in roadList)
+            {
+                IFeature fea = featureClass.CreateFeature();
+                fea.Shape = road;
+                fea.Store();
+                ITable pTable = (ITable)featureLayer;
+                IRow pRow = pTable.GetRow(featureClass.FeatureCount(null) - 1);
+                pRow.set_Value(pTable.FindField("role"), "daolu");
+                pRow.Store();
+            }
+
+            workspaceEdit.StopEditOperation();
+            workspaceEdit.StopEditing(true);
+        }
+
+        private void exportHouseElement(string path)
+        {
+            string houseFileName = "fangwu.shp";
+
+            GisTool.CreateShapefile(path, houseFileName, mapControl.SpatialReference);
+            IFeatureClass featureClass = GisTool.getFeatureClass(path, houseFileName);
+            GisTool.addFeatureLayerField(featureClass, "layer", esriFieldType.esriFieldTypeInteger, 5);
+            GisTool.addFeatureLayerField(featureClass, "cate", esriFieldType.esriFieldTypeString, 5);
+            GisTool.addFeatureLayerField(featureClass, "role", esriFieldType.esriFieldTypeString, 10);
+
+            IFeatureLayer featureLayer = new FeatureLayerClass();
+            featureLayer.FeatureClass = featureClass;
+            IWorkspaceEdit workspaceEdit = (featureClass as IDataset).Workspace as IWorkspaceEdit;
+            workspaceEdit.StartEditing(true);
+            workspaceEdit.StartEditOperation();
+
+            foreach (List<List<_PlacedHouse>> areaPlacedHouseList in totalPlacedHouseList)
+            {
+                foreach (List<_PlacedHouse> rowPlacedHouseList in areaPlacedHouseList)
+                {
+                    foreach (_PlacedHouse placedHouse in rowPlacedHouseList)
+                    {
+                        if (placedHouse == null)
+                        {
+                            continue;
+                        }
+                        IFeature fea = featureClass.CreateFeature();
+                        fea.Shape = placedHouse.placedHouse;
+                        fea.Store();
+                        ITable pTable = (ITable)featureLayer;
+                        IRow pRow = pTable.GetRow(featureClass.FeatureCount(null) - 1);
+                        pRow.set_Value(pTable.FindField("layer"), commonHouse.floor);
+                        pRow.set_Value(pTable.FindField("cate"), placedHouse.house.id);
+                        pRow.set_Value(pTable.FindField("role"), "fangwu");
+                        pRow.Store();
+                    }
+                }
+            }
+
+            foreach (List<List<_PlacedHouse>> areaPlacedRoadHouseList in totalPlacedRoadHouseList)
+            {
+                foreach (List<_PlacedHouse> rowPlacedRoadHouseList in areaPlacedRoadHouseList)
+                {
+                    foreach (_PlacedHouse placedHouse in rowPlacedRoadHouseList)
+                    {
+                        if (placedHouse == null)
+                        {
+                            continue;
+                        }
+                        IFeature fea = featureClass.CreateFeature();
+                        fea.Shape = placedHouse.placedHouse;
+                        fea.Store();
+                        ITable pTable = (ITable)featureLayer;
+                        IRow pRow = pTable.GetRow(featureClass.FeatureCount(null) - 1);
+                        pRow.set_Value(pTable.FindField("layer"), commonHouse.floor);
+                        pRow.set_Value(pTable.FindField("cate"), placedHouse.house.id);
+                        pRow.set_Value(pTable.FindField("role"), "fangwu");
+                        pRow.Store();
+                    }
+                }
+            }
+
+            workspaceEdit.StopEditOperation();
+            workspaceEdit.StopEditing(true);
+        }
+
+        private void exportHouseLand(string path)
+        {
+            string landFileName = "zhaijidi.shp";
+
+            GisTool.CreateShapefile(path, landFileName, mapControl.SpatialReference);
+            IFeatureClass featureClass = GisTool.getFeatureClass(path, landFileName);
+            GisTool.addFeatureLayerField(featureClass, "role", esriFieldType.esriFieldTypeString, 10);
+
+            IFeatureLayer featureLayer = new FeatureLayerClass();
+            featureLayer.FeatureClass = featureClass;
+            IWorkspaceEdit workspaceEdit = (featureClass as IDataset).Workspace as IWorkspaceEdit;
+            workspaceEdit.StartEditing(true);
+            workspaceEdit.StartEditOperation();
+
+            foreach (List<List<_PlacedHouse>> areaPlacedHouseList in totalPlacedHouseList)
+            {
+                foreach (List<_PlacedHouse> rowPlacedHouseList in areaPlacedHouseList)
+                {
+                    foreach (_PlacedHouse placedHouse in rowPlacedHouseList)
+                    {
+                        if (placedHouse == null)
+                        {
+                            continue;
+                        }
+                        IFeature fea = featureClass.CreateFeature();
+                        fea.Shape = placedHouse.placedLand;
+                        fea.Store();
+                        ITable pTable = (ITable)featureLayer;
+                        IRow pRow = pTable.GetRow(featureClass.FeatureCount(null) - 1);
+                        pRow.set_Value(pTable.FindField("role"), "zhaijidi");
+                        pRow.Store();
+                    }
+                }
+            }
+
+            foreach (List<List<_PlacedHouse>> areaPlacedRoadHouseList in totalPlacedRoadHouseList)
+            {
+                foreach (List<_PlacedHouse> rowPlacedRoadHouseList in areaPlacedRoadHouseList)
+                {
+                    foreach (_PlacedHouse placedHouse in rowPlacedRoadHouseList)
+                    {
+                        if (placedHouse == null)
+                        {
+                            continue;
+                        }
+                        IFeature fea = featureClass.CreateFeature();
+                        fea.Shape = placedHouse.placedLand;
+                        fea.Store();
+                        ITable pTable = (ITable)featureLayer;
+                        IRow pRow = pTable.GetRow(featureClass.FeatureCount(null) - 1);
+                        pRow.set_Value(pTable.FindField("role"), "zhaijidi");
+                        pRow.Store();
+                    }
+                }
+            }
+
+            workspaceEdit.StopEditOperation();
+            workspaceEdit.StopEditing(true);
+        }
+
+        private void saveRoad(string path) 
         {
             string roadFileName = String.Format("道路_{0}.shp", village.name);
             GisTool.CreateShapefile(path, roadFileName, mapControl.SpatialReference);

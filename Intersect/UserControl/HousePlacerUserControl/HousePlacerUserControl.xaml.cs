@@ -31,6 +31,7 @@ namespace Intersect
         private Program program;
         private ObservableCollection<HouseResult> houseResultList;
         private ObservableCollection<Village> villageList;
+        private ObservableCollection<PlaceHelper> placeHelperList;
         private AxMapControl mapControl;
 
         private AxMapControl houseMapControl;
@@ -80,6 +81,8 @@ namespace Intersect
 
         private void load()
         {
+            placeHelperList = new ObservableCollection<PlaceHelper>();
+
             villageList = program.getAllRelatedVillage();
             if (villageList == null)
             {
@@ -218,30 +221,6 @@ namespace Intersect
             }
         }
 
-        //private void HouseGroupBoxMouseDown(object sender, MouseButtonEventArgs e)
-        //{
-        //    GroupBox houseGroupBox = sender as GroupBox;
-        //    TextBlock houseIDTextBlock = houseGroupBox.FindName("HouseIDTextBlock") as TextBlock;
-        //    int houseID = Int32.Parse(houseIDTextBlock.Text.ToString());
-        //    TextBlock villageIDTextBlock = houseGroupBox.FindName("VillageIDTextBlock") as TextBlock;
-        //    int villageID = Int32.Parse(villageIDTextBlock.Text);
-
-        //    foreach (Village village in villageList)
-        //    {
-        //        if (village.id == villageID)
-        //        {
-        //            foreach (House house in village.houseList)
-        //            {
-        //                if (house.id == houseID)
-        //                {
-        //                    houseShowcaseManager = new HouseShowcaseManager(houseMapControl);
-        //                    houseShowcaseManager.ShowHouse(house, village.commonHouse);
-        //                }
-        //            }
-        //        }
-        //    }
-        //}
-
         private void save()
         {
             foreach (Village village in villageList)
@@ -296,6 +275,7 @@ namespace Intersect
                 {
                     houseResultList.Add(houseResult);
                 }
+                placeHelperList.Add(placeHelper);
             }
         }
 
@@ -337,6 +317,33 @@ namespace Intersect
             };
 
             return alphaBetaList[number].ToUpper();
+        }
+
+        private void ExportHouseButtonClick(object sender, RoutedEventArgs e)
+        {
+            Button exportHouseButton = sender as Button;
+            int villageID = Int32.Parse(exportHouseButton.Tag.ToString());
+            foreach (Village village in villageList)
+            {
+                if (village.id == villageID)
+                {
+                    exportHouse(village);
+                }
+            }
+        }
+
+        private void exportHouse(Village village)
+        {
+            foreach (PlaceHelper placeHelper in placeHelperList)
+            {
+                if (placeHelper.isThisVillage(village))
+                {
+                    placeHelper.exportHouse();
+                    Tool.M("导出完成。");
+                    return;
+                }
+            }
+            Tool.M("该区域还未进行排放，请先进行排放再导出结果文件。");
         }
     }
 }
