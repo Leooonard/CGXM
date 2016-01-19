@@ -714,6 +714,7 @@ namespace Intersect
             featureLayer.FeatureClass = houseFeatureClass;
             int totalFeatureCount = houseFeatureClass.FeatureCount(null);
             List<HouseResult> houseResultList = new List<HouseResult>();
+            double totalConstructArea = 0;
 
             foreach (House house in village.houseList)
             {
@@ -730,9 +731,20 @@ namespace Intersect
                 houseResult.area = house.width * house.height * village.commonHouse.floor;
                 houseResult.landArea = house.width * house.height * houseResult.count;
                 houseResult.constructArea = house.width * house.height * village.commonHouse.floor * houseResult.count;
+                totalConstructArea += houseResult.constructArea;
                 houseResult.ratio = (double)houseResult.count / totalFeatureCount * 100;
                 houseResultList.Add(houseResult);
             }
+
+            HouseResult totalHouseResult = new HouseResult();
+            totalHouseResult.villageName = "总计";
+            totalHouseResult.houseName = "";
+            totalHouseResult.constructArea = totalConstructArea;
+            IPolygon villagePolygon = (village.polygonElement as IElement).Geometry as IPolygon;
+            IArea area = villagePolygon as IArea;
+            totalHouseResult.ratio = Double.Parse(String.Format("{0:F}", totalConstructArea / area.Area * 100));
+
+            houseResultList.Add(totalHouseResult);
 
             return houseResultList;
         }
@@ -1351,10 +1363,10 @@ namespace Intersect
             lowerRightPoint.Y = areaEnvelop.LowerRight.Y;
             IPoint upperLeftPoint = new PointClass();
             upperLeftPoint.X = lowerLeftPoint.X;
-            upperLeftPoint.Y = lowerLeftPoint.Y + commonHouse.landHeight * 2 + commonHouse.roadWidth;
+            upperLeftPoint.Y = lowerLeftPoint.Y + commonHouse.landHeight * 2 + village.roadWidth;
             IPoint upperRightPoint = new PointClass();
             upperRightPoint.X = lowerRightPoint.X;
-            upperRightPoint.Y = lowerRightPoint.Y + commonHouse.landHeight * 2 + commonHouse.roadWidth;
+            upperRightPoint.Y = lowerRightPoint.Y + commonHouse.landHeight * 2 + village.roadWidth;
 
             while (true)
             {
@@ -1367,9 +1379,9 @@ namespace Intersect
                 IPoint startPoint = new PointClass();
                 IPoint endPoint = new PointClass();
                 startPoint.X = lowerLeftPoint.X;
-                startPoint.Y = lowerLeftPoint.Y + commonHouse.roadWidth;
+                startPoint.Y = lowerLeftPoint.Y + village.roadWidth;
                 endPoint.X = lowerRightPoint.X;
-                endPoint.Y = lowerRightPoint.Y + commonHouse.roadWidth;
+                endPoint.Y = lowerRightPoint.Y + village.roadWidth;
 
                 ring = new RingClass();
                 ring.AddPoint(lowerLeftPoint);
@@ -1409,8 +1421,8 @@ namespace Intersect
 
                 lowerLeftPoint.Y = upperLeftPoint.Y;
                 lowerRightPoint.Y = upperRightPoint.Y;
-                upperLeftPoint.Y = lowerLeftPoint.Y + commonHouse.landHeight * 2 + commonHouse.roadWidth;
-                upperRightPoint.Y = lowerRightPoint.Y + commonHouse.landHeight * 2 + commonHouse.roadWidth;
+                upperLeftPoint.Y = lowerLeftPoint.Y + commonHouse.landHeight * 2 + village.roadWidth;
+                upperRightPoint.Y = lowerRightPoint.Y + commonHouse.landHeight * 2 + village.roadWidth;
             }
 
             rowList.Add(houseRowList);

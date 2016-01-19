@@ -87,7 +87,7 @@ namespace Intersect
             }
             set
             {
-                irWidth = value;
+                irWidth = Double.Parse(String.Format("{0:F}", value));
                 onPropertyChanged("width");
             }
         }
@@ -101,7 +101,7 @@ namespace Intersect
             vID = Const.ERROR_INT;
             irName = DEFAULT_IRNAME;
             irPath = Const.ERROR_STRING;
-            irWidth = Const.ERROR_DOUBLE;
+            irWidth = 10;
         }
 
         private void initBySqlDataReader(SqlDataReader reader)
@@ -112,7 +112,7 @@ namespace Intersect
             vID = Int32.Parse(reader[2].ToString());
             irName = reader[3].ToString();
             irPath = reader[4].ToString();
-            irWidth = 10;
+            irWidth = Double.Parse(reader[5].ToString());
             if (irPath != "")
             {
                 List<Point> pointList = InnerRoad.ConvertStringToPointList(irPath);
@@ -158,16 +158,16 @@ namespace Intersect
         {
             if (!isValid(new List<string>() { "irID" }))
                 return false;
-            string sqlCommand = String.Format(@"insert into InnerRoad (prID,vID,irName,irPath) values ({0},{1},'{2}','{3}')"
-                , prID, vID, irName, irPath);
+            string sqlCommand = String.Format(@"insert into InnerRoad (prID,vID,irName,irPath, irWidth) values ({0},{1},'{2}','{3}', {4})"
+                , prID, vID, irName, irPath, irWidth);
             Sql sql = new Sql();
             return sql.insertInnerRoad(sqlCommand);
         }
 
         public bool saveWithoutCheck()
         {
-            string sqlCommand = String.Format(@"insert into InnerRoad (prID,vID,irName,irPath) values ({0},{1},'{2}','{3}')"
-                , prID, vID, irName, irPath);
+            string sqlCommand = String.Format(@"insert into InnerRoad (prID,vID,irName,irPath, irWidth) values ({0},{1},'{2}','{3}', {4})"
+                , prID, vID, irName, irPath, irWidth);
             Sql sql = new Sql();
             return sql.insertInnerRoad(sqlCommand);
         }
@@ -176,8 +176,8 @@ namespace Intersect
         {
             if (!isValid())
                 return false;
-            string sqlCommand = String.Format(@"update InnerRoad set prID={0},vID={1},irName='{2}',irPath='{3}' where irID={4}"
-                , prID, vID, irName, irPath, irID);
+            string sqlCommand = String.Format(@"update InnerRoad set prID={0},vID={1},irName='{2}',irPath='{3}',irWidth={4} where irID={5}"
+                , prID, vID, irName, irPath, irWidth, irID);
             Sql sql = new Sql();
             return sql.updateInnerRoad(sqlCommand);
         }

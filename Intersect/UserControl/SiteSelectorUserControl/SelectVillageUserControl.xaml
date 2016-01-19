@@ -22,6 +22,7 @@
                         <Grid.RowDefinitions>
                             <RowDefinition Height="5*"></RowDefinition>
                             <RowDefinition Height="5*"></RowDefinition>
+                            <RowDefinition Height="5*"></RowDefinition>
                         </Grid.RowDefinitions>
                         <TextBlock Visibility="Collapsed" Name="VillageIDTextBlock" Text="{Binding Path=id, Mode=TwoWay}"></TextBlock>
                         <Grid Grid.Row="0" Name="VillageInfoGrid">
@@ -78,6 +79,34 @@
                                 </TextBox.Text>
                             </TextBox>
                             <Button Grid.Column="1" Style="{StaticResource WarningButton}" Name="InnerRoadRedrawButton" Click="InnerRoadRedrawButtonClick">绘制</Button>
+                        </Grid>
+                        <Grid Grid.Row="2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2*"></ColumnDefinition>
+                                <ColumnDefinition Width="5*"></ColumnDefinition>
+                                <ColumnDefinition Width="2*"></ColumnDefinition>
+                                <ColumnDefinition Width="5*"></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" FontSize="14">内部路宽度</TextBlock>
+                            <TextBox Grid.Column="1" FontSize="14"  Style="{StaticResource ErrorTip}" Padding="5, 5, 5, 5">
+                                <TextBox.Text>
+                                    <Binding Path="innerRoad.width" Mode="TwoWay" BindingGroupName="SelectVillageBindingGroup">
+                                        <Binding.ValidationRules>
+                                            <cls:PositiveDoubleValidationRule></cls:PositiveDoubleValidationRule>
+                                        </Binding.ValidationRules>
+                                    </Binding>
+                                </TextBox.Text>
+                            </TextBox>
+                            <TextBlock Grid.Column="2" FontSize="14">区域内道路宽度</TextBlock>
+                            <TextBox Grid.Column="3" FontSize="14" Style="{StaticResource ErrorTip}" Padding="5, 5, 5, 5">
+                                <TextBox.Text>
+                                    <Binding Path="roadWidth" Mode="TwoWay" BindingGroupName="SelectVillageBindingGroup">
+                                        <Binding.ValidationRules>
+                                            <cls:PositiveDoubleValidationRule></cls:PositiveDoubleValidationRule>
+                                        </Binding.ValidationRules>
+                                    </Binding>
+                                </TextBox.Text>
+                            </TextBox>
                         </Grid>
                     </Grid>
                 </DataTemplate>

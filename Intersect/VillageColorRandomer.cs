@@ -91,10 +91,6 @@ namespace Intersect
         {
             colorList = new List<string>() 
             { 
-                "#FF00FF", //牡丹红.
-                "#00FFFF", //青色.
-                "#FFFF00", //黄色.
-                "#000000", //黑色.
                 "#70DB93", //海蓝.
                 "#5C3317", //巧克力色.
                 "#9F5F9F", //蓝紫色.

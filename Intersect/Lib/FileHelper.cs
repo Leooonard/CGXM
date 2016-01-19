@@ -20,7 +20,14 @@ namespace Intersect.Lib
                 fileNameWithoutExtension = Regex.Replace(fileNameWithoutExtension, @"\..+$", "");
                 if (fileNameWithoutExtension == name)
                 {
-                    File.Delete(file);
+                    try
+                    {
+                        File.Delete(file);
+                    }
+                    catch(Exception exp)
+                    {
+                        throw new FileExistException();
+                    }
                 }
             }
         }

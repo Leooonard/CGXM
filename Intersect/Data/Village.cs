@@ -107,6 +107,20 @@ namespace Intersect
             set;
         }
 
+        private double vRoadWidth;
+        public double roadWidth
+        {
+            get
+            {
+                return vRoadWidth;
+            }
+            set
+            {
+                vRoadWidth = Double.Parse(String.Format("{0:F}", value));
+                onPropertyChanged("roadWidth");
+            }
+        }
+
         public Village()
         {
             vID = Const.ERROR_INT;
@@ -116,6 +130,7 @@ namespace Intersect
             vInUse = Const.ERROR_BOOL;
             polygonElementColorString = Const.ERROR_STRING;
             boundaryArea = Const.ERROR_STRING;
+            vRoadWidth = 5;
         }
         
         public override string checkValid(List<string> shieldVariableList = null)
@@ -156,6 +171,7 @@ namespace Intersect
             vName = reader[2].ToString();
             vBoundary = reader[3].ToString();
             vInUse = Boolean.Parse(reader[4].ToString());
+            vRoadWidth = double.Parse(reader[5].ToString());
             List<Point> pointList = Village.ConvertStringToPointList(vBoundary);
             polygonElement = GisTool.getIPolygonElementFromPointList(pointList);
             boundaryArea = ((polygonElement as IElement).Geometry as IArea).Area.ToString("F2");
@@ -165,16 +181,16 @@ namespace Intersect
         {
             if (!isValid(new List<string>() { "vID" }))
                 return false;
-            string sqlCommand = String.Format(@"Insert into Village (prID,vName,vBoundary,vInUse) values({0},'{1}','{2}',{3})"
-                , prID, vName, vBoundary, vInUse ? 1 : 0);
+            string sqlCommand = String.Format(@"Insert into Village (prID,vName,vBoundary,vInUse,vRoadWidth) values({0},'{1}','{2}',{3},{4})"
+                , prID, vName, vBoundary, vInUse ? 1 : 0, vRoadWidth);
             Sql sql = new Sql();
             return sql.insertVillage(sqlCommand);
         }
 
         public bool saveWithoutCheck()
         {
-            string sqlCommand = String.Format(@"Insert into Village (prID,vName,vBoundary,vInUse) values({0},'{1}','{2}',{3})"
-                , prID, vName, vBoundary, vInUse ? 1 : 0);
+            string sqlCommand = String.Format(@"Insert into Village (prID,vName,vBoundary,vInUse,vRoadWidth) values({0},'{1}','{2}',{3},{4})"
+                , prID, vName, vBoundary, vInUse ? 1 : 0, vRoadWidth);
             Sql sql = new Sql();
             return sql.insertVillage(sqlCommand);
         }
@@ -202,8 +218,8 @@ namespace Intersect
         {
             if (!isValid())
                 return false;
-            string sqlCommand = String.Format(@"update Village set prID={0},vName='{1}',vBoundary='{2}',vInUse={3} where vID={4}"
-                , prID, vName, vBoundary, vInUse ? 1 : 0, vID);
+            string sqlCommand = String.Format(@"update Village set prID={0},vName='{1}',vBoundary='{2}',vInUse={3},vRoadWidth={4} where vID={5}"
+                , prID, vName, vBoundary, vInUse ? 1 : 0, vRoadWidth, vID);
             Sql sql = new Sql();
             return sql.updateVillage(sqlCommand);
         }

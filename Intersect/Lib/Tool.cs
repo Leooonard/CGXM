@@ -84,7 +84,7 @@ namespace Intersect
 
         public static bool CheckInt(int value)
         {
-            if (value != Intersect.Const.ERROR_INT)
+            if (value != Const.ERROR_INT)
                 return true;
             else
                 return false;
@@ -92,7 +92,7 @@ namespace Intersect
 
         public static bool CheckDouble(double value)
         {
-            if (value != Intersect.Const.ERROR_DOUBLE)
+            if (value != Const.ERROR_DOUBLE)
                 return true;
             else
                 return false;

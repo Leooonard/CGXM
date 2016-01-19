@@ -100,11 +100,11 @@ namespace Intersect
         {
             get
             {
-                return hLandWidth;
+                return Double.Parse(String.Format("{0:F}", hLandWidth));
             }
             set
             {
-                hLandWidth = value;
+                hLandWidth = Double.Parse(String.Format("{0:F}", value));
                 onPropertyChanged("landWidth");
             }
         }

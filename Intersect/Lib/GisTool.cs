@@ -355,10 +355,14 @@ namespace Intersect
             activeView.Refresh();
         }
 
-        public static void UpdatePolygonElementOutline(IPolygonElement polygonElement, AxMapControl mapControl, int red, int green, int blue)
+        public static void UpdatePolygonElementOutline(IPolygonElement polygonElement, AxMapControl mapControl ,
+            int oldFillRed, int oldFillGreen, int oldFillBlue, int red, int green, int blue)
         {
             IFillShapeElement fillShapeElement = polygonElement as IFillShapeElement;
-            IRgbColor oldFillColor = fillShapeElement.Symbol.Color as IRgbColor;
+            IRgbColor oldFillColor = new RgbColorClass();
+            oldFillColor.Red = oldFillRed;
+            oldFillColor.Green = oldFillGreen;
+            oldFillColor.Blue = oldFillBlue;
             ISimpleFillSymbol simpleFillSymbol = new SimpleFillSymbolClass();
             ISimpleLineSymbol simpleLineSymbol = new SimpleLineSymbolClass();
             IRgbColor rgbColor = new RgbColorClass();

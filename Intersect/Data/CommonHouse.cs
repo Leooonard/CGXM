@@ -78,20 +78,6 @@ namespace Intersect
             }
         }
 
-        private double chRoadWidth;
-        public double roadWidth
-        {
-            get
-            {
-                return chRoadWidth;
-            }
-            set
-            {
-                chRoadWidth = value;
-                onPropertyChanged("roadWidth");
-            }
-        }
-
         public CommonHouse()
         {
             chID = Const.ERROR_INT;
@@ -99,7 +85,6 @@ namespace Intersect
             chFloorHeight = Const.ERROR_DOUBLE;
             vID = Const.ERROR_INT;
             chLandHeight = Const.ERROR_DOUBLE;
-            chRoadWidth = Const.ERROR_DOUBLE;
         }
 
         public static CommonHouse GetDefaultCommonHouse()
@@ -108,7 +93,6 @@ namespace Intersect
             commonHouse.floor = Const.DEFAULT_NUMBER_VALUE;
             commonHouse.floorHeight = Const.DEFAULT_NUMBER_VALUE;
             commonHouse.landHeight = Const.DEFAULT_NUMBER_VALUE;
-            commonHouse.roadWidth = Const.DEFAULT_NUMBER_VALUE;
             return commonHouse;
         }
 
@@ -219,7 +203,6 @@ namespace Intersect
             chFloor = Int32.Parse(reader[2].ToString());
             chFloorHeight = Double.Parse(reader[3].ToString());
             chLandHeight = Double.Parse(reader[4].ToString());
-            chRoadWidth = 5;
         }
 
         public override bool select()

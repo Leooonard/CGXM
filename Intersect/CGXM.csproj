@@ -425,6 +425,7 @@
     <Compile Include="Converter\VillageIDToVillageNameConverter.cs" />
     <Compile Include="Data\HouseResult.cs" />
     <Compile Include="Data\InnerRoad.cs" />
+    <Compile Include="Exception\FileExistException.cs" />
     <Compile Include="Lib\AnimationHelper.cs" />
     <Compile Include="Lib\FileHelper.cs" />
     <Compile Include="Lib\LineFileReader.cs" />
@@ -456,9 +457,6 @@
     <Compile Include="Lib\Const.cs" />
     <Compile Include="UserControl\UserControlInterface.cs" />
     <Compile Include="窗体\项目编辑\CreateProjectWindowHelper.cs" />
-    <Compile Include="CxLegend.xaml.cs">
-      <DependentUpon>CxLegend.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Data\DataBase.cs" />
     <Compile Include="Data\Label.cs" />
     <Compile Include="Data\MainRoad.cs" />
@@ -529,10 +527,6 @@
     <Page Include="UserControl\ConfigUserControl\ConfigUserControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="CxLegend.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
     </Page>
     <Page Include="UserControl\ConfigUserControl\NetSizeUserControl.xaml">
       <SubType>Designer</SubType>

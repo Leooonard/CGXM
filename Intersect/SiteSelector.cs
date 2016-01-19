@@ -17,6 +17,7 @@ using System.Collections.ObjectModel;
 using Intersect.Lib;
 using ESRI.ArcGIS.esriSystem;
 using System.Threading;
+using System.Windows.Forms;
 
 namespace Intersect
 {
@@ -105,6 +106,82 @@ namespace Intersect
         private void deleteFishnetFeatureClass()
         {
             GisTool.DeleteShapeFile(System.IO.Path.Combine(program.path, fishnetPolygonName));
+        }
+
+        public void exportSiteResult()
+        {
+            IFeatureLayer featureLayer = new FeatureLayerClass();
+            IFeatureClass featureClass = GisTool.getFeatureClass(mapControl, "评价结果");
+            featureLayer.FeatureClass = featureClass;
+            if (featureClass == null)
+            {
+                Tool.M("请先评价计算，再导出结果");
+                return;
+            }
+
+            FolderBrowserDialog folderDialog = new FolderBrowserDialog();
+            folderDialog.ShowDialog();
+
+            string folderPath = folderDialog.SelectedPath;
+            if (folderPath == "")
+            {
+                return;
+            }
+
+            string siteResultFileName = "pingjiajisuan.shp";
+            try
+            {
+                GisTool.CreateShapefile(folderPath, siteResultFileName, mapControl.SpatialReference);
+            }
+            catch (FileExistException feExp)
+            {
+                Tool.M("该目录下已存在评价结果文件，请先删除，再重新生成");
+                return;
+            }
+
+
+            IFeatureLayer resultFeatureLayer = new FeatureLayerClass();
+            IFeatureClass resultFeatureClass = GisTool.getFeatureClass(folderPath, siteResultFileName);
+            resultFeatureLayer.FeatureClass = resultFeatureClass;
+            GisTool.addFeatureLayerField(resultFeatureClass, "评价值", esriFieldType.esriFieldTypeDouble, 3);
+
+            IWorkspaceEdit workspaceEdit = (featureClass as IDataset).Workspace as IWorkspaceEdit;
+            workspaceEdit.StartEditing(true);
+            workspaceEdit.StartEditOperation();
+            List<double> scoreList = new List<double>();
+            List<IGeometry> geomList = new List<IGeometry>();
+
+            for (int i = 0; i < featureClass.FeatureCount(null); i++ )
+            {
+                ITable pTable = (ITable)featureLayer;
+                IRow pRow = pTable.GetRow(i);
+                double score = Double.Parse(pRow.get_Value(pTable.FindField("评价值")).ToString());
+                scoreList.Add(score);
+                geomList.Add(featureClass.GetFeature(i).ShapeCopy);
+            }
+
+            workspaceEdit.StopEditOperation();
+            workspaceEdit.StopEditing(true);
+
+            workspaceEdit = (resultFeatureClass as IDataset).Workspace as IWorkspaceEdit;
+            workspaceEdit.StartEditing(true);
+            workspaceEdit.StartEditOperation();
+
+            for (int i = 0; i < scoreList.Count; i++)
+            {
+                IFeature fea = resultFeatureClass.CreateFeature();
+                fea.Shape = geomList[i];
+                fea.Store();
+                ITable pTable = (ITable)resultFeatureLayer;
+                IRow pRow = pTable.GetRow(resultFeatureClass.FeatureCount(null) - 1);
+                pRow.set_Value(pTable.FindField("评价值"), scoreList[i].ToString());
+                pRow.Store();
+            }
+
+            workspaceEdit.StopEditOperation();
+            workspaceEdit.StopEditing(true);
+
+            Tool.M("导出成功！");
         }
 
         public bool startSelectSite()

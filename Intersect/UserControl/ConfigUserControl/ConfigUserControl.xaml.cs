@@ -93,6 +93,12 @@ namespace Intersect
             return NetSizeUserControl.isValid() && ConditionUserControl.isValid();
         }
 
+        private void exportButtonClick(object sender, RoutedEventArgs e)
+        {
+            SiteSelector siteSelector = new SiteSelector(mapControl, tocControl, program.id);
+            siteSelector.exportSiteResult();
+        }
+
         private void StartCaculateButtonClick(object sender, RoutedEventArgs e)
         {
             if (isValid())

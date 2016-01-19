@@ -10,7 +10,7 @@
         <StackPanel.BindingGroup>
             <BindingGroup Name="HousePlacerBindingGroup"></BindingGroup>
         </StackPanel.BindingGroup>
-        <ListBox Name="HousePlacerListBox" Height="270" ScrollViewer.CanContentScroll="False">
+        <ListBox Name="HousePlacerListBox" Height="270" Width="460" ScrollViewer.CanContentScroll="False">
             <ListBox.ItemContainerStyle>
                 <Style TargetType="ListBoxItem">
                     <Setter Property="HorizontalContentAlignment" Value="Stretch"></Setter>
@@ -59,7 +59,6 @@
                                             <ColumnDefinition Width="1*"></ColumnDefinition>
                                             <ColumnDefinition Width="1*"></ColumnDefinition>
                                             <ColumnDefinition Width="1*"></ColumnDefinition>
-                                            <ColumnDefinition Width="1*"></ColumnDefinition>
                                         </Grid.ColumnDefinitions>
                                         <cls:HouseItemUserControl x:Name="HeightHouseItemUserControl" Grid.Column="0" Title="宅基地进深(米)">
                                             <cls:HouseItemUserControl.Value>
@@ -88,13 +87,13 @@
                                                 </Binding>
                                             </cls:HouseItemUserControl.Value>
                                         </cls:HouseItemUserControl>
-                                        <Button Grid.Column="3" Name="ExportHouseButton" Tag="{Binding ElementName=VillageIDTextBlock, Path=Text, Mode=OneWay}" Style="{StaticResource OperationButton}" Click="ExportHouseButtonClick">导出户型</Button>
                                     </Grid>
                                 </ScrollViewer>
                             </GroupBox>
                             <Grid>
                                 <TextBlock FontSize="16">户型</TextBlock>
-                                <Button HorizontalAlignment="Right" Margin="0, 0, 25, 0" Name="AddHouseButton" Style="{StaticResource OperationButton}" Click="AddHouseButtonClick">添加户型</Button>
+                                <Button HorizontalAlignment="Right" Margin="0, 0, 100, 0" Name="ExportHouseButton" Tag="{Binding ElementName=VillageIDTextBlock, Path=Text, Mode=OneWay}" Style="{StaticResource OperationButton_Small}" Click="ExportHouseButtonClick">导出户型</Button>
+                                <Button HorizontalAlignment="Right" Margin="0, 0, 25, 0" Name="AddHouseButton" Style="{StaticResource OperationButton_Small}" Click="AddHouseButtonClick">添加户型</Button>
                             </Grid>
                             <ListBox Name="HouseListBox" Style="{StaticResource ListBox}" ScrollViewer.CanContentScroll="False">
                                 <ListBox.ItemsSource>
@@ -115,7 +114,6 @@
                                                 </Grid.RowDefinitions>
                                                 <Grid Grid.Row="0">
                                                     <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="1*"></ColumnDefinition>
                                                         <ColumnDefinition Width="2*"></ColumnDefinition>
                                                         <ColumnDefinition Width="2*"></ColumnDefinition>
                                                         <ColumnDefinition Width="2*"></ColumnDefinition>
@@ -123,9 +121,9 @@
                                                         <ColumnDefinition Width="2*"></ColumnDefinition>
                                                     </Grid.ColumnDefinitions>
                                                     <TextBlock Grid.Column="0" Text="{Binding Path=name, Mode=TwoWay}"></TextBlock>
-                                                    <cls:HouseItemUserControl x:Name="WeightHouseItemUserControl" Title="占比" Grid.Column="1">
+                                                    <cls:HouseItemUserControl x:Name="LandWidthHouseItemUserControl" Grid.Column="1" Title="宅基地面积(m²)">
                                                         <cls:HouseItemUserControl.Value>
-                                                            <Binding Path="weight" Mode="TwoWay" UpdateSourceTrigger="LostFocus" BindingGroupName="HousePlacerBindingGroup">
+                                                            <Binding Path="landArea" Mode="TwoWay" UpdateSourceTrigger="LostFocus" BindingGroupName="HousePlacerBindingGroup">
                                                                 <Binding.ValidationRules>
                                                                     <cls:PositiveDoubleValidationRule></cls:PositiveDoubleValidationRule>
                                                                 </Binding.ValidationRules>
@@ -141,8 +139,7 @@
                                                             </Binding>
                                                         </cls:HouseItemUserControl.Value>
                                                     </cls:HouseItemUserControl>
-                                                    <Button Grid.Column="3" Style="{StaticResource WarningButton_Small}" HorizontalAlignment="Right" Name="DeleteHouseButton" Click="DeleteHouseButton_Click">删除</Button>
-                                                    <TextBlock Grid.Column="4" Name="HouseHeightTextBlock">
+                                                    <TextBlock Grid.Column="3" Name="HouseHeightTextBlock">
                                                         <TextBlock.Text>
                                                             <Binding Path="height" Mode="OneWay" BindingGroupName="HousePlacerBindingGroup">
                                                                 <Binding.Converter>
@@ -151,7 +148,7 @@
                                                             </Binding>
                                                         </TextBlock.Text>
                                                     </TextBlock>
-                                                    <TextBlock Grid.Column="5" Name="HouseLandWidthTextBlock">
+                                                    <TextBlock Grid.Column="4" Name="HouseLandWidthTextBlock">
                                                         <TextBlock.Text>
                                                             <Binding Path="landWidth" Mode="OneWay" BindingGroupName="HousePlacerBindingGroup">
                                                                 <Binding.Converter>
@@ -167,10 +164,11 @@
                                                         <ColumnDefinition Width="2*"></ColumnDefinition>
                                                         <ColumnDefinition Width="2*"></ColumnDefinition>
                                                         <ColumnDefinition Width="2*"></ColumnDefinition>
+                                                        <ColumnDefinition Width="2*"></ColumnDefinition>
                                                     </Grid.ColumnDefinitions>
-                                                    <cls:HouseItemUserControl x:Name="LandWidthHouseItemUserControl" Grid.Column="0" Title="宅基地面积(m²)">
+                                                    <cls:HouseItemUserControl x:Name="WeightHouseItemUserControl" Title="占比" Grid.Column="0">
                                                         <cls:HouseItemUserControl.Value>
-                                                            <Binding Path="landArea" Mode="TwoWay" UpdateSourceTrigger="LostFocus" BindingGroupName="HousePlacerBindingGroup">
+                                                            <Binding Path="weight" Mode="TwoWay" UpdateSourceTrigger="LostFocus" BindingGroupName="HousePlacerBindingGroup">
                                                                 <Binding.ValidationRules>
                                                                     <cls:PositiveDoubleValidationRule></cls:PositiveDoubleValidationRule>
                                                                 </Binding.ValidationRules>
@@ -186,7 +184,7 @@
                                                             </Binding>
                                                         </cls:HouseItemUserControl.Value>
                                                     </cls:HouseItemUserControl>
-                                                    <cls:HouseItemUserControl x:Name="BackGapRatioHouseItemUserControl" Grid.Column="2" Title="后院深(米)">
+                                                    <cls:HouseItemUserControl x:Name="BackGapRatioHouseItemUserControl" Grid.Column="2" Title="后院深(m)">
                                                         <cls:HouseItemUserControl.Value>
                                                             <Binding Path="backGap" Mode="TwoWay" UpdateSourceTrigger="LostFocus" BindingGroupName="HousePlacerBindingGroup">
                                                                 <Binding.ValidationRules>
@@ -195,7 +193,7 @@
                                                             </Binding>
                                                         </cls:HouseItemUserControl.Value>
                                                     </cls:HouseItemUserControl>
-                                                    <cls:HouseItemUserControl x:Name="WidthHouseItemUserControl" Grid.Column="3" Title="住宅面宽(米)">
+                                                    <cls:HouseItemUserControl x:Name="WidthHouseItemUserControl" Grid.Column="3" Title="住宅面宽(m)">
                                                         <cls:HouseItemUserControl.Value>
                                                             <Binding Path="width" Mode="TwoWay" UpdateSourceTrigger="LostFocus" BindingGroupName="HousePlacerBindingGroup">
                                                                 <Binding.ValidationRules>
@@ -204,6 +202,7 @@
                                                             </Binding>
                                                         </cls:HouseItemUserControl.Value>
                                                     </cls:HouseItemUserControl>
+                                                    <Button Grid.Column="4" Style="{StaticResource WarningButton_Small}" HorizontalAlignment="Right" Name="DeleteHouseButton" Click="DeleteHouseButton_Click">删除</Button>
                                                 </Grid>
                                                 <TextBlock Name="VillageIDTextBlock" Visibility="Collapsed" Text="{Binding Path=villageID, Mode=TwoWay}"></TextBlock>
                                                 <TextBlock Name="HouseIDTextBlock" Visibility="Collapsed" Text="{Binding Path=id, Mode=TwoWay}"></TextBlock>

@@ -12,6 +12,9 @@
         </StackPanel.BindingGroup>
         <cls:NetSizeUserControl x:Name="NetSizeUserControl"></cls:NetSizeUserControl>
         <cls:ConditionUserControl x:Name="ConditionUserControl" Margin="0, 0, 0, 20"></cls:ConditionUserControl>
-        <Button Style="{StaticResource OperationButton}" Name="StartCaculateButton" Click="StartCaculateButtonClick" Width="200" HorizontalAlignment="Center">开始计算</Button>
+        <StackPanel Orientation="Horizontal">
+            <Button Style="{StaticResource OperationButton}" Name="StartCaculateButton" Click="StartCaculateButtonClick" Width="100" Margin="0, 0, 50, 0" HorizontalAlignment="Center">评价计算</Button>
+            <Button Style="{StaticResource OperationButton}" Name="exportButton" Click="exportButtonClick" Width="100" HorizontalAlignment="Center">导出评价计算结果</Button>
+        </StackPanel>
     </StackPanel>
 </UserControl>

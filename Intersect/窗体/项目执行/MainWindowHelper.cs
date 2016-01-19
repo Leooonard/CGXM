@@ -49,18 +49,21 @@ namespace Intersect
                 });
             mainWindow.programNameTextBlockMouseDownEventHandler += new MouseButtonEventHandler(delegate(object sender, MouseButtonEventArgs e)
                 {
-                    if (e.ClickCount == 2)
-                    {
-                        TextBlock textBlock = sender as TextBlock;
-                        Grid grid = textBlock.Parent as Grid;
-                        StackPanel stackPanel = grid.Parent as StackPanel;
-                        programDetailMode(stackPanel);
-                    }
-                    else if (e.ClickCount == 3)
+                    if (e.ChangedButton.ToString() == "Right")
                     {
                         TextBlock textBlock = sender as TextBlock;
                         Grid grid = textBlock.Parent as Grid;
                         programNameInputMode(grid);
+                    }
+                    else if (e.ChangedButton.ToString() == "Left")
+                    {
+                        if (e.ClickCount == 2)
+                        {
+                            TextBlock textBlock = sender as TextBlock;
+                            Grid grid = textBlock.Parent as Grid;
+                            StackPanel stackPanel = grid.Parent as StackPanel;
+                            programDetailMode(stackPanel);
+                        }
                     }
                 });
             mainWindow.programNameButtonClickEventHandler += new EventHandler(delegate(object sender, EventArgs e)

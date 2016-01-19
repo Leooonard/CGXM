@@ -85,10 +85,10 @@ namespace Intersect
             foreach (Village village in villageList)
             {
                 GisTool.drawPolygonElement(village.polygonElement, mapControl);
-                GisTool.UpdatePolygonElementColor(village.polygonElement, mapControl
+                /*GisTool.UpdatePolygonElementColor(village.polygonElement, mapControl
                     , VillageColorRandomer.GetRedFromColorString(village.polygonElementColorString)
                     , VillageColorRandomer.GetGreenFromColorString(village.polygonElementColorString)
-                    , VillageColorRandomer.GetBlueFromColorString(village.polygonElementColorString));
+                    , VillageColorRandomer.GetBlueFromColorString(village.polygonElementColorString));*/
 
                 if (village.innerRoad != null && village.innerRoad.lineElement != null)
                 {
@@ -99,6 +99,9 @@ namespace Intersect
                 {
                     string reverseColorString = VillageColorRandomer.GetReverseVillageColorString(village.polygonElementColorString);
                     GisTool.UpdatePolygonElementOutline(village.polygonElement, mapControl
+                        , VillageColorRandomer.GetRedFromColorString(village.polygonElementColorString)
+                        , VillageColorRandomer.GetGreenFromColorString(village.polygonElementColorString)
+                        , VillageColorRandomer.GetBlueFromColorString(village.polygonElementColorString)
                         , VillageColorRandomer.GetRedFromColorString(reverseColorString)
                         , VillageColorRandomer.GetGreenFromColorString(reverseColorString)
                         , VillageColorRandomer.GetBlueFromColorString(reverseColorString));
@@ -299,6 +302,9 @@ namespace Intersect
                     {
                         string reverseColorString = VillageColorRandomer.GetReverseVillageColorString(village.polygonElementColorString);
                         GisTool.UpdatePolygonElementOutline(village.polygonElement, mapControl
+                            , VillageColorRandomer.GetRedFromColorString(village.polygonElementColorString)
+                            , VillageColorRandomer.GetGreenFromColorString(village.polygonElementColorString)
+                            , VillageColorRandomer.GetBlueFromColorString(village.polygonElementColorString)
                             , VillageColorRandomer.GetRedFromColorString(reverseColorString)
                             , VillageColorRandomer.GetGreenFromColorString(reverseColorString)
                             , VillageColorRandomer.GetBlueFromColorString(reverseColorString));
