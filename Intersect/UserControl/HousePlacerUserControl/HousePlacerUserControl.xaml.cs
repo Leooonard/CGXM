@@ -319,31 +319,54 @@ namespace Intersect
             return alphaBetaList[number].ToUpper();
         }
 
+
+        private Village selectedVillage = null;
         private void ExportHouseButtonClick(object sender, RoutedEventArgs e)
         {
+            HouseDecorationBorder.Visibility = System.Windows.Visibility.Visible;
+            RoofTypeComboBox.ItemsSource = Const.DECORATION["roof"];
+            WindowTypeComboBox.ItemsSource = Const.DECORATION["window"];
+            DoorTypeComboBox.ItemsSource = Const.DECORATION["door"];
             Button exportHouseButton = sender as Button;
             int villageID = Int32.Parse(exportHouseButton.Tag.ToString());
             foreach (Village village in villageList)
             {
                 if (village.id == villageID)
                 {
-                    exportHouse(village);
+                    selectedVillage = village;
                 }
             }
         }
 
-        private void exportHouse(Village village)
+        private void DecorationFinishButton_Click(object sender, RoutedEventArgs e)
+        {
+            HouseDecoration selectedRoof = RoofTypeComboBox.SelectedItem as HouseDecoration;
+            HouseDecoration selectedDoor = DoorTypeComboBox.SelectedItem as HouseDecoration;
+            HouseDecoration selectedWindow = WindowTypeComboBox.SelectedItem as HouseDecoration;
+            Dictionary<string, HouseDecoration> houseDecorationMap = new Dictionary<string,HouseDecoration>();
+            houseDecorationMap.Add("roof", selectedRoof);
+            houseDecorationMap.Add("window", selectedWindow);
+            houseDecorationMap.Add("door", selectedDoor);
+            exportHouse(selectedVillage, houseDecorationMap);
+        }
+
+        private void exportHouse(Village village, Dictionary<string, HouseDecoration> houseDecorationMap)
         {
             foreach (PlaceHelper placeHelper in placeHelperList)
             {
                 if (placeHelper.isThisVillage(village))
                 {
-                    placeHelper.exportHouse();
+                    placeHelper.exportHouse(houseDecorationMap);
                     Tool.M("导出完成。");
                     return;
                 }
             }
             Tool.M("该区域还未进行排放，请先进行排放再导出结果文件。");
+        }
+
+        private void DecorationCloseButton_click(object sender, RoutedEventArgs e)
+        {
+            HouseDecorationBorder.Visibility = System.Windows.Visibility.Collapsed;
         }
     }
 }

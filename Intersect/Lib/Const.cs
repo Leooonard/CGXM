@@ -57,9 +57,12 @@ namespace Intersect
         public const string BASE_FIELD_NAME = @"Name";
 
         public static Dictionary<string, string> CONFIG;
+        public static Dictionary<string, List<HouseDecoration>> DECORATION;
 
         private LineFileReader reader;
         private const string CONFIG_FILE_PATH = @"./TSLO.config";
+
+        private const string DECORATION_FILE_PATH = @"./DECO.config";
 
         public Const()
         {
@@ -78,6 +81,110 @@ namespace Intersect
             {
                 parseConfig(config);
             }
+
+            DECORATION = new Dictionary<string, List<HouseDecoration>>();
+            try
+            {
+                reader = new LineFileReader(DECORATION_FILE_PATH);
+            }
+            catch (Exception exp)
+            {
+                Tool.M("房屋装饰文件丢失");
+                throw new Exception("房屋装饰文件丢失");
+            }
+            List<string> decorations = reader.readByLine();
+            parseDecoration(decorations, DECORATION);
+            return;
+        }
+
+        private void parseDecoration(List<string> decorations, Dictionary<string, List<HouseDecoration>> decorationDict)
+        {
+            List<List<string>> decorationTypeList = new List<List<string>>();
+
+            for (int i = 0; i < decorations.Count; i++)
+            { 
+                string line = decorations[i];
+                if (isDecorationType(line))
+                {
+                    List<string> decorationType = new List<string>();
+                    decorationType.Add(getDecorationType(line));
+                    if (i == decorations.Count - 1)
+                    {
+                        decorationTypeList.Add(decorationType);
+                        break;
+                    }
+                    string nextLine = decorations[++i];
+                    while (!isDecorationType(nextLine))
+                    {
+                        decorationType.Add(nextLine);
+                        if (i == decorations.Count - 1)
+                        {
+                            break;
+                        }
+                        nextLine = decorations[++i];
+                    }
+                    if (i != decorations.Count - 1)
+                    {
+                        i--;                    
+                    }
+                    decorationTypeList.Add(decorationType);
+                }
+            }
+
+            foreach (List<string> decorationType in decorationTypeList)
+            {
+                string typeName = decorationType[0];
+                List<string> typeElementList = new List<string>();
+                for (int i = 1; i < decorationType.Count; i++)
+                {
+                    typeElementList.Add(decorationType[i]);
+                }
+                List<HouseDecoration> houseDecorationList = parseDecorationType(typeElementList);
+                DECORATION.Add(typeName, houseDecorationList);
+            }
+        }
+
+        private string getDecorationType(string line)
+        {
+            Regex parser = new Regex(@"^\[(.+?)\]$");
+            Match match = parser.Match(line);
+            string type = match.Groups[1].Value;
+            return type;
+        }
+
+        private bool isDecorationType(string line)
+        {
+            Regex parser = new Regex(@"^\[.+?\]$");
+            return parser.IsMatch(line);
+        }
+
+        private List<HouseDecoration> parseDecorationType(List<string> typeList)
+        {
+            List<HouseDecoration> houseDecorationList = new List<HouseDecoration>();
+            foreach (string type in typeList)
+            {
+                HouseDecoration houseDecoration = parseDecorationElement(type);
+                houseDecorationList.Add(houseDecoration);
+            }
+            return houseDecorationList;
+        }
+
+        private HouseDecoration parseDecorationElement(string element)
+        {
+            HouseDecoration houseDecoration;
+            Regex parser = new Regex(@"^((?:[^;]|(?<=\\);)+);((?:[^;]|(?<=\\);)+);((?:[^;]|(?<=\\);)+)$");
+            Match match = parser.Match(element);
+            string name = match.Groups[1].Value;
+            string value = match.Groups[2].Value;
+            string path = match.Groups[3].Value;
+            if (checkConfigField(name) == false || checkConfigField(value) == false || checkConfigField(path) == false)
+            {
+                Tool.M("装饰文件错误");
+                throw new Exception("装饰文件错误");
+            }
+
+            houseDecoration = new HouseDecoration(name, value, path);
+            return houseDecoration;
         }
 
         private void parseConfig(string config)

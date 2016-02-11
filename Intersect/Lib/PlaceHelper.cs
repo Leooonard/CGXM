@@ -776,7 +776,7 @@ namespace Intersect
             }
         }
 
-        public void exportHouse()
+        public void exportHouse(Dictionary<string, HouseDecoration> houseDecorationMap)
         {
             FolderBrowserDialog folderDialog = new FolderBrowserDialog();
             folderDialog.ShowDialog();
@@ -785,7 +785,7 @@ namespace Intersect
             exportInnerRoad(folderPath);
             exportRoad(folderPath);
             exportHouseLand(folderPath);
-            exportHouseElement(folderPath);
+            exportHouseElement(folderPath, houseDecorationMap);
         }
 
         private void exportArea(string path)
@@ -873,7 +873,7 @@ namespace Intersect
             workspaceEdit.StopEditing(true);
         }
 
-        private void exportHouseElement(string path)
+        private void exportHouseElement(string path, Dictionary<string, HouseDecoration> houseDecorationMap)
         {
             string houseFileName = "fangwu.shp";
 
@@ -882,6 +882,9 @@ namespace Intersect
             GisTool.addFeatureLayerField(featureClass, "layer", esriFieldType.esriFieldTypeInteger, 5);
             GisTool.addFeatureLayerField(featureClass, "cate", esriFieldType.esriFieldTypeString, 5);
             GisTool.addFeatureLayerField(featureClass, "role", esriFieldType.esriFieldTypeString, 10);
+            GisTool.addFeatureLayerField(featureClass, "door", esriFieldType.esriFieldTypeString, 5);
+            GisTool.addFeatureLayerField(featureClass, "wind", esriFieldType.esriFieldTypeString, 10);
+            GisTool.addFeatureLayerField(featureClass, "roof", esriFieldType.esriFieldTypeString, 5);
 
             IFeatureLayer featureLayer = new FeatureLayerClass();
             featureLayer.FeatureClass = featureClass;
@@ -907,6 +910,9 @@ namespace Intersect
                         pRow.set_Value(pTable.FindField("layer"), commonHouse.floor);
                         pRow.set_Value(pTable.FindField("cate"), placedHouse.house.id);
                         pRow.set_Value(pTable.FindField("role"), "fangwu");
+                        pRow.set_Value(pTable.FindField("door"), houseDecorationMap["door"].decorationValue);
+                        pRow.set_Value(pTable.FindField("wind"), houseDecorationMap["window"].decorationValue);
+                        pRow.set_Value(pTable.FindField("roof"), houseDecorationMap["roof"].decorationValue);
                         pRow.Store();
                     }
                 }

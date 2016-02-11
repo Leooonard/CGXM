@@ -423,6 +423,7 @@
     <Compile Include="Converter\StringToDoubleConverter.cs" />
     <Compile Include="Converter\VillageAreaConverter.cs" />
     <Compile Include="Converter\VillageIDToVillageNameConverter.cs" />
+    <Compile Include="Data\HouseDecoration.cs" />
     <Compile Include="Data\HouseResult.cs" />
     <Compile Include="Data\InnerRoad.cs" />
     <Compile Include="Exception\FileExistException.cs" />
